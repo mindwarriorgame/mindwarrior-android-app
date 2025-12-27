@@ -1,7 +1,34 @@
 <resources>
-    <color name="purple_500">#6200EE</color>
-    <color name="purple_700">#3700B3</color>
-    <color name="teal_200">#03DAC5</color>
+    <color name="color_primary">#F2B33D</color>
+    <color name="color_primary_variant">#C07C12</color>
+    <color name="color_secondary">#5AC8FF</color>
+
+    <color name="panel_a_start">#1D233D</color>
+    <color name="panel_a_end">#0E1224</color>
+    <color name="panel_b_start">#142B22</color>
+    <color name="panel_b_end">#0B1A15</color>
+
+    <color name="chip_bg">#F5C553</color>
+    <color name="chip_stroke">#B67A1C</color>
+    <color name="chip_text">#2A1C00</color>
+
+    <color name="menu_panel">#121C31</color>
+    <color name="menu_bg">#1B2742</color>
+    <color name="menu_stroke">#223654</color>
+    <color name="menu_text">#E6F0FF</color>
+
+    <color name="timer_text">#F4F6FF</color>
+
+    <color name="review_green">#38E086</color>
+    <color name="review_stroke">#1C8F52</color>
+    <color name="review_text">#052814</color>
+
+    <color name="log_title">#EAF6FF</color>
+    <color name="log_text">#EAF6FF</color>
+    <color name="log_meta">#A9B7CC</color>
+    <color name="log_item_bg">#0F2233</color>
+    <color name="log_item_stroke">#1A3149</color>
+
     <color name="black">#000000</color>
     <color name="white">#FFFFFF</color>
 </resources>

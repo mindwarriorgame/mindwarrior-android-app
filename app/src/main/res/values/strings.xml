@@ -1,3 +1,16 @@
 <resources>
     <string name="app_name">MindWarrior</string>
+    <string name="part_a_background">Battle scene background</string>
+    <string name="diamonds_button">💎 245</string>
+    <string name="progress_button">🏆 Lv 12 · 55% 😾</string>
+    <string name="lab_button">🧪</string>
+    <string name="menu_button">Open menu</string>
+    <string name="menu_sleep">💤 Sleep scheduler</string>
+    <string name="menu_progress">📈 View Progress</string>
+    <string name="menu_mode">🌓 Dark / Light mode</string>
+    <string name="timer_text">02:14:36</string>
+    <string name="pause_button">⏸</string>
+    <string name="snowflake">❄️</string>
+    <string name="review_button">Review Formula</string>
+    <string name="logs_title">Battle Log</string>
 </resources>
