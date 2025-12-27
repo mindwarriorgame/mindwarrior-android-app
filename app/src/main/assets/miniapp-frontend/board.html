@@ -1,0 +1,682 @@
+<html>
+<head>
+    <!-- https://stackoverflow.com/questions/37824744/on-mobile-font-size-is-different-depending-on-the-number-of-paragraphs -->
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta charset="UTF-8" />
+    <title>MindWarrior</title>
+
+    <!--    <script src="https://cdn.jsdelivr.net/npm/@tsparticles/confetti@3.0.3/tsparticles.confetti.bundle.min.js"></script>-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tsparticles-confetti/2.12.0/tsparticles.confetti.bundle.min.js"></script>
+    <script src="board-scripts/serialisers.js"></script>
+    <script src="board-scripts/board.js"></script>
+    <script src="board-scripts/fireworks.js"></script>
+    <script src="board-scripts/progress-popup.js"></script>
+    <script src="board-scripts/progress-registry.js"></script>
+    <script src="server-time.js?v=1"></script>
+
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+    <style>
+        body {
+            color: white;
+            background-color: black;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        a {
+            color: white;
+        }
+
+        #loader {
+            display: none;
+        }
+        body.loading #loader {
+            display: block;
+        }
+
+        body.loading {
+            justify-content: center;
+        }
+        body.loading #board1, body.loading #board2, body.loading #rules, #board1.hidden, #board2.hidden {
+            visibility: hidden;
+            height: 0px;
+            overflow: hidden;
+        }
+        .boardWrapper {
+            overflow: visible;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .board-cell {
+            position: relative;
+            border: 1px solid black;
+            width: 25%;
+            padding: 0px;
+            margin: 0px;
+        }
+        @media (min-width:1024px) {
+            .board-cell {
+                width: 15%;
+            }
+        }
+        .board-cell a {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            align-items: center;
+            display: flex;
+            justify-content: center;
+            text-align: center;
+        }
+        .board-cell img.badge {
+            width: 100%;
+        }
+        .board-cell .broom {
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            right: 0px;
+            bottom: 0px;
+        }
+        .board-cell .broom img {
+            width: 100%;
+            z-index: 10;
+            opacity: 0;
+            clip-path: polygon(0% 0%, 1% 0%, 1% 100%, 0% 100%);
+        }
+        .board-cell.active .broom img {
+            display: block;
+            opacity: 0.7;
+        }
+        .board-cell img.lock {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            width: 20%;
+        }
+        .unhappy-cat-cell {
+            border: 1px solid grey;
+        }
+        .achievement-cell img.badge {
+            filter: gray;
+            -webkit-filter: grayscale(1);
+            filter: grayscale(1);
+            opacity: 0.5;
+        }
+        .achievement-cell.active img.badge {
+            filter: none;
+            -webkit-filter: grayscale(0);
+            filter: grayscale(0);
+            opacity: 1;
+        }
+        .achievement-cell.active img.lock {
+            display: none;
+        }
+        .achievement-cell.active a {
+            display: none;
+        }
+
+        .unhappy-cat-cell img.badge {
+            opacity: 0;
+        }
+
+        .unhappy-cat-cell.active {
+            border: 1px solid #a00;
+        }
+        .unhappy-cat-cell.active img.badge {
+            opacity: 1;
+        }
+
+        .unhappy-cat-cell a {
+            display: none;
+        }
+        .unhappy-cat-cell.active a {
+            display: flex;
+            flex-direction: column;
+            top: 0;
+            justify-content: end;
+            padding-bottom: 5px;
+            z-index: 20;
+        }
+
+        img {
+            transition: left 1s ease, top 1s ease, width 1s ease, height 1s ease, opacity 1s ease;
+        }
+
+        .new_achievement {
+            max-width: 100%;
+        }
+        .projectile {
+            position: absolute;
+            z-index: 100;
+        }
+
+        button.action-btn {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+            padding: 10px;
+        }
+
+
+        /* Overlay Background */
+        #overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            display: none;
+            z-index: 1000;
+
+            opacity: 0;
+            transition: opacity 1s ease, transform 1s ease;
+        }
+
+        /* Popup Box */
+        #popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            display: none;
+            max-width: 90%;
+            z-index: 1001;
+            color: #000;
+            opacity: 0;
+            transition: opacity 1s ease, transform 1s ease;
+        }
+
+        #popup a {
+            color: #007bff;
+        }
+
+        /* Close Button */
+        #close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        #overlay.show {
+            display: block;
+            opacity: 1;
+        }
+
+        #popup.show {
+            display: block;
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        #popup img {
+            width: 50%;
+            max-width: 196px;
+        }
+        #popup p:last-child {
+            padding-bottom: 0px;
+            margin-bottom: 0px;
+        }
+        .pct100 {
+            opacity: 0.5;
+        }
+
+        .progress-container {
+            width: 100%;
+            background-color: #e0e0e0;
+            border-radius: 8px;
+            overflow: hidden;
+            height: 24px;
+            position: relative;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: #4caf50; /* Customize this color */
+            width: 0%; /* Set initial width for progress */
+            transition: width 0.3s ease;
+            border-radius: 8px 0 0 8px; /* Optional rounded corners */
+        }
+
+        .progress-text {
+            position: absolute;
+            right: 10px; /* Position text on the right */
+            top: 50%;
+            transform: translateY(-50%);
+            font-weight: bold;
+            color: #333; /* Text color */
+        }
+
+        .cell-progress {
+            display: block;
+            position: absolute;
+            top: 0px;
+            background-color: white;
+            height: 2px;
+            overflow: hidden;
+            width: 50%;
+        }
+        .cell-progress.green {
+            background-color: #4caf50;
+        }
+        .cell-progress.red {
+            background-color: #f44336;
+        }
+        .cell-progress.yellow {
+            background-color: #ffeb3b;
+        }
+        .cell-progress.grey {
+            background-color: #a0a0a0;
+        }
+        .active .cell-progress {
+            display: none;
+        }
+
+        .code {
+            background-color: #303030;
+            padding: 2px 5px;
+            border-radius: 5px;
+            font-family: monospace;
+        }
+
+
+    </style>
+
+</head>
+<body class="loading">
+<div id="loader">
+    <h1>Loading...</h1>
+    <div id="outdated" style="display:none">
+        <p>
+        </p>
+        <button class="action-btn"></button>
+        <a href="#"></a>
+    </div>
+</div>
+<div id="board1">
+    <h1>Level 1: You've got a new achievement!</h1>
+    <div style="display: table; margin: 0px auto;">
+        <button class="action-btn" style="display: none">Return to game</button>
+    </div>
+    <p>
+        <img src="../badge-images/t0_512.jpg" class="new_achievement projectile" />
+        <img src="../badge-images/t0_512.jpg" class="new_achievement placeholder" />
+    </p>
+    <div class="boardWrapper">
+        <div class="board-cell achievement-cell"><img src="../badge-images/t0_512.jpg" class="badge maybeTarget" />
+            <img src="lock.png" width="32" class="lock" />
+            <a href="javascript:openPopup()">How to unlock?</a>
+            <span class="cell-progress" style="width: 100%"></span>
+        </div>
+        <div class="board-cell achievement-cell active"><img src="../badge-images/f0_512.jpg" class="badge maybeTarget" />
+            <img src="lock.png" width="32" class="lock" />
+            <a href="javascript:openPopup()">How to unlock3?</a>
+        </div>
+        <div class="board-cell unhappy-cat-cell active"><img src="../badge-images/c0_512.jpg" class="unhappy-cat badge maybeTarget" /><div class="broom"><img src="broom.png" /></div><a href="javascript:openPopup('c0')">How to kick me out?</a></div>
+        <div class="board-cell unhappy-cat-cell active"><img src="../badge-images/c0_512.jpg" class="unhappy-cat badge maybeTarget" /><a href="javascript:openPopup('c0')">How to kick me out?</a></div>
+    </div>
+</div>
+
+<div id="board2" class="hidden">
+    <div class="boardWrapper">
+        board 2
+    </div>
+</div>
+
+<div id="rules">
+    <h1>Rules:</h1>
+    <img src="unlock.png" height="32" style="vertical-align: middle;" />
+    <p>1. <span>Unlock all locked items on the board above. Press locked cells to see how.</span></p>
+    <img src="no-grumpy-cats.jpg" width="64" style="vertical-align: middle;" />
+    <p>2. <span>Keep empty slots clear from grumpy cats. Kick them out as soon as they get in!</span></p>
+</div>
+
+
+<!-- Overlay -->
+<div id="overlay" onclick="closePopup()"></div>
+
+<!-- Popup Content -->
+<div id="popup">
+
+</div>
+
+</body>
+<script>
+
+    LANGS = {
+        en: {
+            level_congrats: "Level ###: You've got a new achievement!",
+            level_next_level: "Level ###: completed! 🎉",
+            level_board2: "Level ###",
+            action_button_back_to_game: 'Return to game',
+            action_button_next_level: 'Start next level',
+            rules_h1: "Rules:",
+            rules_unlock: "Unlock all locked items on the board above. Press locked cells to see how.",
+            rules_no_grumpy_cats: "Keep empty slots clear from grumpy cats. Kick them out as soon as they get in!",
+            how_to_unlock: "How to unlock?",
+            how_to_kick_out: "How to kick me out?",
+            hour_one_letter: "h",
+            minute_one_letter: "m",
+            review_without_misses_duration: 'Review <i>Formula</i> during next ### without misses 🚫🟥',
+            review_without_reminders_duration: 'Review <i>Formula</i> during next ### without reminders 🚫⏰',
+            review_without_misses_times: 'Review <i>Formula</i> without misses next ### time(s) 🚫🟥',
+            review_times: 'Review <i>Formula</i> next ##1 time(s) without reminders, or ##2 time(s) without misses, or ##3 times with misses 💫<br /><br />' +
+                '<a href="https://mindwarriorgame.org/faq.en#forgot.grumpycat" target="_blank">How to remove it quicker?</a>',
+            update_formula_after: 'Update the <i>Formula</i> after ### 🧪',
+            kick_out: 'Earn any badge to kick me out!',
+            play_game: 'Play the game during next ### 🎮',
+            close: 'Close',
+            oops: 'Oops!',
+            loading: 'Loading...',
+            loading_old_page: 'The link has expired. The page might contain out-of-date information.',
+            loading_continue_anyway: 'Continue anyway',
+            regenerate_link_and_close: 'Regenerate the link',
+            grumpy_cat_no_progress: 'The progress will not increase until you kick out the grumpy cat.',
+        },
+        es: {
+            level_congrats: "Nivel ###: ¡Has conseguido un nuevo logro!",
+            level_next_level: "Nivel ###: ¡completado! 🎉",
+            level_board2: "Nivel ###",
+            action_button_back_to_game: 'Volver al juego',
+            action_button_next_level: 'Comenzar siguiente nivel',
+            rules_h1: "Reglas:",
+            rules_unlock: "Desbloquea todos los elementos bloqueados en el tablero de arriba. Pulsa sobre las celdas bloqueadas para ver cómo.",
+            rules_no_grumpy_cats: "Mantén las ranuras vacías libres de gatos gruñones. ¡Sácales inmediatamente cuando entren!",
+            how_to_unlock: "¿Cómo desbloquear?",
+            how_to_kick_out: "¿Cómo echarme?",
+            hour_one_letter: "h",
+            minute_one_letter: "m",
+            review_without_misses_duration: 'Revisa <i>Fórmula</i> durante los próximos ### sin fallos 🚫🟥',
+            review_without_reminders_duration: 'Revisa <i>Fórmula</i> durante los próximos ### sin recordatorios 🚫⏰',
+            review_without_misses_times: 'Revisa <i>Fórmula</i> sin fallos durante las siguientes ### vez(es) 🚫🟥',
+            review_times: 'Revisa la <i>Fórmula</i> la próxima vez ##1 sin recordatorios, o ##2 sin errores, o ##3 veces con errores 💫<br /><br />' +
+                '<a href="https://mindwarriorgame.org/faq.es#forgot.grumpycat" target="_blank">¿Cómo quitarlo más rápido?</a>',
+            update_formula_after: 'Actualiza la <i>Fórmula</i> después de ### 🧪',
+            kick_out: '¡Gana cualquier medalla para echarme!',
+            play_game: 'Juega el juego durante los próximos ### 🎮',
+            close: 'Cerrar',
+            oops: '¡Ups!',
+            loading: 'Cargando...',
+            loading_old_page: 'El enlace ha caducado. La página puede contener información desactualizada.',
+            loading_continue_anyway: 'Continuar de todos modos',
+            regenerate_link_and_close: 'Regenerar el enlace',
+            grumpy_cat_no_progress: 'El progreso no aumentará hasta que eches al gato gruñón.'
+        },
+        de: {
+            level_congrats: "Level ###: Du hast eine neue Auszeichnung erhalten!",
+            level_next_level: "Level ###: abgeschlossen! 🎉",
+            level_board2: "Level ###",
+            action_button_back_to_game: 'Zurück zum Spiel',
+            action_button_next_level: 'Nächstes Level starten',
+            rules_h1: "Regeln:",
+            rules_unlock: "Schalte alle gesperrten Elemente auf dem oben stehenden Brett frei. Drücke auf gesperrte Felder, um zu sehen, wie.",
+            rules_no_grumpy_cats: "Halte leere Slots frei von grimmigen Katzen. Schmeiße sie raus, sobald sie reinkommen!",
+            how_to_unlock: "Wie schaltet man frei?",
+            how_to_kick_out: "Wie schmeiße ich mich raus?",
+            hour_one_letter: "h",
+            minute_one_letter: "m",
+            review_without_misses_duration: 'Überprüfe <i>Formula</i> während der nächsten ### ohne Fehler 🚫🟥',
+            review_without_reminders_duration: 'Überprüfe <i>Formula</i> während der nächsten ### ohne Erinnerungen 🚫⏰',
+            review_without_misses_times: 'Überprüfe <i>Formula</i> ohne Fehler die nächsten ### Mal(e) 🚫🟥',
+            review_times: 'Überprüfen Sie <i>Formel</i> das nächste ##1 Mal ohne Erinnerungen, oder ##2 Mal ohne Fehler, oder ##3 Mal mit Fehlern 💫 <br /><br />' +
+                '<a href="https://mindwarriorgame.org/faq.de#forgot.grumpycat" target="_blank">Wie entferne ich es schneller?</a>',
+            update_formula_after: 'Aktualisiere die <i>Formula</i> nach ### 🧪',
+            kick_out: 'Verdiene irgendein Abzeichen, um mich rauszuwerfen!',
+            play_game: 'Spiele das Spiel während der nächsten ### 🎮',
+            close: 'Schließen',
+            oops: 'Ups!',
+            loading: 'Lädt...',
+            loading_old_page: 'Der Link ist abgelaufen. Die Seite könnte veraltete Informationen enthalten.',
+            loading_continue_anyway: 'Trotzdem fortfahren',
+            regenerate_link_and_close: 'Link neu generieren',
+            grumpy_cat_no_progress: 'Der Fortschritt wird nicht zunehmen, bis du die grimmige Katze rauswirfst.'
+        },
+        fr: {
+            level_congrats: "Niveau ### : Vous avez obtenu un nouvel accomplissement !",
+            level_next_level: "Niveau ### : terminé ! 🎉",
+            level_board2: "Niveau ###",
+            action_button_back_to_game: 'Retour au jeu',
+            action_button_next_level: 'Commencer le niveau suivant',
+            rules_h1: "Règles :",
+            rules_unlock: "Déverrouillez tous les éléments verrouillés sur le tableau ci-dessus. Appuyez sur les cases verrouillées pour voir comment.",
+            rules_no_grumpy_cats: "Gardez les cases vides sans chats grincheux. Éjectez-les dès qu’ils entrent !",
+            how_to_unlock: "Comment déverrouiller ?",
+            how_to_kick_out: "Comment m’éjecter ?",
+            hour_one_letter: "h",
+            minute_one_letter: "m",
+            review_without_misses_duration: 'Révisez <i>Formula</i> pendant les ### prochaines sans erreurs 🚫🟥',
+            review_without_reminders_duration: 'Révisez <i>Formula</i> pendant les ### prochaines sans rappels 🚫⏰',
+            review_without_misses_times: 'Révisez <i>Formula</i> sans erreurs ### fois(s) 🚫🟥',
+            review_times: 'Révisez la <i>formule</i> ##1 fois(s) suivante(s) sans rappel, ou ##2 fois(s) sans oubli, ou ##3 fois avec oubli 💫 <br /><br />' +
+                '<a href="https://mindwarriorgame.org/faq.fr#forgot.grumpycat" target="_blank">Comment le retirer plus rapidement ?</a>',
+            update_formula_after: 'Mettez à jour le <i>Formula</i> après ### 🧪',
+            kick_out: 'Obtenez un badge pour m’éjecter !',
+            play_game: 'Jouez au jeu pendant les ### prochaines 🎮',
+            close: 'Fermer',
+            oops: 'Oups !',
+            loading: 'Chargement...',
+            loading_old_page: 'Le lien a expiré. La page pourrait contenir des informations obsolètes.',
+            loading_continue_anyway: 'Continuer quand même',
+            regenerate_link_and_close: 'Régénérer le lien',
+            grumpy_cat_no_progress: 'Le progrès ne s’augmentera pas tant que vous n’aurez pas éjecté le chat grincheux.'
+        },
+        ru: {
+            level_congrats: "Уровень ###: У вас новое достижение!",
+            level_next_level: "Уровень ###: завершен! 🎉",
+            level_board2: "Уровень ###",
+            action_button_back_to_game: 'Вернуться в игру',
+            action_button_next_level: 'Начать следующий уровень',
+            rules_h1: "Правила:",
+            rules_unlock: "Разблокируйте все ячейки на поле выше. Нажимайте на ячейки для инструкций.",
+            rules_no_grumpy_cats: "Не пускайте сердитых котов в пустые ячейки. Если залезут - выгоняйте!",
+            how_to_unlock: "Как получить?",
+            how_to_kick_out: "Как прогнать?",
+            hour_one_letter: "ч",
+            minute_one_letter: "м",
+            review_without_misses_duration: 'Повторяйте <i>Формулу</i> в течение следующих ### без пропусков 🚫🟥',
+            review_without_reminders_duration: 'Повторяйте <i>Формулу</i> в течение следующих ### без напоминаний 🚫⏰',
+            review_without_misses_times: 'Повторите <i>Формулу</i> без пропусков ### раз(а) 🚫🟥',
+            update_formula_after: 'Обновите <i>Формулу</i> через ### 🧪',
+            review_times: 'Повторите <i>Формулу</i> ##1 раз(а) без напоминаний, или ##2 раз(а) без штрафов, или ##3 раз(а) со штрафами 💫 <br /><br />' +
+                '<a href="https://mindwarriorgame.org/faq.ru#forgot.grumpycat" target="_blank">Как выгнать его быстрее?</a>',
+            kick_out: 'Получите любое достижение, чтобы прогнать меня!',
+            play_game: 'Разблокируется после ### активной игры 🎮',
+            close: 'Закрыть',
+            oops: 'Ой!',
+            loading: 'Загрузка...',
+            loading_old_page: 'Ссылка устарела, страница может отображать неактуальную информацию.',
+            loading_continue_anyway: 'Продолжить все-равно',
+            regenerate_link_and_close: 'Обновить ссылку',
+            grumpy_cat_no_progress: 'Прогресс не увеличится, пока вы не выгоните сердитого кота.'
+        }
+    }
+
+    const serverTime = new ServerTime();
+
+    // Some test data
+    // http://localhost:63342/mindwarrior-telegram-bot/miniapp-frontend/board.html?_ijt=6j8idd6nhn1blofrji9fk34cvo&board1=f0a_s2t_s1_s0_t0_c0apoT0_s0_s0a_c1_c2_s1_s2_c1&boardProgress1=1_3867_30--2_3867_100_10000_10--1_12345_25--1_3_10--1_3_30--1_6_75--1_1123_45&board2=f0a_s2t_s1_s0_t0_c0apoT0&boardProgress2=1_3867_0--2_3867_100_10000_0--1_12345_0--1_3_0--1_3_0--1_6_0--1_1123_0
+    const urlParams = new URLSearchParams(window.location.search);
+
+    const level = urlParams.get('level') || 1;
+
+    const langCode = urlParams.get('lang') || 'en';
+    window.lang = LANGS[langCode];
+    const lang = window.lang;
+
+    const env = urlParams.get('env') || 'prod';
+
+
+    document.querySelector('#rules h1').innerHTML = lang.rules_h1;
+    document.querySelectorAll('#rules p')[0].querySelector('span').innerHTML = lang.rules_unlock;
+    document.querySelectorAll('#rules p')[1].querySelector('span').innerHTML = lang.rules_no_grumpy_cats;
+    document.querySelector('#board1').querySelectorAll('a').forEach(a => {
+        if (a.parentElement.classList.contains('unhappy-cat-cell')) {
+            a.innerHTML = lang.how_to_kick_out;
+        } else {
+            a.innerHTML = lang.how_to_unlock;
+        }
+    });
+    document.querySelector("#loader h1").innerHTML = lang.loading;
+    document.querySelector("#loader p").innerHTML = lang.loading_old_page;
+    document.querySelector("#loader button").innerHTML = lang.regenerate_link_and_close;
+    document.querySelector("#loader a").innerHTML = lang.loading_continue_anyway;
+
+
+    document.getElementById('board2').innerHTML = document.getElementById('board1').innerHTML;
+
+    function waitImagesLoadedPromise(images) {
+        return new Promise(allDoneRes => {
+            const imagesLoadedPromises = [...images].map(img => new Promise(imageLoadedRes => {
+                if (img.complete) {
+                    imageLoadedRes();
+                    return;
+                }
+                img.onload = () => {
+                    imageLoadedRes();
+                };
+                img.onerror = () => {
+                    imageLoadedRes();
+                };
+            }));
+            Promise.allSettled(imagesLoadedPromises).then(() => {
+                allDoneRes();
+            })
+        });
+    }
+
+    const board1Items = deserializeBoard(urlParams.get('b1'));
+    const board2Items = urlParams.get('b2') ? deserializeBoard(urlParams.get('b2')) : null;
+    const boardProgress1 = deserializeProgressMap(urlParams.get('bp1'));
+    const ts = urlParams.get("ts") || "0";
+    {
+        const registry = new ProgressRegistry();
+        registry.register(level, boardProgress1, ts);
+        registry.enrichWithProgressPctDelta(level, boardProgress1, ts);
+    }
+
+    let newBadge = urlParams.get('new_badge');
+    let c0removed = (newBadge == 'c0_removed')
+    if (c0removed) {
+        newBadge = null;
+    }
+
+    const board1 = new Board(document.getElementById('board1'), newBadge);
+    board1Items.forEach(item => {
+        board1.addCell(item, boardProgress1[item.badge]);
+        if ((item.badge != 'c0' && !item.active) || (item.badge == 'c0' && item.active)) {
+            delete boardProgress1[item.badge];
+        }
+    });
+    board1.finishAdding();
+
+    let board2;
+    if (board2Items) {
+        board1.setHeader(lang.level_next_level.replace('###', level));
+        const board2 = new Board(document.getElementById('board2'));
+        const boardProgress2 = deserializeProgressMap(urlParams.get('bp2'));
+        {
+            const registry = new ProgressRegistry();
+            registry.enrichWithDefaults(boardProgress2);
+        }
+        board2Items.forEach(item => {
+            board2.addCell(item, boardProgress2[item.badge]);
+            if ((item.badge != 'c0' && !item.active) || (item.badge == 'c0' && item.active)) {
+                delete boardProgress2[item.badge];
+            }
+        });
+        board2.finishAdding();
+        board2.newBoardMode();
+
+        board2.setHeader(lang.level_board2.replace('###', "" + (parseInt(level) + 1)));
+        board1.setActionButton(lang.action_button_next_level, () => {
+            document.getElementById('board1').classList.add('hidden');
+            document.getElementById('board2').classList.remove('hidden');
+
+            board2.showActionButton();
+        });
+        board2.setActionButton(lang.action_button_back_to_game, () => {
+            window?.Telegram?.WebApp?.close();
+        });
+    } else {
+        board1.setHeader(newBadge ? lang.level_congrats.replace('###', level) : lang.level_board2.replace('###', level));
+        board1.setActionButton(lang.action_button_back_to_game, () => {
+            window?.Telegram?.WebApp?.close();
+        });
+    }
+
+    if (newBadge == "c0") {
+        board1.setHeader(lang.level_board2.replace('###', level) + ': ' + lang.oops);
+    }
+
+    function finishLoading() {
+        document.body.classList.remove("loading");
+
+        setTimeout(() => {
+            if (!board1.isNewGrumpyCat() && (newBadge || c0removed)) {
+                fireConfetti();
+            }
+
+            setTimeout(() => {
+                board1.move(() => { });
+            }, newBadge ? 1000 : 0);
+
+        }, newBadge ? 250 : 0);
+    }
+
+    Promise.all([board1.waitTillReady(), board2 ? board2.waitTillReady() : Promise.resolve()]).then(() => {
+
+        window?.Telegram?.WebApp?.ready();
+        window?.Telegram?.WebApp?.expand();
+
+        if (Math.abs(parseInt(ts || 0) * 1000 - serverTime.now()) > 5 * 60 * 1000) {
+            console.log("Old page detected");
+            document.getElementById('outdated').style.display = 'block';
+            document.querySelector('#outdated button').addEventListener('click', async () => {
+                document.querySelector('#outdated button').innerHTML += '...';
+                const queryId = window?.Telegram?.WebApp?.initDataUnsafe.query_id;
+                const url = window.getServerBaseUrl() + `/index.php?env=${env}&lang_code=${langCode}&query_id=` + encodeURIComponent(queryId) + '&data=regenerate_achievements_button'+'&_=' + new Date().getTime();
+                const corsUrl = url; //'https://corsproxy.io/?' + encodeURIComponent(url);
+                try {
+                    const response = await fetch(corsUrl, {mode: 'cors', signal: AbortSignal.timeout(15000)});
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    const json = await response.json();
+                    if (json.status < 200 || json.status > 299) {
+                        throw new Error('Unexpected status: ' + json.status);
+                    }
+
+                } catch (err) {
+                    document.querySelector('#outdated button').innerHTML = document.querySelector('#outdated button').innerHTML.replace('...', '');
+                }
+
+            });
+            document.querySelector('#outdated a').addEventListener('click', (e) => {
+                e.preventDefault();
+                finishLoading();
+            });
+            return;
+        }
+        return finishLoading();
+    });
+</script>

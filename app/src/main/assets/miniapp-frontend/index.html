@@ -1,0 +1,1495 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>MindWarrior</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <script src="server-time.js?v=1"></script>
+
+    <script>
+        window.langs = {
+            de: {
+                code: 'de',
+                applyChange: 'Speichern',
+                startNewGame: 'Spiel starten',
+                reward: 'Überprüfung abschließen',
+                submittingData: 'Daten werden übermittelt...',
+                error: 'Fehler',
+                tryAgain: 'nochmals versuchen',
+
+                sureDelete: "Sind Sie sicher, dass Sie alle Daten (einschließlich Ihrer Formel) löschen möchten?",
+                sure: "Sind Sie sicher?",
+                sureDeleteDetails: 'Diese Aktion kann nicht rückgängig gemacht werden.',
+                yesDelete: "Ja, alle meine Daten löschen",
+
+                sureSetDifficulty: "Sind Sie sicher, dass Sie den Schwierigkeitsgrad des Spiels ändern möchten?",
+                sureSetDifficultyDetail: "Dies setzt Ihren Fortschritt zurück und startet das Spiel von vorne.",
+                yesSetDifficulty: "Ja, Schwierigkeitsgrad ändern",
+
+                errBackend: 'Server antwortete mit ',
+                errTelegram: 'Telegram antwortete mit ',
+
+                formulaSafe: 'Ihre Formel bleibt privat.',
+                formulaSafeExplained: 'Wir kopieren oder speichern Ihre Formel nicht auf unseren Servern. ' +
+                    'Sie wird nur auf Ihrem Gerät gespeichert.',
+                placeholderNewGame: 'Schreiben Sie hier die "Formel der festen Entschlossenheit" und drücken Sie oben die Schaltfläche "Spiel starten"',
+                placeholderChange: 'Schreiben Sie hier die "Formel der festen Entschlossenheit" und drücken Sie oben die Schaltfläche "Änderung anwenden"',
+                noFormulaTitle: 'Keine <i>Formel</i> wurde auf diesem Gerät gefunden!',
+                noFormulaExplanation: 'Bitte schließen Sie dieses Fenster und verwenden Sie den Befehl "/formula", um Ihre <i>' +
+                    '<a href="https://mindwarriorgame.org/faq.de#formula">Formel der festen Entschlossenheit</a></i> zu schreiben.' +
+                    '<br /><br />' +
+                    'Falls Sie auf einem anderen Gerät gespielt haben, kopieren Sie sie bitte manuell von dort. Das Spiel hat aufgrund ' +
+                    '<a href="https://mindwarriorgame.org/privacy-policy.de">unserer strengen Datenschutzrichtlinie</a> keinen Zugriff darauf, ' +
+                    'deshalb kann sie nicht automatisch synchronisiert werden.',
+                sleepDisabled: 'Deaktiviert',
+                sleepTimeHeader: 'Schlafzeit',
+                sleepTimeDescription: 'Das Spiel wird während des ausgewählten Intervalls automatisch pausiert.',
+                sleepStart: 'Geh schlafen um:',
+                sleepEnd: 'Wach auf um:',
+                expand: 'Drücken zum Erweitern',
+                preview: 'Vorschau',
+                backToEditor: 'Zurück zum Editor',
+
+                myNewHeader: 'Mein neuer Header',
+                myNewSubheader: 'Meine neue Unterüberschrift',
+                myBold: 'Mein fettgedruckter Text',
+                myItalic: 'Mein kursiver Text',
+
+                myList: "\n- Artikel 1\n- Artikel 2\n- Artikel 3\n",
+
+                menuInsert: "Einfügen:",
+                menuHeader: "Überschrift",
+                menuSubheader: "Unterüberschrift",
+                menuBold: "Fett",
+                menuItalic: "Kursiv",
+                menuInsertStopwatch: "Stoppuhr",
+                menuList: "Liste",
+                menuHelp: "mehr",
+                menuShare: "Teilen",
+
+                footer: 'Ihre Formel bleibt privat. <br /> <a href="https://mindwarriorgame.org/privacy-policy.de" target="_blank">Wir speichern sie nicht auf unseren Servern.</a>',
+            },
+            ru: {
+                code: 'ru',
+                applyChange: 'Сохранить',
+                startNewGame: 'Начать игру',
+                reward: 'Завершить просмотр',
+                submittingData: 'Отправка данных...',
+                error: 'Ошибка',
+                tryAgain: 'попробовать снова',
+
+                sureDelete: "Вы уверены, что хотите удалить все данные (включая свою Формулу)?",
+                sure: "Вы уверены?",
+                sureDeleteDetails: 'Это действие нельзя отменить.',
+                yesDelete: "Да, безвозвратно удалить все мои данные",
+
+                sureSetDifficulty: "Вы уверены, что хотите изменить сложность игры?",
+                sureSetDifficultyDetail: "Это обнулит ваш прогресс и начнет игру сначала.",
+                yesSetDifficulty: "Да, изменить сложность",
+
+                errBackend: 'Сервер вернул ошибку ',
+                errTelegram: 'Телеграм вернул ошибку ',
+
+                formulaSafe: 'Ваша Формула остается конфиденциальной.',
+                formulaSafeExplained: 'Мы не копируем и не храним вашу Формулу на наших серверах. ' +
+                    'Она хранится только на вашем устройстве.',
+                backToEditor: 'Вернуться в редактор',
+                placeholderNewGame: 'Напишите здесь свою "Формулу твердой решимости" и нажмите кнопку "Начать игру" (сверху)',
+                placeholderChange: 'Напишите здесь свою "Формулу твердой решимости" и нажмите кнопку "Сохранить" (сверху)',
+                noFormulaTitle: '<i>Формула</i> не найдена!',
+                noFormulaExplanation: 'Закройте это окно и воспользуйтесь командой "/formula" для ввода вашей <i>' +
+                    '<a href="https://mindwarriorgame.org/faq.ru#formula">Формулы Твердой Решимости</a></i>.' +
+                    '<br /><br />' +
+                    'Если вы играли на другом устройстве, пожалуйста, скопируйте ее оттуда вручную. Игра не имеет до нее доступа ' +
+                    'в силу <a href="https://mindwarriorgame.org/privacy-policy.ru">своей строгой политики конфиденциальности</a>, ' +
+                    'поэтому мы не можем синхронизировать ее автоматически.',
+
+                sleepDisabled: 'Выключено',
+                sleepTimeHeader: 'Время сна',
+                sleepTimeDescription: 'Игра будет автоматически ставиться на паузу на этот промежуток времени, ежедневно.',
+                sleepStart: 'Ложусь спать в:',
+                sleepEnd: 'Просыпаюсь в:',
+                expand: 'Нажмите, чтобы развернуть',
+                preview: 'Предпросмотр',
+
+                myNewHeader: 'Мой новый заголовок',
+                myNewSubheader: 'Мой новый подзаголовок',
+                myBold: 'Мой жирный текст',
+                myItalic: 'Мой курсивный текст',
+
+                myList: "\n- пункт 1\n- пункт 2\n- пункт 3\n",
+
+                menuInsert: "Вставить:",
+
+                menuHeader: "Заголовок",
+                menuSubheader: "Подзаголовок",
+                menuBold: "Жирный",
+                menuItalic: "Курсив",
+                menuList: "Список",
+                menuInsertStopwatch: "Секундомер",
+
+                menuHelp: "еще",
+                menuShare: "Поделиться",
+
+                footer: 'Ваша формула остается приватной. <br /> <a href="https://mindwarriorgame.org/privacy-policy.ru" target="_blank">Мы не храним ее на наших серверах.</a>',
+            },
+            en: {
+                code: 'en',
+                applyChange: 'Save',
+                startNewGame: 'Start Game',
+                reward: 'Finish Review',
+                submittingData: 'Submitting data...',
+                error: 'Error',
+                tryAgain: 'try again',
+
+                sureDelete: "Are you sure you want to delete all the data (including your Formula)?",
+                sure: "Are you sure?",
+                sureDeleteDetails: 'This action cannot be undone.',
+                yesDelete: "Yes, erase all my data",
+
+                sureSetDifficulty: "Are you sure you want to change the game difficulty?",
+                sureSetDifficultyDetail: "This will reset your progress and start the game from the beginning.",
+                yesSetDifficulty: "Yes, change the difficulty",
+
+                errBackend: 'Server responded with ',
+                errTelegram: 'Telegram responded with ',
+
+                formulaSafe: 'Your Formula stays private.',
+                formulaSafeExplained: 'We do not copy or store your Formula on our servers. ' +
+                    'It is stored only on your device.',
+                placeholderNewGame: 'Write "Formula of firm resolution" here and press "Start Game" button above',
+                placeholderChange: 'Write "Formula of firm resolution" here and press "Apply Change" button above',
+                noFormulaTitle: 'No <i>Formula</i> was found on this device!',
+                noFormulaExplanation: 'Please close this window and use "/formula" command to write your <i>' +
+                    '<a href="https://mindwarriorgame.org/faq.en#formula">Formula of Firm Resolution</a></i>.' +
+                    '<br /><br />' +
+                    'If you were playing on some other device, please copy it manually from there. The game does not have access to it due ' +
+                    'to <a href="https://mindwarriorgame.org/privacy-policy.en">our strict privacy policy</a>, therefore it cannot be synchronised automatically.',
+                sleepDisabled: 'Disabled',
+                sleepTimeHeader: 'Sleep Time',
+                sleepTimeDescription: 'The game will be automatically paused during the selected interval, daily.',
+                sleepStart: 'Go to bed at:',
+                sleepEnd: 'Wake up at:',
+                expand: 'Press to expand',
+                preview: 'Preview',
+                backToEditor: 'Back to editor',
+
+                myNewHeader: 'My new header',
+                myNewSubheader: 'My new subheader',
+                myBold: 'My bold text',
+                myItalic: 'My italic text',
+
+                myList: "\n- item 1\n- item 2\n- item 3\n",
+
+                menuInsert: "Insert:",
+
+                menuHeader: "Header",
+                menuSubheader: "Subheader",
+                menuBold: "Bold",
+                menuItalic: "Italic",
+                menuList: "List",
+                menuInsertStopwatch: "Stopwatch",
+
+                menuHelp: "more",
+                menuShare: "Share",
+
+                footer: 'Your formula stays private. <br /> <a href="https://mindwarriorgame.org/privacy-policy.en" target="_blank">We do not store it on our servers.</a>',
+            },
+            es: {
+                code: 'es',
+                applyChange: 'Ahorrar',
+                startNewGame: 'Iniciar Juego',
+                reward: 'Finalizar la revisión',
+                submittingData: 'Enviando datos...',
+                error: 'Error',
+                tryAgain: 'inténtalo de nuevo',
+
+                sureDelete: "¿Estás seguro de que quieres borrar todos los datos (incluida tu Fórmula)?",
+                sure: "¿Estás seguro?",
+                sureDeleteDetails: 'Esta acción no se puede deshacer.',
+                yesDelete: "Sí, borrar todos mis datos",
+
+                sureSetDifficulty: "¿Estás seguro de que quieres cambiar la dificultad del juego?",
+                sureSetDifficultyDetail: "Esto restablecerá tu progreso y comenzará el juego desde el principio.",
+                yesSetDifficulty: "Sí, cambiar la dificultad",
+
+                errBackend: 'El servidor respondió con ',
+                errTelegram: 'Telegram respondió con ',
+
+                formulaSafe: 'Tu Fórmula permanece privada.',
+                formulaSafeExplained: 'No copiamos ni almacenamos tu Fórmula en nuestros servidores. ' +
+                    'Solo se almacena en tu dispositivo.',
+                placeholderNewGame: 'Escribe tu "Fórmula de firme resolución" aquí y presiona el botón "Iniciar Juego" arriba',
+                placeholderChange: 'Escribe tu "Fórmula de firme resolución" aquí y presiona el botón "Aplicar Cambio" arriba',
+                noFormulaTitle: '¡No se encontró ninguna <i>Fórmula</i> en este dispositivo!',
+                noFormulaExplanation: 'Por favor, cierre esta ventana y use el comando "/formula" para escribir su <i>' +
+                    '<a href="https://mindwarriorgame.org/faq.es#formula">Fórmula de Resolución Firme</a></i>.' +
+                    '<br /><br />' +
+                    'Si estaba jugando en otro dispositivo, por favor cópiela manualmente desde allí. El juego no tiene acceso a ella ' +
+                    'debido a <a href="https://mindwarriorgame.org/privacy-policy.es">nuestra estricta política de privacidad</a>, por lo tanto no puede sincronizarse automáticamente.',
+                sleepDisabled: 'Desactivado',
+                sleepTimeHeader: 'Tiempo de sueño',
+                sleepTimeDescription: 'El juego se pausará automáticamente durante el intervalo seleccionado.',
+                sleepStart: 'Acuéstate a las:',
+                sleepEnd: 'Despiértate a las:',
+                expand: 'Presiona para expandir',
+                preview: 'Vista previa',
+                backToEditor: 'Volver al editor',
+
+                myNewHeader: 'Mi nuevo encabezado',
+                myNewSubheader: 'Mi nuevo subencabezado',
+                myBold: 'Mi texto en negrita',
+                myItalic: 'Mi texto en cursiva',
+
+                myList: "\n- artículo 1\n- artículo 2\n- artículo 3\n",
+
+                menuInsert: "Insertar:",
+                menuHeader: "Encabezado",
+                menuSubheader: "Subencabezado",
+                menuBold: "Negrita",
+                menuItalic: "Cursiva",
+                menuInsertStopwatch: "Cronómetro",
+                menuList: "Lista",
+                menuHelp: "más",
+                menuShare: "Compartir",
+
+                footer: 'Su fórmula se mantiene privada. <br /> <a href="https://mindwarriorgame.org/privacy-policy.es" target="_blank">No la almacenamos en nuestros servidores.</a>',
+            },
+            fr: {
+                code: 'fr',
+                applyChange: 'Sauvegarder',
+                startNewGame: 'Démarrer le jeu',
+                reward: 'Terminer l\'examen',
+                submittingData: 'Envoi des données...',
+                error: 'Erreur',
+                tryAgain: 'réessayer',
+
+                sureDelete: "Êtes-vous sûr de vouloir supprimer toutes les données (y compris votre Formule) ?",
+                sure: "Êtes-vous sûr ?",
+                sureDeleteDetails: 'Cette action est irréversible.',
+                yesDelete: "Oui, effacer toutes mes données",
+
+                sureSetDifficulty: "Êtes-vous sûr de vouloir changer la difficulté du jeu ?",
+                sureSetDifficultyDetail: "Cela réinitialisera votre progression et recommencera le jeu depuis le début.",
+                yesSetDifficulty: "Oui, changer la difficulté",
+
+                errBackend: 'Le serveur a répondu avec ',
+                errTelegram: 'Telegram a répondu avec ',
+
+                formulaSafe: 'Votre Formule reste privée.',
+                formulaSafeExplained: 'Nous ne copions ni ne stockons votre Formule sur nos serveurs. ' +
+                    'Elle est stockée uniquement sur votre appareil.',
+                placeholderNewGame: 'Écrivez votre "Formule de ferme résolution" ici et appuyez sur le bouton "Démarrer le jeu" ci-dessus',
+                placeholderChange: 'Écrivez votre "Formule de ferme résolution" ici et appuyez sur le bouton "Appliquer le changement" ci-dessus',
+                noFormulaTitle: 'Aucune <i>Formule</i> n\'a été trouvée sur cet appareil!',
+                noFormulaExplanation: 'Veuillez fermer cette fenêtre et utiliser la commande "/formula" pour écrire votre <i>' +
+                    '<a href="https://mindwarriorgame.org/faq.fr#formula">Formule de Résolution Ferme</a></i>.' +
+                    '<br /><br />' +
+                    'Si vous jouiez sur un autre appareil, veuillez la copier manuellement depuis cet appareil. Le jeu n\'y a pas accès en raison de ' +
+                    '<a href="https://mindwarriorgame.org/privacy-policy.fr">notre politique de confidentialité stricte</a>, par conséquent, elle ne peut pas être synchronisée automatiquement.',
+                sleepDisabled: 'Désactivé',
+                sleepTimeHeader: 'Temps de sommeil',
+                sleepTimeDescription: 'Le jeu sera automatiquement mis en pause pendant l\'intervalle sélectionné.',
+                sleepStart: 'Coucher à:',
+                sleepEnd: 'Réveil à:',
+                expand: 'Appuyez pour développer',
+                preview: 'Aperçu',
+                backToEditor: 'Retour à l\'éditeur',
+
+                myNewHeader: 'Mon nouvel en-tête',
+                myNewSubheader: 'Mon nouveau sous-en-tête',
+                myBold: 'Mon texte en gras',
+                myItalic: 'Mon texte en italique',
+
+                myList: "\n- article 1\n- article 2\n- article 3\n",
+
+                menuInsert: "Insérer:",
+                menuHeader: "En-tête",
+                menuSubheader: "Sous-en-tête",
+                menuBold: "Gras",
+                menuItalic: "Italique",
+                menuList: "Liste",
+                menuInsertStopwatch: "Un chronomètre",
+                menuHelp: "plus",
+                menuShare: "Partager",
+
+                footer: 'Votre formule reste privée. <br /> <a href="https://mindwarriorgame.org/privacy-policy.fr" target="_blank">Nous ne la stockons pas sur nos serveurs.</a>',
+
+            }
+
+
+
+        };
+
+    </script>
+
+    <meta
+            name="description"
+            content="MindWarrior"
+    />
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #222222;
+            color: #ffffff;
+            line-height: 1.6;
+        }
+        #root {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        textarea.active {
+            background-color:#eeeeff;
+        }
+
+        #header {
+            padding: 4px 0;
+            display: flex;
+            flex-direction: row;
+            width: 100%;
+            justify-content: center;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+
+        img {
+            padding: 0 4px;
+        }
+
+        #content {
+            width: 100%;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: scroll;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        textarea {
+            width: 100%;
+            flex-grow: 1;
+            padding: 10px;
+            font-size: large;
+            border: none;
+            resize: none;
+        }
+
+        #review {
+            background-color:#eeeeee;
+            color: #000000;
+            overflow-x: hidden;
+            overflow-y: scroll;
+            flex-grow: 1;
+            min-width: 95%;
+            padding: 10px;
+            font-size: large;
+            min-height:0;
+        }
+        #review a {
+            color: silver;
+        }
+
+        #review h1 a {
+            color: #000000;
+        }
+
+        #text {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            flex-grow: 1;
+            text-align: center;
+            padding: 0 10px;
+            overflow-wrap: anywhere;
+        }
+
+        #text button {
+            background-color: darkred;
+            padding: 8px;
+            color: white;
+        }
+
+        #text button.green {
+            background-color: #184725;
+            padding: 8px;
+            color: white;
+        }
+
+        #text .title {
+            font-size: large;
+        }
+        #text .error {
+            text-align: center;
+        }
+        #review table, #review th, #review td {
+            color: black;
+            border:  1px solid black;
+            border-collapse: collapse;
+        }
+        #review h1 {
+            margin-bottom: 0px;
+        }
+        pre {
+            white-space: normal;
+            word-break: break-word;
+        }
+        a {
+            color: silver;
+            text-decoration: underline;
+        }
+
+        button.action-btn {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+            padding: 10px;
+        }
+
+        button.action-btn:hover {
+            background-color: #218838;
+        }
+
+        button.action-btn:active {
+            background-color: #1e7e34;
+            transform: scale(0.98);
+        }
+
+        button.action-btn:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.5);
+        }
+
+        button.action-btn:disabled {
+            background-color: #8ba290;
+            color: #6c757d;
+            cursor: not-allowed;
+        }
+
+        button.blue-btn {
+            background-color: #007bff;
+        }
+
+        button.blue-btn:hover {
+            background-color: #0069d9;
+        }
+
+        button.blue-btn:active {
+            background-color: #005cbf;
+        }
+
+        button.blue-btn:focus {
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.5);
+        }
+
+        button.blue-btn:disabled {
+            background-color: #b8daff;
+        }
+        .counter a, .stopwatch a {
+            text-decoration: none;
+            font-size: x-large;
+        }
+
+        #text input {
+            width: 100%;
+            padding: 10px;
+            font-size: large;
+            text-align: center;
+            border: none;
+            resize: none;
+        }
+
+        select {
+            padding: 6px;
+        }
+
+        #back-to-edit, #preview-btn {
+            position: absolute;
+            right: 0;
+            top: 0;
+            color: black;
+            padding: 10px;
+        }
+
+        #back-to-edit {
+            background-color: rgba(240, 240, 240, 0.7);
+        }
+
+        #back-to-edit a {
+            color: dodgerblue;
+        }
+
+        #preview-btn a {
+            color: silver;
+        }
+
+        #back-to-edit img {
+            vertical-align: middle;
+            width: 24px;
+            filter: invert(1);
+            background-color: #222222;
+        }
+
+        #menu div {
+            padding: 5px 10px;
+            color: grey;
+            text-transform: uppercase;
+        }
+
+        #menu a {
+            color: silver;
+        }
+
+        #menu div.menu-header {
+            font-size: x-large;
+        }
+        #menu div.menu-item {
+            font-size: x-large;
+            padding-left: 20px;
+        }
+
+        #menu div.menu-bottom {
+            text-transform: none;
+            text-align: center;
+            padding-bottom: 16px;
+        }
+
+        #footer {
+            text-align: center;
+            color: grey;
+        }
+        #footer a {
+            color: silver;
+        }
+
+        blockquote {
+            font-style: italic;
+            color: #555;
+            border-left: 5px solid #ccc;
+            margin: 20px 0;
+            padding: 10px 20px;
+            background-color: #f9f9f9;
+        }
+        blockquote::before {
+            content: open-quote;
+            font-size: 2em;
+            line-height: 0;
+            margin-right: 10px;
+            vertical-align: -0.4em;
+            color: #ccc;
+        }
+        blockquote::after {
+            content: close-quote;
+            font-size: 2em;
+            line-height: 0;
+            margin-left: 10px;
+            vertical-align: -0.4em;
+            color: #ccc;
+        }
+
+
+    </style>
+</head>
+<body>
+
+<div id="root">
+    <div id="header">
+        <img src="Hamburger_icon.svg" height="32" style="filter:invert(1)" />
+        <img src="close.png" height="32" />
+        <div style="flex-grow: 1">&nbsp;</div>
+        <button class="action-btn">Apply Change</button>
+        <div style="flex-grow: 1">&nbsp;</div>
+        <img src="Hamburger_icon.svg" height="32" style="visibility:hidden" />
+    </div>
+    <div id="content" style="position: relative">
+        <textarea class="" autofocus="autofocus"></textarea>
+        <div id="text" class="hidden">
+            <div class="title">Submitting data...</div>
+            <pre></pre>
+            <pre></pre>
+            <input type="text" /> <br />
+            <span>Go to bed at: </span><select></select> <br />
+            <span>Wake up at: </span><select></select> <br />
+            <a href="#">try again</a><br />
+            <button>Yes, delete all data</button>
+            <button class="green">Yes, delete all data</button>
+        </div>
+        <div id="review" class="hidden"> asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd
+            asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd
+            asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd
+            asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd
+            asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd
+            asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd
+            asd asd asd asd asd asd asd asd asd asd asd asd asd a1sd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd
+            asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd
+            asd asd asd asd asd asd asd asd asd asd asd asd asd asd a
+        </div>
+
+        <div id="menu" style="position: absolute; top: 0; right: 0; left: 0px; bottom: 0px; background-color: #222222">
+            <div class="menu-header insert">
+                Вставить:
+            </div>
+            <div class="menu-item">- <a href="#" class="insert-header">заголовок</a></div>
+            <div class="menu-item">- <a href="#" class="insert-subheader">подзаголовок</a></div>
+            <div class="menu-item">- <a href="#" class="insert-bold">жирный текст</a></div>
+            <div class="menu-item">- <a href="#" class="insert-cursive">курсив</a></div>
+            <div class="menu-item">- <a href="#" class="insert-list">список</a></div>
+            <div class="menu-item">- <a href="#" class="insert-stopwatch">секундомер</a></div>
+            <div class="menu-item">- <a href="https://mindwarriorgame.org/faq.ru#formula-formatting" class="help" target="_blank">... еще</a></div>
+            <div class="line"></div>
+            <div class="menu-header"><a href="https://mindwarriorgame.org/public-formulas.ru.html" class="share" target="_blank">Поделиться</a></div>
+        </div>
+    </div>
+
+    <div id="footer">Ваша формула всегда приватная. <br /> <a href="https://mindwarriorgame.org/privacy-policy.ru" target="_blank">Мы не храним ее на наших серверах.</a></div>
+
+    <div id="back-to-edit">
+        <a href="#"><img src="pencil.png" width="32" />Back to editing</a>
+    </div>
+    <div id="preview-btn">
+        <a href="#">Preview</a>
+    </div>
+</div>
+</body>
+
+<script>
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const langCode = urlParams.get('lang_code') || 'en';
+    window.lang = window.langs[langCode];
+
+    window.expandChunk = (idx) => {
+        if (document.getElementById('chunk' + idx).style.display === 'block') {
+            document.getElementById('chunk' + idx).style.display = 'none';
+            document.getElementById('chunkLink' + idx).style.display = 'block';
+            return;
+        }
+        document.getElementById('chunk' + idx).style.display = 'block';
+        document.getElementById('chunkLink' + idx).style.display = 'none';
+    };
+
+    const SERVER_TIME = new ServerTime();
+
+    // https://github.com/adamvleggett/drawdown/blob/master/drawdown.js
+    // Copy-pasting it because:
+    //  1. It's small
+    //  2. Don't want to over-complicate things with webpack
+    //  3. Don't want to load it externally to speed up the page load
+    //  4. To easily share in public-formulas generator (to preserve same algorithm)
+    function markdown(n){var r=/\\([\\\|`*_{}\[\]()#+\-~])/g,t=/\n *&gt; *([^]*?)(?=(\n|$){2})/g,e=/\n( *)(?:[*\-+]|((\d+)|([a-z])|[A-Z])[.)]) +([^]*?)(?=(\n|$){2})/g,u=/(^|[^A-Za-z\d\\])(([*_])|(~)|(\^)|(--)|(\+\+)|`)(\2?)([^<]*?)\2\8(?!\2)(?=\W|_|$)/g,c=/^.*\n( *\|( *\:?-+\:?-+\:? *\|)* *\n|)/,f=/.*\n/g,l=/\||(.*?[^\\])\|/g;function o(r,t){n=n.replace(r,t)}function a(n,r){return"<"+n+">"+r+"</"+n+">"}function g(n){return n.replace(u,function(n,r,t,e,u,c,f,l,o,i){return r+a(e?o?"strong":"em":u?o?"s":"sub":c?"sup":f?"small":l?"big":"code",g(i))})}function i(n){return n.replace(r,"$1")}var p=[],s=0;return n="\n"+n+"\n",o(/</g,"&lt;"),o(/>/g,"&gt;"),o(/\t|\r|\uf8ff/g,"  "),n=function n(r){return r.replace(t,function(r,t){return a("blockquote",n(g(t.replace(/^ *&gt; */gm,""))))})}(n),o(/^([*\-=_] *){3,}$/gm,"<hr/>"),n=function n(r){return r.replace(e,function(r,t,e,u,c,f){var l=a("li",g(f.split(RegExp("\n ?"+t+"(?:(?:\\d+|[a-zA-Z])[.)]|[*\\-+]) +","g")).map(n).join("</li><li>")));return"\n"+(e?'<ol start="'+(u?e+'">':parseInt(e,36)-9+'" style="list-style-type:'+(c?"low":"upp")+'er-alpha">')+l+"</ol>":a("ul",l))})}(n),o(/<\/(ol|ul)>\n\n<\1>/g,""),o(/\n((```|~~~).*\n?([^]*?)\n?\2|((    .*?\n)+))/g,function(n,r,t,e,u){return p[--s]=a("pre",a("code",e||u.replace(/^    /gm,""))),s+""}),o(/((!?)\[(.*?)\]\((.*?)( ".*")?\)|\\([\\`*_{}\[\]()#+\-.!~]))/g,function(n,r,t,e,u,c,f){return p[--s]=u?t?'<img src="'+u+'" alt="'+e+'"/>':'<a href="'+u+'">'+i(g(e))+"</a>":f,s+""}),o(/\n(( *\|.*?\| *\n)+)/g,function(n,r){var t=r.match(c)[1];return"\n"+a("table",r.replace(f,function(n,r){return n==t?"":a("tr",n.replace(l,function(n,e,u){return u?a(t&&!r?"th":"td",i(g(e||""))):""}))}))}),o(/(?=^|>|\n)([>\s]*?)(#{1,6}) (.*?)( #*)? *(?=\n|$)/g,function(n,r,t,e){return r+a("h"+t.length,i(g(e)))}),o(/(?=^|>|\n)\s*\n+([^<]+?)\n+\s*(?=\n|<|$)/g,function(n,r){return a("p",i(g(r)))}),o(/-\d+\uf8ff/g,function(n){return p[parseInt(n)]}),n.trim()}
+
+    function myMarkdown(str) {
+        const result = markdown(str);
+        return result.split("&lt;br&gt;").join("<br />");
+    }
+
+
+    function updateCounter(counterNo, counterId, delta) {
+        const counter = document.getElementById("counter" + counterId);
+        window.localStorage.setItem("counter" + counterNo, (parseInt(window.localStorage.getItem("counter" + counterNo)) || 0) + delta);
+        counter.querySelector("span").innerText = (window.localStorage.getItem("counter" + counterNo) || 0);
+    }
+
+    function decreaseCounter(timerNo, timerId) {
+        updateCounter(timerNo, timerId, -1);
+    }
+
+    function increaseCounter(timerNo, timerId) {
+        updateCounter(timerNo, timerId, 1);
+    }
+
+    function resetCounter(timerNo, timerId) {
+        if (confirm(window.lang.sure)) {
+            updateCounter(timerNo, timerId, -window.localStorage.getItem("counter" + timerNo) || 0);
+        }
+    }
+
+    function initCounters(html) {
+        let nCounter = 0;
+        html = html.replaceAll("{counter}", () => {
+            nCounter ++;
+            const randomString = Math.random().toString(36).substring(7);
+            const initialValue = window.localStorage.getItem("counter" + nCounter) || 0;
+            return "<span class='counter' id='counter" + randomString + "'>" +
+                "<a href='javascript:decreaseCounter(" + nCounter +",\"" + randomString + "\")'>➖</a> " +
+                "<span>" + initialValue + "</span> " +
+                "<a href='javascript:increaseCounter(" + nCounter +",\"" + randomString + "\")'>➕</a> | " +
+                "<a href='javascript:resetCounter(" + nCounter +",\"" + randomString + "\")'>↻</a>" +
+                "</span>";
+        });
+        return html;
+    }
+
+    function toStopwatchValue(nMsecs) {
+        let nSecs = Math.floor(nMsecs / 1000);
+        let nMins = Math.floor(nSecs / 60);
+        let nHours = Math.floor(nMins / 60);
+        const nDays = Math.floor(nHours / 24);
+
+        nSecs = nSecs % 60;
+        nMins = nMins % 60;
+        nHours = nHours % 24;
+
+        let ret = "";
+        if (nSecs < 10) {
+            ret = "0" + nSecs;
+        } else {
+            ret = nSecs;
+        }
+
+        if (nMins < 10) {
+            ret = "0" + nMins + "." + ret;
+        } else {
+            ret = nMins + "." + ret;
+        }
+
+        if (nHours < 10) {
+            ret = "0" + nHours + ":" + ret;
+        } else {
+            ret = nHours + ":" + ret;
+        }
+
+        if (nDays > 0) {
+            ret = nDays + " " + ret;
+        }
+        return ret;
+    }
+
+    function resetStopwatch(nStopwatch, randomString) {
+        if (confirm(window.lang.sure)) {
+            window.localStorage.setItem("stopwatchStartedAt" + nStopwatch, Date.now());
+            document.getElementById("stopwatch" + randomString).querySelector('span').innerText = toStopwatchValue(0);
+        }
+    }
+
+    setInterval(() => {
+        document.querySelectorAll('.stopwatch').forEach((elt) => {
+            const nStopwatch = elt.getAttribute('data-n');
+            const initialValue = parseInt(window.localStorage.getItem("stopwatchStartedAt" + nStopwatch) || Date.now());
+            elt.querySelector('span').innerText = toStopwatchValue(Date.now() - initialValue);
+        });
+    }, 1000);
+
+    function initStopwatches(html) {
+        let nStopwatch = 0;
+        html = html.replaceAll("{stopwatch}", () => {
+            nStopwatch ++;
+            const randomString = Math.random().toString(36).substring(7);
+            if (!window.localStorage.getItem("stopwatchStartedAt" + nStopwatch)) {
+                window.localStorage.setItem("stopwatchStartedAt" + nStopwatch, Date.now());
+            }
+            const initialValue = parseInt(window.localStorage.getItem("stopwatchStartedAt" + nStopwatch));
+            return "<span class='stopwatch' data-n='" + nStopwatch + "' id='stopwatch" + randomString + "'>" +
+                "<span>" + toStopwatchValue(Date.now() - initialValue) + "</span> " +
+                "<a href='javascript:resetStopwatch(" + nStopwatch +",\"" + randomString + "\")'>↻</a>" +
+                "</span>";
+        });
+        return html;
+    }
+
+    function textToHtml(inputText, lang) {
+
+        const chunks = [];
+        let chunk = '';
+        let nHeaders = 0;
+        inputText.trim().split('\n').forEach((line) => {
+            if (line.trim().startsWith('# ')) {
+                chunks.push(chunk.trim());
+                chunks.push(line);
+                chunk = '';
+                nHeaders ++;
+            } else {
+                chunk += line + '\n';
+            }
+        });
+        if (chunk) {
+            chunks.push(chunk.trim());
+        }
+
+        let ret = '';
+        for (let idx = 0; idx < chunks.length; idx++) {
+            if (!chunks[idx].trim()) {
+            } if (chunks[idx].startsWith('# ')) {
+                ret += '<h1><a href="javascript:window.expandChunk(' + (idx + 1) + ')">' + chunks[idx].substring(2) + '</a></h1>';
+            } else {
+                if (idx > 0) {
+                    ret += "<div style='display:none' id='chunk" + idx + "'>" + myMarkdown(chunks[idx]) + "</div>";
+                    ret += "<div id='chunkLink" + idx + "'><a href='javascript:window.expandChunk(" + idx + ")'>(" + lang.expand + ")</a></div>"
+                } else {
+                    ret += myMarkdown(chunks[idx]);
+                }
+            }
+        }
+
+        return ret;
+    }
+    const HEADER = {
+        parent: document.querySelector('#header'),
+        menu: document.querySelectorAll('#header img')[0],
+        close: document.querySelectorAll('#header img')[1],
+        dummyRightImg: document.querySelectorAll('#header img')[2],
+        actionButton: document.querySelector('#header button'),
+
+    };
+
+    const CONTENT = {
+        textarea: document.querySelector('#content textarea'),
+        review: document.querySelector('#content #review'),
+        text: {
+            parent: document.querySelector('#content #text'),
+            title: document.querySelector('#content #text .title'),
+            preFirst: document.querySelectorAll('#content #text pre')[0],
+            preSecond: document.querySelectorAll('#content #text pre')[1],
+            span1: document.querySelectorAll('#content #text span')[0],
+            span2: document.querySelectorAll('#content #text span')[1],
+            select1: document.querySelectorAll('#content #text select')[0],
+            select1Disabled: document.querySelectorAll('#content #text select')[0].querySelector('option.disabled'),
+            select2: document.querySelectorAll('#content #text select')[1],
+            select2Disabled: document.querySelectorAll('#content #text select')[1].querySelector('option.disabled'),
+            link: document.querySelector('#content #text a'),
+            buttonConfirm: document.querySelectorAll('#content #text button')[0],
+            buttonSubmit: document.querySelectorAll('#content #text button')[1],
+            input: document.querySelector('#content #text input')
+        }
+    };
+
+    const PREVIEW_BTN = {
+        parent: document.querySelector('#preview-btn'),
+        link: document.querySelector('#preview-btn a')
+    };
+
+
+    const BACK_TO_EDIT = {
+        parent: document.querySelector('#back-to-edit'),
+        link: document.querySelector('#back-to-edit a')
+    };
+
+    const MENU = {
+        parent: document.querySelector('#menu'),
+        insert: document.querySelector('#menu .insert'),
+        insertHeader: document.querySelector('#menu .insert-header'),
+        insertSubheader: document.querySelector('#menu .insert-subheader'),
+        insertBold: document.querySelector('#menu .insert-bold'),
+        insertCursive: document.querySelector('#menu .insert-cursive'),
+        insertList: document.querySelector('#menu .insert-list'),
+        insertStopwatch: document.querySelector('#menu .insert-stopwatch'),
+        help: document.querySelector('#menu .help'),
+        share: document.querySelector('#menu .share')
+    };
+
+    const FOOTER = document.querySelector('#footer');
+    FOOTER.innerHTML = window.lang.footer;
+
+    function hide(elt) {
+        elt.classList.add('hidden');
+    }
+
+    function show(elt) {
+        elt.classList.remove('hidden');
+    }
+
+    function hideEverything() {
+        hide(HEADER.actionButton);
+        hide(HEADER.menu);
+        hide(HEADER.close);
+        hide(HEADER.dummyRightImg);
+
+        hide(CONTENT.textarea);
+        hide(CONTENT.review);
+
+        hide(CONTENT.text.parent);
+        hide(CONTENT.text.preSecond);
+        hide(CONTENT.text.link);
+        hide(CONTENT.text.buttonConfirm);
+        hide(CONTENT.text.buttonSubmit);
+        hide(CONTENT.text.input);
+
+        hide(CONTENT.text.span1);
+        hide(CONTENT.text.span2);
+        hide(CONTENT.text.select1);
+        hide(CONTENT.text.select2);
+
+        hide(BACK_TO_EDIT.parent);
+
+        hide(PREVIEW_BTN.parent);
+
+        hide(MENU.parent);
+
+        hide(FOOTER);
+    }
+
+    class DataSubmitComponent {
+        constructor(app, lang) {
+            this.app = app;
+            this.queryId = app.initDataUnsafe.query_id;
+            this.data = null;
+            this.lang = lang;
+        }
+
+        _showData(data) {
+            hideEverything();
+
+            show(CONTENT.text.parent);
+            hide(CONTENT.text.preSecond);
+            hide(CONTENT.text.link);
+
+            CONTENT.text.title.innerHTML = this.lang.submittingData;
+            CONTENT.text.link.innerHTML = this.lang.tryAgain;
+
+            show(CONTENT.text.preFirst);
+            CONTENT.text.preFirst.textContent = data;
+        }
+
+        _showError(error) {
+            show(CONTENT.text.preSecond);
+            show(CONTENT.text.link);
+            CONTENT.text.preSecond.textContent = this.lang.error + ': ' + error;
+
+            const tryAgainHandler = (e) => {
+                e.preventDefault();
+                hide(CONTENT.text.preSecond);
+                hide(CONTENT.text.link);
+                this.submitData(this.dataProvider);
+                CONTENT.text.link.removeEventListener("click", tryAgainHandler);
+
+                CONTENT.text.link.removeEventListener('click', tryAgainHandler);
+            }
+
+            CONTENT.text.link.addEventListener('click', tryAgainHandler);
+        }
+
+        async submitData(dataProvider) {
+            const urlParams = new URLSearchParams(window.location.search);
+            const langCode = urlParams.get('lang_code') || 'en';
+            const env = urlParams.get('env') || "prod";
+
+            this.dataProvider = dataProvider;
+            const data = this.dataProvider();
+            this._showData(data);
+            const url = window.getServerBaseUrl() + `/index.php?env=${env}&lang_code=${langCode}&query_id=` + encodeURIComponent(this.queryId) + '&data=' + encodeURIComponent(data)+'&_=' + new Date().getTime();
+            const corsUrl = url; //'https://corsproxy.io/?' + encodeURIComponent(url);
+
+            if (!AbortSignal.timeout) {
+                AbortSignal.timeout = function timeout(ms) {
+                    const ctrl = new AbortController()
+                    setTimeout(() => ctrl.abort(), ms)
+                    return ctrl.signal
+                }
+            }
+
+            try {
+                const response = await fetch(corsUrl, {mode: 'cors', signal: AbortSignal.timeout(15000)});
+                if (!response.ok) {
+                    this._showError(this.lang.errBackend + `${response.status} ${response.statusText}`);
+                    return;
+                }
+                const json = await response.json();
+                if (json.status < 200 || json.status > 299) {
+                    this._showError(this.lang.errTelegram + `${json.status} ${json.response}`);
+                    return;
+                }
+                this.app.close();
+            } catch (err) {
+                this._showError(err.message);
+            }
+
+        }
+    }
+
+    class DeleteDataComponent {
+        constructor(dataSubmitter, lang) {
+            hideEverything();
+
+            show(CONTENT.text.parent);
+            CONTENT.text.title.innerHTML = lang.sureDelete;
+            CONTENT.text.preFirst.innerHTML = lang.sureDeleteDetails;
+            show(CONTENT.text.buttonConfirm);
+            CONTENT.text.buttonConfirm.textContent = lang.yesDelete;
+            CONTENT.text.buttonConfirm.addEventListener("click", (e) => {
+                e.preventDefault();
+                window.localStorage.clear();
+
+                dataSubmitter.submitData(() => "delete_data_confirmed");
+            });
+        }
+    }
+
+    class ViewLocalstorageDataComponent {
+        constructor() {
+            hideEverything();
+
+            show(CONTENT.text.parent);
+            CONTENT.text.parent.innerHTML = JSON.stringify(window.localStorage, null, 2).replace(/\n( *)/g, function (match, p1) {
+                return '<br>' + '&nbsp;'.repeat(p1.length);
+            });
+            CONTENT.text.parent.style['text-align'] = "left";
+        }
+    }
+
+    class NextReviewDataProvider {
+        constructor(nextReviewPromptMinutes) {
+            this.nextReviewPromptMinutes = nextReviewPromptMinutes;
+        }
+
+        calculateNextReviewsData() {
+            const splitOffsets = this.nextReviewPromptMinutes.split(',');
+            console.log("Client time", Date.now());
+            console.log("Server time", SERVER_TIME.now());
+            const nextReviewTimes = splitOffsets.map(offset => {
+                const offsetInt = parseInt(offset);
+                const nextReviewAt = new Date(SERVER_TIME.now() + offsetInt * 60 * 1000);
+                return nextReviewAt.toLocaleTimeString(undefined, { hour: 'numeric', minute: 'numeric' });
+            });
+
+            return "next_review:" + nextReviewTimes.join(',,');
+        }
+
+    }
+
+    class SleepConfigScreen {
+        constructor(dataSubmitter, lang, enabled, bedTime, wakeUpTime) {
+            hideEverything();
+
+            show(CONTENT.text.parent);
+            show(CONTENT.text.preFirst);
+            show(CONTENT.text.span1);
+            show(CONTENT.text.span2);
+            show(CONTENT.text.select1);
+            show(CONTENT.text.select2);
+            show(CONTENT.text.buttonSubmit);
+
+            CONTENT.text.title.innerHTML = lang.sleepTimeHeader;
+            CONTENT.text.preFirst.innerHTML = lang.sleepTimeDescription;
+            CONTENT.text.buttonSubmit.innerHTML = lang.applyChange;
+            CONTENT.text.span1.innerHTML = lang.sleepStart;
+            CONTENT.text.span2.innerHTML = lang.sleepEnd;
+
+
+            const selects = [CONTENT.text.select1, CONTENT.text.select2];
+            let isDisabled = false;
+            for (let select of selects) {
+                {
+                    const option = document.createElement('option');
+                    option.value = 'disabled';
+                    option.textContent = lang.sleepDisabled;
+                    select.appendChild(option);
+                }
+
+                for (let idx = 0; idx < 48; idx++) {
+                    const hours = (Math.floor(idx / 2) < 10 ? "0" : "" ) + Math.floor(idx / 2);
+                    const mins = idx % 2 === 0 ? '00' : '30';
+                    const option = document.createElement('option');
+                    option.value = hours + ':' + mins;
+                    option.textContent = hours + ':' + mins;
+                    select.appendChild(option);
+                }
+                select.onchange = (e) => {
+                    let nDisabledSelects = 0;
+                    for (let select of selects) {
+                        if (select.value === 'disabled') {
+                            nDisabledSelects++;
+                        }
+                    }
+                    if (nDisabledSelects === 1) {
+                        if (isDisabled) {
+                            isDisabled = false;
+                            for (let select of selects) {
+                                if (select.value === 'disabled') {
+                                    select.value = '00:00';
+                                }
+                            }
+                        } else {
+                            isDisabled = true;
+                            for (let select of selects) {
+                                if (select.value !== 'disabled') {
+                                    select.value = 'disabled';
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (enabled) {
+                CONTENT.text.select1.value = bedTime;
+                CONTENT.text.select2.value = wakeUpTime;
+            } else {
+                CONTENT.text.select1.value = 'disabled';
+                CONTENT.text.select2.value = 'disabled';
+                isDisabled = true;
+            }
+
+            const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            const offsetSecs = -(new Date().getTimezoneOffset()) * 60;
+            console.log(timeZone, offsetSecs);
+
+            CONTENT.text.buttonSubmit.onclick = (e) => {
+                e.preventDefault();
+                if (!isDisabled && CONTENT.text.select1.value === CONTENT.text.select2.value) {
+                    return;
+                }
+                const bedTime = isDisabled ? '22:00' : CONTENT.text.select1.value;
+                const wakeUpTime = isDisabled ? '06:00' : CONTENT.text.select2.value;
+                dataSubmitter.submitData(() => {
+                    return `sleep_config:${isDisabled ? "False" : "True"},,${timeZone},,${offsetSecs},,${bedTime},,${wakeUpTime}`;
+                });
+            }
+
+        }
+    }
+
+    class ReviewComponent {
+        constructor(dataSubmitter, lang, nextReviewPromptMinutes) {
+
+            this.dataSubmitter = dataSubmitter;
+
+            this.nextReviewsDataProvider = new NextReviewDataProvider(nextReviewPromptMinutes);
+
+            hideEverything();
+
+            show(CONTENT.review);
+            CONTENT.review.innerHTML = initStopwatches(initCounters(textToHtml(window.localStorage.getItem("formula") || '', lang)));
+
+            show(HEADER.actionButton);
+
+            HEADER.actionButton.addEventListener("click", (e) => {
+                e.preventDefault();
+
+                this.dataSubmitter.submitData(() => {
+
+                    return "reviewed_at:__timestamp__;" + this.nextReviewsDataProvider.calculateNextReviewsData();
+                });
+            });
+
+            let reviewCountdown = 10;
+            function refreshReviewButton() {
+                reviewCountdown--;
+                if (reviewCountdown > 0) {
+                    HEADER.actionButton.innerHTML = lang.reward + " <span style='color: white'>(" + reviewCountdown + ")</span>";
+                    HEADER.actionButton.setAttribute('disabled', 'disabled');
+                }
+                if (reviewCountdown === 0) {
+                    HEADER.actionButton.innerHTML = lang.reward;
+                    HEADER.actionButton.removeAttribute('disabled');
+                }
+            }
+            setInterval(() => {
+                refreshReviewButton()
+            }, 1000);
+            refreshReviewButton();
+        }
+    }
+
+    class FormulaEditor {
+        constructor(dataSubmitter, isNewGame, lang, nextReviewPromptMinutes) {
+            this.dataSubmitter = dataSubmitter;
+
+            const nextReviewsDataProvider = nextReviewPromptMinutes ? new NextReviewDataProvider(nextReviewPromptMinutes) : null;
+
+            this._showEditorLayout();
+
+            HEADER.actionButton.textContent = isNewGame ? lang.startNewGame : lang.applyChange;
+
+            CONTENT.textarea.placeholder = isNewGame ? lang.placeholderNewGame : lang.placeholderChange;
+
+            HEADER.actionButton.addEventListener("click", (e) => {
+                e.preventDefault();
+                window.localStorage.setItem("formula", CONTENT.textarea.value);
+                this.dataSubmitter.submitData(() => {
+                    let data = isNewGame ? "start_game" : "formula_updated";
+                    if (nextReviewsDataProvider) {
+                        data += ";" + nextReviewsDataProvider.calculateNextReviewsData();
+                    }
+                    return data;
+                });
+            });
+            HEADER.actionButton.setAttribute('disabled', true);
+
+            CONTENT.textarea.addEventListener("input", () => {
+                const value = CONTENT.textarea.value;
+                if (value.trim()) {
+                    HEADER.actionButton.removeAttribute("disabled");
+                } else {
+                    HEADER.actionButton.setAttribute('disabled', true);
+                }
+            });
+
+            CONTENT.textarea.value = window.localStorage.getItem("formula") || "";
+            if (!CONTENT.textarea.value) {
+                let cnt = 0;
+                const interval = setInterval(() => {
+                    cnt ++;
+                    if (cnt < 5) {
+                        CONTENT.textarea.classList.toggle('active');
+                    }
+                    CONTENT.textarea.focus();
+                }, 300);
+                CONTENT.textarea.addEventListener('click', () => {
+                    clearInterval(interval);
+                    CONTENT.textarea.classList.remove('active');
+                });
+            }
+
+            show(PREVIEW_BTN.parent);
+            PREVIEW_BTN.link.textContent = lang.preview;
+
+            PREVIEW_BTN.link.addEventListener("click", (e) => {
+                e.preventDefault();
+                hide(HEADER.parent);
+                hide(PREVIEW_BTN.parent);
+                hide(CONTENT.textarea);
+                hide(MENU.parent);
+                show(CONTENT.review);
+                show(BACK_TO_EDIT.parent);
+                hide(FOOTER);
+                CONTENT.review.innerHTML = initStopwatches(initCounters(textToHtml(CONTENT.textarea.value, lang)));
+            });
+
+            BACK_TO_EDIT.link.textContent = lang.backToEditor;
+
+            BACK_TO_EDIT.link.addEventListener("click", (e) => {
+                e.preventDefault();
+
+                this._showEditorLayout();
+            });
+
+            show(HEADER.menu);
+
+            HEADER.menu.addEventListener("click", (e) => {
+                e.preventDefault();
+                hide(HEADER.menu);
+                show(HEADER.close);
+                show(MENU.parent);
+            });
+
+            HEADER.close.addEventListener("click", (e) => {
+                e.preventDefault();
+                show(HEADER.menu);
+                hide(HEADER.close);
+                hide(MENU.parent);
+            });
+
+
+            MENU.share.href = MENU.share.href.split("ru.html").join(langCode + ".html");
+
+            const insertHeader = (e, headerBeginning, newHeader) => {
+                show(HEADER.menu);
+                hide(HEADER.close);
+                hide(MENU.parent);
+
+                let beginningOfLine = CONTENT.textarea.selectionStart;
+                while (beginningOfLine > 1 && CONTENT.textarea.value[beginningOfLine - 1] !== '\n') {
+                    beginningOfLine--;
+                }
+                let endOfLine = CONTENT.textarea.selectionStart;
+                while (endOfLine < CONTENT.textarea.value.length && CONTENT.textarea.value[endOfLine] !== '\n') {
+                    endOfLine++;
+                }
+                let line = CONTENT.textarea.value.substring(beginningOfLine, endOfLine);
+                let endSelection;
+                if (line.trim() === '') {
+                    CONTENT.textarea.value = CONTENT.textarea.value.substring(0, beginningOfLine) + headerBeginning + " " + newHeader + CONTENT.textarea.value.substring(beginningOfLine);
+                    endSelection = beginningOfLine + headerBeginning.length + newHeader.length + 1;
+                } else if (!line.startsWith('#')) {
+                    CONTENT.textarea.value = CONTENT.textarea.value.substring(0, beginningOfLine) + headerBeginning + " " + CONTENT.textarea.value.substring(beginningOfLine);
+                    endSelection = endOfLine + headerBeginning.length + 1;
+                }
+
+                // https://stackoverflow.com/questions/29899364/how-do-you-scroll-to-the-position-of-the-cursor-in-a-textarea
+                CONTENT.textarea.setSelectionRange(beginningOfLine, beginningOfLine);
+                CONTENT.textarea.focus();
+                CONTENT.textarea.setSelectionRange(beginningOfLine, endSelection);
+                CONTENT.textarea.focus();
+            }
+
+            const insertAtLineEnd = (e, newText) => {
+                show(HEADER.menu);
+                hide(HEADER.close);
+                hide(MENU.parent);
+                let endOfLine = CONTENT.textarea.selectionStart;
+                while (endOfLine < CONTENT.textarea.value.length && CONTENT.textarea.value[endOfLine] !== '\n') {
+                    endOfLine++;
+                }
+                CONTENT.textarea.value = CONTENT.textarea.value.substring(0, endOfLine) + newText + CONTENT.textarea.value.substring(endOfLine);
+
+                // https://stackoverflow.com/questions/29899364/how-do-you-scroll-to-the-position-of-the-cursor-in-a-textarea
+                CONTENT.textarea.setSelectionRange(endOfLine, endOfLine);
+                CONTENT.textarea.focus();
+                CONTENT.textarea.setSelectionRange(endOfLine, endOfLine + newText.length);
+                CONTENT.textarea.focus();
+            }
+
+            const insertModifier = (e, modifier, newText) => {
+                show(HEADER.menu);
+                hide(HEADER.close);
+                hide(MENU.parent);
+
+                e.preventDefault();
+                let textToInsert = newText;
+                let startAt = CONTENT.textarea.selectionStart;
+                if (CONTENT.textarea.selectionStart !== CONTENT.textarea.selectionEnd) {
+                    textToInsert = CONTENT.textarea.value.substring(CONTENT.textarea.selectionStart, CONTENT.textarea.selectionEnd);
+                }
+                CONTENT.textarea.value = CONTENT.textarea.value.substring(0, CONTENT.textarea.selectionStart) + " " + modifier + textToInsert + modifier + " " + CONTENT.textarea.value.substring(CONTENT.textarea.selectionEnd);
+
+                // https://stackoverflow.com/questions/29899364/how-do-you-scroll-to-the-position-of-the-cursor-in-a-textarea
+                CONTENT.textarea.setSelectionRange(startAt + 1, startAt + 1);
+                CONTENT.textarea.focus();
+                CONTENT.textarea.setSelectionRange(startAt + 1, startAt + 1 + textToInsert.length + modifier.length * 2);
+                CONTENT.textarea.focus();
+            }
+
+            MENU.insertHeader.textContent = lang.menuHeader;
+            MENU.insertHeader.addEventListener("click", (e) => {
+                insertHeader(e, "#", lang.myNewHeader);
+            });
+
+            MENU.insertSubheader.textContent = lang.menuSubheader;
+            MENU.insertSubheader.addEventListener("click", (e) => {
+                insertHeader(e, "##", lang.myNewSubheader);
+            });
+
+            MENU.insertBold.textContent = lang.menuBold;
+            MENU.insertBold.addEventListener("click", (e) => {
+                insertModifier(e, "**", lang.myBold);
+            });
+
+            MENU.insertCursive.textContent = lang.menuItalic;
+            MENU.insertCursive.addEventListener("click", (e) => {
+                insertModifier(e, "*", lang.myItalic);
+            });
+
+            MENU.insertList.textContent = lang.menuList;
+            MENU.insertList.addEventListener("click", (e) => {
+                insertAtLineEnd(e, lang.myList, 3, 1);
+            });
+
+            MENU.insertStopwatch.textContent = lang.menuInsertStopwatch;
+            MENU.insertStopwatch.addEventListener("click", (e) => {
+                insertAtLineEnd(e, "{stopwatch}");
+            });
+
+            MENU.insert.textContent = lang.menuInsert;
+            MENU.help.textContent = lang.menuHelp;
+            MENU.help.href = MENU.help.href.split('faq.ru').join('faq.' + langCode);
+            MENU.share.textContent = lang.menuShare;
+
+            CONTENT.textarea.focus();
+
+
+        }
+
+        _showEditorLayout() {
+            hideEverything();
+
+            show(HEADER.parent);
+            show(HEADER.actionButton);
+            show(HEADER.dummyRightImg);
+            show(CONTENT.textarea);
+            show(HEADER.menu);
+            show(PREVIEW_BTN.parent);
+            show(FOOTER);
+        }
+    }
+
+    class SetDifficultyComponent {
+        constructor(dataSubmitter, lang, newDifficulty, nextReviewPromptMinutes) {
+            hideEverything();
+
+            show(CONTENT.text.parent);
+            CONTENT.text.title.innerHTML = lang.sureSetDifficulty;
+            CONTENT.text.preFirst.innerHTML = lang.sureSetDifficultyDetail;
+            show(CONTENT.text.buttonConfirm);
+            CONTENT.text.buttonConfirm.textContent = lang.yesSetDifficulty;
+            CONTENT.text.buttonConfirm.addEventListener("click", (e) => {
+                e.preventDefault();
+
+                dataSubmitter.submitData(() => "set_difficulty:" + newDifficulty + ";" + new NextReviewDataProvider(nextReviewPromptMinutes).calculateNextReviewsData());
+            });
+        }
+    }
+
+
+    const app = window?.Telegram?.WebApp;
+
+    const isNewGame = !!(urlParams.get('new_game'));
+    const isReview = !!(urlParams.get('review'));
+    const isFormula = !!(urlParams.get('formula'));
+    const isDeleteData = !!(urlParams.get('delete_data'));
+    const isViewLocalstorageData = !!(urlParams.get('view_localstorage'));
+    const newDifficulty = urlParams.get('set_difficulty') || null;
+
+
+    const sleep = urlParams.get('sleep') || null;
+    const sleepEnabled = (urlParams.get('enabled') || null) === 'true';
+    const sleepBedTime = urlParams.get('bed_time') || null;
+    const sleepWakeUpTime = urlParams.get('wakeup_time') || null;
+
+
+    const nextReviewPromptMinutes = urlParams.get('next_review_prompt_minutes') || null;
+
+    const dataSubmitter = new DataSubmitComponent(app, window.langs[langCode]);
+
+    if (newDifficulty) {
+        new SetDifficultyComponent(dataSubmitter, window.langs[langCode], newDifficulty, nextReviewPromptMinutes);
+        // dataSubmitter.submitData(() => "set_difficulty:" + newDifficulty + ";" + new NextReviewDataProvider(nextReviewPromptMinutes).calculateNextReviewsData());
+    }
+
+    if (isDeleteData) {
+        new DeleteDataComponent(dataSubmitter, window.langs[langCode]);
+    }
+
+    if (isViewLocalstorageData) {
+        new ViewLocalstorageDataComponent();
+    }
+
+    if (sleep) {
+        new SleepConfigScreen(dataSubmitter, window.langs[langCode], sleepEnabled, sleepBedTime, sleepWakeUpTime);
+    }
+
+    class EnterFormulaPrompt {
+        constructor(lang) {
+            hideEverything();
+
+            show(CONTENT.text.parent);
+            CONTENT.text.title.innerHTML = lang.noFormulaTitle;
+            CONTENT.text.preFirst.innerHTML = lang.noFormulaExplanation;
+        }
+
+    }
+
+    if (isReview) {
+        if (window.localStorage.getItem("formula") === null) {
+            new EnterFormulaPrompt(window.langs[langCode]);
+        } else {
+            new ReviewComponent(dataSubmitter, window.langs[langCode], nextReviewPromptMinutes);
+        }
+    }
+
+    if (isFormula || isNewGame) {
+        (new FormulaEditor(dataSubmitter, isNewGame, window.langs[langCode], nextReviewPromptMinutes));
+    }
+
+    app?.ready();
+    setTimeout(() => {
+        app?.expand();
+    }, 0);
+
+</script>
+
+</html>
