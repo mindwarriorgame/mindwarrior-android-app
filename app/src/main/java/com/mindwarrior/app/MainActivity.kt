@@ -1,17 +1,16 @@
 package com.mindwarrior.app
 
-import android.content.res.Configuration
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.mindwarrior.app.databinding.ActivityMainBinding
 import java.text.SimpleDateFormat
 import java.util.Locale
 import kotlin.random.Random
+import android.view.Gravity
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -35,7 +34,13 @@ class MainActivity : AppCompatActivity() {
         private var visible = true
         override fun run() {
             visible = !visible
-            binding.snowflake.alpha = if (visible) 1f else 0f
+            if (visible) {
+                binding.snowflake.visibility = android.view.View.VISIBLE
+                binding.pauseRow.gravity = Gravity.CENTER_VERTICAL
+            } else {
+                binding.snowflake.visibility = android.view.View.GONE
+                binding.pauseRow.gravity = Gravity.CENTER
+            }
             handler.postDelayed(this, 1000L)
         }
     }
@@ -85,17 +90,6 @@ class MainActivity : AppCompatActivity() {
                 }
         }
 
-        val currentNightMode =
-            resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
-        binding.modeToggle.isChecked = currentNightMode == Configuration.UI_MODE_NIGHT_YES
-        binding.modeToggle.setOnCheckedChangeListener { _, isChecked ->
-            val mode = if (isChecked) {
-                AppCompatDelegate.MODE_NIGHT_YES
-            } else {
-                AppCompatDelegate.MODE_NIGHT_NO
-            }
-            AppCompatDelegate.setDefaultNightMode(mode)
-        }
     }
 
     private fun setupLogs() {

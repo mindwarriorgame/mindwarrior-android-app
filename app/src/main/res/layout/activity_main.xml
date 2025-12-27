@@ -114,8 +114,9 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:background="@drawable/panel_menu"
+            android:elevation="8dp"
             android:orientation="vertical"
-            android:padding="12dp"
+            android:padding="14dp"
             android:visibility="gone"
             app:layout_constraintEnd_toEndOf="@id/top_bar"
             app:layout_constraintTop_toBottomOf="@id/top_bar">
@@ -124,42 +125,40 @@
                 android:id="@+id/menu_sleep"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingVertical="6dp"
+                android:paddingVertical="10dp"
                 android:text="@string/menu_sleep"
                 android:textColor="@color/menu_text"
-                android:textSize="14sp" />
+                android:textSize="16sp" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginVertical="6dp"
+                android:background="@color/menu_stroke" />
 
             <TextView
                 android:id="@+id/menu_progress"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingVertical="6dp"
+                android:paddingVertical="10dp"
                 android:text="@string/menu_progress"
                 android:textColor="@color/menu_text"
-                android:textSize="14sp" />
+                android:textSize="16sp" />
 
-            <LinearLayout
-                android:id="@+id/menu_mode"
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginVertical="6dp"
+                android:background="@color/menu_stroke" />
+
+            <TextView
+                android:id="@+id/menu_difficulty"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:paddingVertical="6dp">
-
-                <TextView
-                    android:id="@+id/menu_mode_label"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="12dp"
-                    android:text="@string/menu_mode"
-                    android:textColor="@color/menu_text"
-                    android:textSize="14sp" />
-
-                <androidx.appcompat.widget.SwitchCompat
-                    android:id="@+id/mode_toggle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-            </LinearLayout>
+                android:paddingVertical="10dp"
+                android:text="@string/menu_difficulty"
+                android:textColor="@color/menu_text"
+                android:textSize="16sp" />
         </LinearLayout>
 
         <LinearLayout
