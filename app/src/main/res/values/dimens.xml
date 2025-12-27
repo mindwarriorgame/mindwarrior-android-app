@@ -1,0 +1,3 @@
+<resources>
+    <dimen name="board_cell_spacing">8dp</dimen>
+</resources>

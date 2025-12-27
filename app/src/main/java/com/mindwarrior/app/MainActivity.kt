@@ -104,6 +104,10 @@ class MainActivity : AppCompatActivity() {
             binding.pauseButton.isSelected = true
             binding.pauseButton.alpha = 1f
         }
+
+        binding.progressButton.setOnClickListener {
+            startActivity(android.content.Intent(this, AchievementsActivity::class.java))
+        }
     }
 
     private fun seedInitialLogs() {

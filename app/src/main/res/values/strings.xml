@@ -13,4 +13,5 @@
     <string name="snowflake">❄️</string>
     <string name="review_button">Review Formula</string>
     <string name="logs_title">Battle Log</string>
+    <string name="achievements_title">Achievements Board</string>
 </resources>
