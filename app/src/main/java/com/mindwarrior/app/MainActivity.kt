@@ -106,7 +106,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.progressButton.setOnClickListener {
-            startActivity(android.content.Intent(this, AchievementsActivity::class.java))
+            startActivity(android.content.Intent(this, BoardWebViewActivity::class.java))
         }
     }
 
