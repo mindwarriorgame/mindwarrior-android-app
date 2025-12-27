@@ -75,6 +75,11 @@ class MainActivity : AppCompatActivity() {
         handler.postDelayed(logTicker, 15_000L)
     }
 
+    override fun onResume() {
+        super.onResume()
+        updateDifficultyLabel()
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         handler.removeCallbacksAndMessages(null)
@@ -89,7 +94,10 @@ class MainActivity : AppCompatActivity() {
                     android.view.View.VISIBLE
                 }
         }
-
+        binding.menuDifficulty.setOnClickListener {
+            startActivity(android.content.Intent(this, DifficultyActivity::class.java))
+        }
+        updateDifficultyLabel()
     }
 
     private fun setupLogs() {
@@ -108,6 +116,12 @@ class MainActivity : AppCompatActivity() {
         binding.progressButton.setOnClickListener {
             startActivity(android.content.Intent(this, BoardWebViewActivity::class.java))
         }
+    }
+
+    private fun updateDifficultyLabel() {
+        val difficulty = DifficultyPreferences.getDifficulty(this)
+        binding.menuDifficulty.text =
+            getString(R.string.menu_difficulty, getString(difficulty.labelRes))
     }
 
     private fun seedInitialLogs() {

@@ -7,11 +7,24 @@
     <string name="menu_button">Open menu</string>
     <string name="menu_sleep">💤 Sleep scheduler</string>
     <string name="menu_progress">📈 View Progress</string>
-    <string name="menu_difficulty">💪 Difficulty: Medium</string>
+    <string name="menu_difficulty">💪 Difficulty: %1$s</string>
     <string name="timer_text">02:14:36</string>
     <string name="pause_button">⏸</string>
     <string name="snowflake">❄️</string>
     <string name="review_button">Review Formula</string>
     <string name="logs_title">Battle Log</string>
     <string name="achievements_title">Achievements Board</string>
+    <string name="difficulty_title">Select difficulty</string>
+    <string name="difficulty_warning">Changing difficulty will reset all game progress.</string>
+    <string name="difficulty_beginner">Beginner (default)</string>
+    <string name="difficulty_easy">Easy</string>
+    <string name="difficulty_medium">Medium</string>
+    <string name="difficulty_hard">Hard</string>
+    <string name="difficulty_export">Export</string>
+    <string name="difficulty_done">Done</string>
+    <string name="difficulty_info_beginner">Beginner 🌱🛡️\nShort battles, gentle pacing, plenty of breathing room.</string>
+    <string name="difficulty_info_easy">Easy 🙂🗺️\nA steady warmup with forgiving goals and longer timers.</string>
+    <string name="difficulty_info_medium">Medium ⚔️🔥\nBalanced challenge with tighter windows and sharper penalties.</string>
+    <string name="difficulty_info_hard">Hard 💥🧠\nHigh intensity, minimal breaks, mistakes cost more.</string>
+    <string name="difficulty_info_export">Export 📤📊\nNo gameplay tuning; data-focused mode for sharing.</string>
 </resources>
