@@ -11,6 +11,7 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 import kotlin.random.Random
 import android.view.Gravity
+import android.graphics.Rect
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -85,6 +86,14 @@ class MainActivity : AppCompatActivity() {
         handler.removeCallbacksAndMessages(null)
     }
 
+    override fun onBackPressed() {
+        if (binding.menuPanel.visibility == android.view.View.VISIBLE) {
+            binding.menuPanel.visibility = android.view.View.GONE
+        } else {
+            super.onBackPressed()
+        }
+    }
+
     private fun setupMenu() {
         binding.menuButton.setOnClickListener {
             binding.menuPanel.visibility =
@@ -95,9 +104,25 @@ class MainActivity : AppCompatActivity() {
                 }
         }
         binding.menuDifficulty.setOnClickListener {
+            binding.menuPanel.visibility = android.view.View.GONE
             startActivity(android.content.Intent(this, DifficultyActivity::class.java))
         }
         updateDifficultyLabel()
+
+        binding.root.setOnTouchListener { _, event ->
+            if (event.action == android.view.MotionEvent.ACTION_DOWN &&
+                binding.menuPanel.visibility == android.view.View.VISIBLE) {
+                val panelRect = Rect()
+                val buttonRect = Rect()
+                binding.menuPanel.getGlobalVisibleRect(panelRect)
+                binding.menuButton.getGlobalVisibleRect(buttonRect)
+                if (!panelRect.contains(event.rawX.toInt(), event.rawY.toInt()) &&
+                    !buttonRect.contains(event.rawX.toInt(), event.rawY.toInt())) {
+                    binding.menuPanel.visibility = android.view.View.GONE
+                }
+            }
+            false
+        }
     }
 
     private fun setupLogs() {
