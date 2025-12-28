@@ -21,7 +21,7 @@ object BattleTimerScheduler {
     private const val KEY_PAUSED = "battle_timer_paused"
     private const val KEY_PAUSED_REMAINING = "battle_timer_remaining"
 
-    private const val CHANNEL_ID = "battle_timer_channel"
+    const val CHANNEL_ID = "battle_timer_channel"
     private const val CHANNEL_NAME = "Battle Timer"
     private const val NOTIFICATION_ID = 1002
 
@@ -194,7 +194,7 @@ object BattleTimerScheduler {
         ringtone.play()
     }
 
-    private fun ensureNotificationChannel(context: Context) {
+    fun ensureNotificationChannel(context: Context) {
         val notificationManager =
             context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val existing = notificationManager.getNotificationChannel(CHANNEL_ID)

@@ -39,6 +39,10 @@
     <string name="progress_active_time">⏱ Active play time: 0d 0h 0m 0s</string>
     <string name="progress_diamonds_total">💎 Diamonds total earned: 0</string>
     <string name="progress_close">Close</string>
+    <string name="timer_notification_title">Battle Timer</string>
+    <string name="timer_notification_loading">Loading timer...</string>
+    <string name="timer_notification_running">Time left: %1$s</string>
+    <string name="timer_notification_paused">Paused</string>
     <string name="difficulty_title">Select difficulty</string>
     <string name="difficulty_warning">Changing difficulty will reset all game progress.</string>
     <string name="difficulty_beginner">Beginner (default)</string>

@@ -95,6 +95,7 @@ class MainActivity : AppCompatActivity() {
         setupControls()
         BattleTimerScheduler.ensureScheduled(this)
         requestNotificationPermission()
+        startTimerService()
         updatePauseUi(BattleTimerScheduler.isPaused(this))
 
         seedInitialLogs()
@@ -212,6 +213,18 @@ class MainActivity : AppCompatActivity() {
         } else {
             binding.pauseIndicator.visibility = View.GONE
         }
+    }
+
+    private fun startTimerService() {
+        if (android.os.Build.VERSION.SDK_INT >= 33) {
+            val granted = ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED
+            if (!granted) return
+        }
+        val intent = android.content.Intent(this, TimerForegroundService::class.java)
+        androidx.core.content.ContextCompat.startForegroundService(this, intent)
     }
 
     private fun showQuickStartIfNeeded() {
@@ -405,6 +418,8 @@ class MainActivity : AppCompatActivity() {
                 grantResults[0] == PackageManager.PERMISSION_GRANTED
             if (!granted) {
                 finishAffinity()
+            } else {
+                startTimerService()
             }
         }
     }
