@@ -63,14 +63,14 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
                 android:layout_weight="1"
-                android:background="@drawable/chip_bg_state"
+                android:background="@drawable/diamonds_chip_bg_state"
                 android:elevation="6dp"
                 android:fontFamily="sans-serif-black"
                 android:paddingHorizontal="12dp"
                 android:paddingVertical="8dp"
                 android:text="@string/diamonds_button"
                 android:textAllCaps="false"
-                android:textColor="@color/chip_text" />
+                android:textColor="@color/diamonds_text" />
 
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/progress_button"
@@ -78,27 +78,27 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
                 android:layout_weight="1.4"
-                android:background="@drawable/chip_bg_state"
+                android:background="@drawable/progress_chip_bg_state"
                 android:elevation="6dp"
                 android:fontFamily="sans-serif-black"
                 android:paddingHorizontal="12dp"
                 android:paddingVertical="8dp"
                 android:text="@string/progress_button"
                 android:textAllCaps="false"
-                android:textColor="@color/chip_text" />
+                android:textColor="@color/progress_text" />
 
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/lab_button"
                 android:layout_width="48dp"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
-                android:background="@drawable/chip_bg_state"
+                android:background="@drawable/lab_chip_bg_state"
                 android:elevation="6dp"
                 android:fontFamily="sans-serif-black"
                 android:paddingVertical="8dp"
                 android:text="@string/lab_button"
                 android:textAllCaps="false"
-                android:textColor="@color/chip_text" />
+                android:textColor="@color/lab_text" />
 
             <androidx.appcompat.widget.AppCompatImageButton
                 android:id="@+id/menu_button"

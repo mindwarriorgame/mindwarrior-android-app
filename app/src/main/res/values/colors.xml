@@ -19,9 +19,24 @@
 
     <color name="timer_text">#F4F6FF</color>
 
-    <color name="review_green">#38E086</color>
-    <color name="review_stroke">#1C8F52</color>
+    <color name="review_green">#1E9E63</color>
+    <color name="review_stroke">#126543</color>
     <color name="review_text">#052814</color>
+
+    <color name="diamonds_bg">#B45CE4</color>
+    <color name="diamonds_stroke">#6E2E9A</color>
+    <color name="diamonds_pressed">#9C49C6</color>
+    <color name="diamonds_text">#F7F1FF</color>
+
+    <color name="progress_bg">#3C5C8A</color>
+    <color name="progress_stroke">#253B5C</color>
+    <color name="progress_pressed">#2E4A73</color>
+    <color name="progress_text">#F3F7FF</color>
+
+    <color name="lab_bg">#2B2750</color>
+    <color name="lab_stroke">#1A1733</color>
+    <color name="lab_pressed">#241F45</color>
+    <color name="lab_text">#F0F2FF</color>
 
     <color name="log_title">#EAF6FF</color>
     <color name="log_text">#EAF6FF</color>
