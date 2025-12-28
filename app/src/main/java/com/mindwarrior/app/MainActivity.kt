@@ -45,10 +45,8 @@ class MainActivity : AppCompatActivity() {
             visible = !visible
             if (visible) {
                 binding.snowflake.visibility = android.view.View.VISIBLE
-                binding.pauseRow.gravity = Gravity.CENTER_VERTICAL
             } else {
                 binding.snowflake.visibility = android.view.View.GONE
-                binding.pauseRow.gravity = Gravity.CENTER
             }
             handler.postDelayed(this, 1000L)
         }
@@ -97,6 +95,7 @@ class MainActivity : AppCompatActivity() {
         setupControls()
         BattleTimerScheduler.ensureScheduled(this)
         requestNotificationPermission()
+        updatePauseUi(BattleTimerScheduler.isPaused(this))
 
         seedInitialLogs()
         handler.post(snowflakeBlink)
@@ -110,6 +109,7 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
         updateDifficultyLabel()
         updateTimerDisplay()
+        updatePauseUi(BattleTimerScheduler.isPaused(this))
         showTimerFlagDialogIfNeeded()
         handler.post(timerFlagChecker)
     }
@@ -179,9 +179,13 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupControls() {
         binding.pauseButton.setOnClickListener {
-            if (binding.pauseButton.isSelected) return@setOnClickListener
-            binding.pauseButton.isSelected = true
-            binding.pauseButton.alpha = 1f
+            val paused = BattleTimerScheduler.isPaused(this)
+            if (paused) {
+                BattleTimerScheduler.resumeTimer(this)
+            } else {
+                BattleTimerScheduler.pauseTimer(this)
+            }
+            updatePauseUi(!paused)
         }
 
         binding.diamondsButton.setOnClickListener {
@@ -193,6 +197,20 @@ class MainActivity : AppCompatActivity() {
 
         binding.progressButton.setOnClickListener {
             startActivity(android.content.Intent(this, BoardWebViewActivity::class.java))
+        }
+    }
+
+    private fun updatePauseUi(paused: Boolean) {
+        binding.pauseButton.text = getString(
+            if (paused) R.string.pause_button_resume else R.string.pause_button_pause
+        )
+        binding.pauseButton.alpha = 1f
+        binding.pauseButton.isSelected = paused
+        updateTimerDisplay()
+        if (paused) {
+            binding.pauseIndicator.visibility = View.VISIBLE
+        } else {
+            binding.pauseIndicator.visibility = View.GONE
         }
     }
 

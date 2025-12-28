@@ -18,6 +18,8 @@ object BattleTimerScheduler {
     private const val PREFS_NAME = "mindwarrior_prefs"
     private const val KEY_NEXT_TRIGGER = "battle_next_trigger"
     private const val KEY_NOTIFICATION_COUNT = "battle_notification_count"
+    private const val KEY_PAUSED = "battle_timer_paused"
+    private const val KEY_PAUSED_REMAINING = "battle_timer_remaining"
 
     private const val CHANNEL_ID = "battle_timer_channel"
     private const val CHANNEL_NAME = "Battle Timer"
@@ -26,6 +28,9 @@ object BattleTimerScheduler {
     fun ensureScheduled(context: Context) {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val now = System.currentTimeMillis()
+        if (prefs.getBoolean(KEY_PAUSED, false)) {
+            return
+        }
         val current = prefs.getLong(KEY_NEXT_TRIGGER, 0L)
         val next = if (current == 0L || current <= now) {
             now + getIntervalMillis(DifficultyPreferences.getDifficulty(context))
@@ -39,15 +44,50 @@ object BattleTimerScheduler {
     fun restart(context: Context) {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val next = System.currentTimeMillis() + getIntervalMillis(DifficultyPreferences.getDifficulty(context))
-        prefs.edit().putLong(KEY_NEXT_TRIGGER, next).apply()
+        prefs.edit()
+            .putLong(KEY_NEXT_TRIGGER, next)
+            .putBoolean(KEY_PAUSED, false)
+            .remove(KEY_PAUSED_REMAINING)
+            .apply()
         scheduleAlarm(context, next)
     }
 
     fun getRemainingMillis(context: Context): Long {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        if (prefs.getBoolean(KEY_PAUSED, false)) {
+            return prefs.getLong(KEY_PAUSED_REMAINING, 0L)
+        }
         val next = prefs.getLong(KEY_NEXT_TRIGGER, 0L)
         if (next == 0L) return 0L
         return max(0L, next - System.currentTimeMillis())
+    }
+
+    fun pauseTimer(context: Context) {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val remaining = getRemainingMillis(context)
+        prefs.edit()
+            .putBoolean(KEY_PAUSED, true)
+            .putLong(KEY_PAUSED_REMAINING, remaining)
+            .apply()
+        cancelAlarm(context)
+        cancelNotification(context)
+    }
+
+    fun resumeTimer(context: Context) {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val remaining = prefs.getLong(KEY_PAUSED_REMAINING, 0L)
+        val next = System.currentTimeMillis() + remaining
+        prefs.edit()
+            .putBoolean(KEY_PAUSED, false)
+            .putLong(KEY_NEXT_TRIGGER, next)
+            .remove(KEY_PAUSED_REMAINING)
+            .apply()
+        scheduleAlarm(context, next)
+    }
+
+    fun isPaused(context: Context): Boolean {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        return prefs.getBoolean(KEY_PAUSED, false)
     }
 
     fun handleAlarm(context: Context) {
@@ -103,6 +143,24 @@ object BattleTimerScheduler {
                 pendingIntent
             )
         }
+    }
+
+    private fun cancelAlarm(context: Context) {
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val intent = Intent(context, TimerAlarmReceiver::class.java)
+        val pendingIntent = PendingIntent.getBroadcast(
+            context,
+            1001,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        alarmManager.cancel(pendingIntent)
+    }
+
+    private fun cancelNotification(context: Context) {
+        val notificationManager =
+            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.cancel(NOTIFICATION_ID)
     }
 
     private fun showNotification(context: Context) {

@@ -9,7 +9,9 @@
     <string name="menu_progress">📈 View Progress</string>
     <string name="menu_difficulty">💪 Difficulty: %1$s</string>
     <string name="timer_text">02:14:36</string>
-    <string name="pause_button">⏸</string>
+    <string name="pause_button_pause">⏸</string>
+    <string name="pause_button_resume">▶️</string>
+    <string name="pause_indicator">⏸</string>
     <string name="snowflake">❄️</string>
     <string name="review_button">Review Formula</string>
     <string name="logs_title">Battle Log</string>
