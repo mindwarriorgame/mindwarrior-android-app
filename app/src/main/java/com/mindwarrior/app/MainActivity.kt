@@ -77,7 +77,15 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private val timerFlagChecker = object : Runnable {
+        override fun run() {
+            checkTimerFlag()
+            handler.postDelayed(this, TIMER_FLAG_POLL_MS)
+        }
+    }
+
     private var quickStartStep = 0
+    private var timerFlagDialogShowing = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -102,6 +110,13 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
         updateDifficultyLabel()
         updateTimerDisplay()
+        showTimerFlagDialogIfNeeded()
+        handler.post(timerFlagChecker)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        handler.removeCallbacks(timerFlagChecker)
     }
 
     override fun onDestroy() {
@@ -163,6 +178,13 @@ class MainActivity : AppCompatActivity() {
             if (binding.pauseButton.isSelected) return@setOnClickListener
             binding.pauseButton.isSelected = true
             binding.pauseButton.alpha = 1f
+        }
+
+        binding.diamondsButton.setOnClickListener {
+            getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+                .edit()
+                .putBoolean(KEY_TIMER_FLAG, true)
+                .apply()
         }
 
         binding.progressButton.setOnClickListener {
@@ -290,6 +312,49 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
+    private fun showTimerFlagDialogIfNeeded() {
+        if (timerFlagDialogShowing || !isTimerFlagSet()) return
+        timerFlagDialogShowing = true
+        AlertDialog.Builder(this)
+            .setTitle(getString(R.string.timer_flag_title))
+            .setMessage(getString(R.string.timer_flag_message))
+            .setPositiveButton(getString(R.string.timer_flag_done)) { _, _ ->
+                clearTimerFlag()
+                addTimerLog()
+                timerFlagDialogShowing = false
+            }
+            .setOnDismissListener { timerFlagDialogShowing = false }
+            .setCancelable(false)
+            .show()
+    }
+
+    private fun checkTimerFlag() {
+        if (timerFlagDialogShowing || !isTimerFlagSet()) return
+        showTimerFlagDialogIfNeeded()
+        clearTimerFlag()
+        addTimerLog()
+    }
+
+    private fun addTimerLog() {
+        val now = System.currentTimeMillis()
+        val log = LogItem(formatTimeLabel(now), getString(R.string.timer_flag_log))
+        logAdapter.prependLogs(listOf(log))
+        logAdapter.trimTo(MAX_LOG_ITEMS)
+        binding.logsRecycler.scrollToPosition(0)
+    }
+
+    private fun isTimerFlagSet(): Boolean {
+        return getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+            .getBoolean(KEY_TIMER_FLAG, false)
+    }
+
+    private fun clearTimerFlag() {
+        getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+            .edit()
+            .remove(KEY_TIMER_FLAG)
+            .apply()
+    }
+
     private fun requestNotificationPermission() {
         if (android.os.Build.VERSION.SDK_INT < 33) return
         val granted = ContextCompat.checkSelfPermission(
@@ -374,8 +439,10 @@ class MainActivity : AppCompatActivity() {
         private const val MAX_LOG_ITEMS = 20
         private const val DAY_MILLIS = 24 * 60 * 60 * 1000L
         private const val WARNING_THRESHOLD_MILLIS = 15 * 60 * 1000L
+        private const val TIMER_FLAG_POLL_MS = 100L
         private const val NOTIFICATION_PERMISSION_REQUEST = 1003
         private const val PREFS_NAME = "mindwarrior_prefs"
         private const val KEY_QUICK_START_DONE = "quick_start_done5"
+        private const val KEY_TIMER_FLAG = "timer_flag"
     }
 }
