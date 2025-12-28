@@ -18,6 +18,7 @@
     <color name="menu_text">#E6F0FF</color>
 
     <color name="timer_text">#F4F6FF</color>
+    <color name="timer_text_warning">#FF5B5B</color>
 
     <color name="review_green">#1E9E63</color>
     <color name="review_stroke">#126543</color>

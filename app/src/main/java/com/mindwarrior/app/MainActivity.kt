@@ -284,6 +284,10 @@ class MainActivity : AppCompatActivity() {
     private fun updateTimerDisplay() {
         val remainingMillis = BattleTimerScheduler.getRemainingMillis(this)
         binding.timerText.text = formatRemaining(remainingMillis)
+        val warning = remainingMillis in 1..WARNING_THRESHOLD_MILLIS
+        binding.timerText.setTextColor(
+            if (warning) getColor(R.color.timer_text_warning) else getColor(R.color.timer_text)
+        )
     }
 
     private fun requestNotificationPermission() {
@@ -369,6 +373,7 @@ class MainActivity : AppCompatActivity() {
     companion object {
         private const val MAX_LOG_ITEMS = 20
         private const val DAY_MILLIS = 24 * 60 * 60 * 1000L
+        private const val WARNING_THRESHOLD_MILLIS = 15 * 60 * 1000L
         private const val NOTIFICATION_PERMISSION_REQUEST = 1003
         private const val PREFS_NAME = "mindwarrior_prefs"
         private const val KEY_QUICK_START_DONE = "quick_start_done5"
