@@ -12,6 +12,11 @@ import java.util.Locale
 import kotlin.random.Random
 import android.view.Gravity
 import android.graphics.Rect
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import androidx.appcompat.app.AlertDialog
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -62,6 +67,13 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private val timerTicker = object : Runnable {
+        override fun run() {
+            updateTimerDisplay()
+            handler.postDelayed(this, 1000L)
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -70,15 +82,19 @@ class MainActivity : AppCompatActivity() {
         setupMenu()
         setupLogs()
         setupControls()
+        BattleTimerScheduler.ensureScheduled(this)
+        requestNotificationPermission()
 
         seedInitialLogs()
         handler.post(snowflakeBlink)
         handler.postDelayed(logTicker, 15_000L)
+        handler.post(timerTicker)
     }
 
     override fun onResume() {
         super.onResume()
         updateDifficultyLabel()
+        updateTimerDisplay()
     }
 
     override fun onDestroy() {
@@ -153,6 +169,43 @@ class MainActivity : AppCompatActivity() {
             getString(R.string.menu_difficulty, getString(difficulty.labelRes))
     }
 
+    private fun updateTimerDisplay() {
+        val remainingMillis = BattleTimerScheduler.getRemainingMillis(this)
+        binding.timerText.text = formatRemaining(remainingMillis)
+    }
+
+    private fun requestNotificationPermission() {
+        if (android.os.Build.VERSION.SDK_INT < 33) return
+        val granted = ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.POST_NOTIFICATIONS
+        ) == PackageManager.PERMISSION_GRANTED
+        if (granted) {
+            return
+        }
+
+        ActivityCompat.requestPermissions(
+            this,
+            arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+            NOTIFICATION_PERMISSION_REQUEST
+        )
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == NOTIFICATION_PERMISSION_REQUEST) {
+            val granted = grantResults.isNotEmpty() &&
+                grantResults[0] == PackageManager.PERMISSION_GRANTED
+            if (!granted) {
+                finishAffinity()
+            }
+        }
+    }
+
     private fun seedInitialLogs() {
         val now = System.currentTimeMillis()
         val seeds = listOf(
@@ -191,10 +244,21 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun formatRemaining(remainingMillis: Long): String {
+        val totalSeconds = remainingMillis / 1000
+        val hours = totalSeconds / 3600
+        val minutes = (totalSeconds % 3600) / 60
+        val seconds = totalSeconds % 60
+        return String.format(Locale.getDefault(), "%02d:%02d:%02d", hours, minutes, seconds)
+    }
+
     data class LogSeed(val timestamp: Long, val message: String)
 
     companion object {
         private const val MAX_LOG_ITEMS = 20
         private const val DAY_MILLIS = 24 * 60 * 60 * 1000L
+        private const val NOTIFICATION_PERMISSION_REQUEST = 1003
+        private const val PREFS_NAME = "mindwarrior_prefs"
+        private const val KEY_NOTIFICATION_DENIED_ONCE = "notification_denied_once"
     }
 }

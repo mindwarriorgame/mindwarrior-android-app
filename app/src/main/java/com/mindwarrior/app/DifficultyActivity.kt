@@ -12,7 +12,7 @@ class DifficultyActivity : AppCompatActivity() {
         binding = ActivityDifficultyBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val current = DifficultyPreferences.getDifficulty(this)
+        var current = DifficultyPreferences.getDifficulty(this)
         when (current) {
             Difficulty.BEGINNER -> binding.difficultyBeginner.isChecked = true
             Difficulty.EASY -> binding.difficultyEasy.isChecked = true
@@ -31,7 +31,11 @@ class DifficultyActivity : AppCompatActivity() {
                 R.id.difficulty_export -> Difficulty.EXPORT
                 else -> Difficulty.BEGINNER
             }
-            DifficultyPreferences.setDifficulty(this, selected)
+            if (selected != current) {
+                DifficultyPreferences.setDifficulty(this, selected)
+                BattleTimerScheduler.restart(this)
+                current = selected
+            }
             updateDifficultyInfo(selected)
         }
 
