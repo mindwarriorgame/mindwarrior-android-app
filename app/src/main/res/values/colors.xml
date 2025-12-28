@@ -24,6 +24,9 @@
     <color name="review_stroke">#126543</color>
     <color name="review_text">#052814</color>
 
+    <color name="legend_green">#1E9E63</color>
+    <color name="legend_red">#FF5B5B</color>
+
     <color name="diamonds_bg">#B45CE4</color>
     <color name="diamonds_stroke">#6E2E9A</color>
     <color name="diamonds_pressed">#9C49C6</color>

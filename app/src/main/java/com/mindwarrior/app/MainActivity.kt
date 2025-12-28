@@ -145,6 +145,10 @@ class MainActivity : AppCompatActivity() {
             binding.menuPanel.visibility = android.view.View.GONE
             startActivity(android.content.Intent(this, DifficultyActivity::class.java))
         }
+        binding.menuProgress.setOnClickListener {
+            binding.menuPanel.visibility = android.view.View.GONE
+            startActivity(android.content.Intent(this, ProgressActivity::class.java))
+        }
         binding.menuSleep.setOnClickListener {
             binding.menuPanel.visibility = android.view.View.GONE
             startActivity(android.content.Intent(this, SleepSchedulerActivity::class.java))

@@ -28,6 +28,15 @@
     <string name="timer_flag_message">⏰ Timer complete!\n⚔️ Your next battle window is open.\n📝 Log the moment and keep moving.</string>
     <string name="timer_flag_done">Done</string>
     <string name="timer_flag_log">⏰ Battle timer completed.</string>
+    <string name="progress_title">Weekly Progress</string>
+    <string name="progress_subtitle">Minutes between reviews over the last 7 days.</string>
+    <string name="progress_legend">Sleep intervals are shaded in grey.</string>
+    <string name="progress_legend_mean">Mean (green)</string>
+    <string name="progress_legend_threshold">Threshold (red)</string>
+    <string name="progress_legend_separator">•</string>
+    <string name="progress_active_time">⏱ Active play time: 0d 0h 0m 0s</string>
+    <string name="progress_diamonds_total">💎 Diamonds total earned: 0</string>
+    <string name="progress_close">Close</string>
     <string name="difficulty_title">Select difficulty</string>
     <string name="difficulty_warning">Changing difficulty will reset all game progress.</string>
     <string name="difficulty_beginner">Beginner (default)</string>
