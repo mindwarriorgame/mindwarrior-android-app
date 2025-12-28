@@ -20,6 +20,10 @@
     <string name="sleep_start">Sleep start time</string>
     <string name="sleep_end">Sleep end time</string>
     <string name="sleep_done">Done</string>
+    <string name="quick_start_tube">Tap the tube to edit your formula.</string>
+    <string name="quick_start_review">Tap Review to read your saved formula.</string>
+    <string name="quick_start_next">Next</string>
+    <string name="quick_start_done">Done</string>
     <string name="difficulty_title">Select difficulty</string>
     <string name="difficulty_warning">Changing difficulty will reset all game progress.</string>
     <string name="difficulty_beginner">Beginner (default)</string>

@@ -8,7 +8,10 @@ import android.content.Context
 import android.content.Intent
 import android.media.AudioAttributes
 import android.media.RingtoneManager
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import androidx.core.app.NotificationCompat
+import androidx.appcompat.content.res.AppCompatResources
 import kotlin.math.max
 
 object BattleTimerScheduler {
@@ -107,10 +110,20 @@ object BattleTimerScheduler {
 
         val notificationManager =
             context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val contentIntent = PendingIntent.getActivity(
+            context,
+            1002,
+            Intent(context, MainActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            },
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(android.R.drawable.ic_dialog_info)
+            .setSmallIcon(R.drawable.ic_notification)
+            .setLargeIcon(loadAppIcon(context))
             .setContentTitle("Time's up")
             .setContentText("Your battle timer has finished.")
+            .setContentIntent(contentIntent)
             .setAutoCancel(true)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setDefaults(NotificationCompat.DEFAULT_SOUND or NotificationCompat.DEFAULT_VIBRATE)
@@ -138,5 +151,16 @@ object BattleTimerScheduler {
         channel.setSound(soundUri, attributes)
         channel.enableVibration(true)
         notificationManager.createNotificationChannel(channel)
+    }
+
+    private fun loadAppIcon(context: Context): Bitmap? {
+        val drawable = AppCompatResources.getDrawable(context, R.drawable.ic_launcher) ?: return null
+        val width = if (drawable.intrinsicWidth > 0) drawable.intrinsicWidth else 108
+        val height = if (drawable.intrinsicHeight > 0) drawable.intrinsicHeight else 108
+        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        drawable.setBounds(0, 0, canvas.width, canvas.height)
+        drawable.draw(canvas)
+        return bitmap
     }
 }
