@@ -14,6 +14,12 @@
     <string name="review_button">Review Formula</string>
     <string name="logs_title">Battle Log</string>
     <string name="achievements_title">Achievements Board</string>
+    <string name="sleep_title">Sleep Scheduler</string>
+    <string name="sleep_subtitle">Pause battles during your rest window.</string>
+    <string name="sleep_enabled">Enable scheduler</string>
+    <string name="sleep_start">Sleep start time</string>
+    <string name="sleep_end">Sleep end time</string>
+    <string name="sleep_done">Done</string>
     <string name="difficulty_title">Select difficulty</string>
     <string name="difficulty_warning">Changing difficulty will reset all game progress.</string>
     <string name="difficulty_beginner">Beginner (default)</string>
