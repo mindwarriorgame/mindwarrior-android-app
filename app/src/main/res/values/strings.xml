@@ -8,6 +8,7 @@
     <string name="menu_sleep">💤 Sleep scheduler</string>
     <string name="menu_progress">📈 View Progress</string>
     <string name="menu_difficulty">💪 Difficulty: %1$s</string>
+    <string name="menu_settings">⚙️ Settings</string>
     <string name="timer_text">02:14:36</string>
     <string name="pause_button_pause">⏸</string>
     <string name="pause_button_resume">▶️</string>
@@ -43,6 +44,10 @@
     <string name="timer_notification_loading">Loading timer...</string>
     <string name="timer_notification_running">Time left: %1$s</string>
     <string name="timer_notification_paused">Paused</string>
+    <string name="settings_title">Settings</string>
+    <string name="settings_subtitle">Toggle the always-on timer banner.</string>
+    <string name="settings_timer_foreground">Show timer on lock screen</string>
+    <string name="settings_close">Close</string>
     <string name="difficulty_title">Select difficulty</string>
     <string name="difficulty_warning">Changing difficulty will reset all game progress.</string>
     <string name="difficulty_beginner">Beginner (default)</string>

@@ -95,7 +95,9 @@ class MainActivity : AppCompatActivity() {
         setupControls()
         BattleTimerScheduler.ensureScheduled(this)
         requestNotificationPermission()
-        startTimerService()
+        if (SettingsPreferences.isForegroundEnabled(this)) {
+            TimerServiceController.start(this)
+        }
         updatePauseUi(BattleTimerScheduler.isPaused(this))
 
         seedInitialLogs()
@@ -149,6 +151,10 @@ class MainActivity : AppCompatActivity() {
         binding.menuProgress.setOnClickListener {
             binding.menuPanel.visibility = android.view.View.GONE
             startActivity(android.content.Intent(this, ProgressActivity::class.java))
+        }
+        binding.menuSettings.setOnClickListener {
+            binding.menuPanel.visibility = android.view.View.GONE
+            startActivity(android.content.Intent(this, SettingsActivity::class.java))
         }
         binding.menuSleep.setOnClickListener {
             binding.menuPanel.visibility = android.view.View.GONE
@@ -419,7 +425,9 @@ class MainActivity : AppCompatActivity() {
             if (!granted) {
                 finishAffinity()
             } else {
-                startTimerService()
+                if (SettingsPreferences.isForegroundEnabled(this)) {
+                    TimerServiceController.start(this)
+                }
             }
         }
     }

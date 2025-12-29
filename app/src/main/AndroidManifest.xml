@@ -44,6 +44,11 @@
             android:exported="false"
             android:screenOrientation="portrait" />
 
+        <activity
+            android:name=".SettingsActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
         <service
             android:name=".TimerForegroundService"
             android:exported="false"
