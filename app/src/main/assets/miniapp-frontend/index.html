@@ -4,6 +4,142 @@
     <title>MindWarrior</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#000000" />
+
+<script>
+    /*
+(function installErrorOverlay(options = {}) {
+  const cfg = {
+    reportUrl: options.reportUrl || null,   // e.g. "https://your-backend.com/log-js-error"
+    maxBody: options.maxBody || 8000,
+    show: options.show !== false,
+  };
+
+  function safeString(x) {
+    try {
+      if (x == null) return String(x);
+      if (typeof x === "string") return x;
+      if (x instanceof Error) return (x.stack || x.message || String(x));
+      return JSON.stringify(x, Object.getOwnPropertyNames(x));
+    } catch (_) {
+      return String(x);
+    }
+  }
+
+  function redact(s) {
+    // add your own redaction rules if needed
+    return String(s)
+      .replace(/(tgWebAppData=)[^&\s]+/gi, "$1[REDACTED]")
+      .slice(0, cfg.maxBody);
+  }
+
+  function ensureOverlay() {
+    let el = document.getElementById("__err_overlay__");
+    if (el) return el;
+
+    el = document.createElement("div");
+    el.id = "__err_overlay__";
+    el.style.cssText = [
+      "position:fixed",
+      "z-index:2147483647",
+      "left:0",
+      "right:0",
+      "top:0",
+      "max-height:55vh",
+      "overflow:auto",
+      "background:rgba(0,0,0,.92)",
+      "color:#fff",
+      "font:12px/1.4 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
+      "padding:10px",
+      "border-bottom:1px solid rgba(255,255,255,.2)"
+    ].join(";");
+
+    el.innerHTML = `
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+        <strong style="color:#ff6b6b;">JS ERROR</strong>
+        <button id="__err_copy__" style="cursor:pointer;">Copy</button>
+        <button id="__err_close__" style="cursor:pointer;">Close</button>
+        <span id="__err_hint__" style="opacity:.7;margin-left:auto;"></span>
+      </div>
+      <pre id="__err_pre__" style="white-space:pre-wrap;word-break:break-word;margin:0;"></pre>
+    `;
+    document.documentElement.appendChild(el);
+
+    el.querySelector("#__err_close__").onclick = () => el.remove();
+    el.querySelector("#__err_copy__").onclick = async () => {
+      const text = el.querySelector("#__err_pre__").textContent || "";
+      try { await navigator.clipboard.writeText(text); } catch (_) {}
+    };
+    return el;
+  }
+
+  function writeOverlay(text) {
+    if (!cfg.show) return;
+    const el = ensureOverlay();
+    el.querySelector("#__err_pre__").textContent = text;
+    el.querySelector("#__err_hint__").textContent =
+      "Please screenshot or tap Copy and send to support.";
+  }
+
+  function report(payload) {
+    if (!cfg.reportUrl) return;
+    try {
+      fetch(cfg.reportUrl, {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify(payload),
+        keepalive: true, // helps on page close
+      }).catch(() => {});
+    } catch (_) {}
+  }
+
+  function buildContext() {
+    return {
+      href: location.href,
+      ua: navigator.userAgent,
+      ts: new Date().toISOString(),
+      // Telegram Mini App context if available:
+      tg: (window.Telegram && window.Telegram.WebApp) ? {
+        platform: window.Telegram.WebApp.platform,
+        version: window.Telegram.WebApp.version,
+        initDataUnsafe: window.Telegram.WebApp.initDataUnsafe
+          ? { user: window.Telegram.WebApp.initDataUnsafe.user?.id } // keep minimal; avoid leaking
+          : undefined,
+      } : null,
+    };
+  }
+
+  function handle(kind, errLike) {
+    const message = redact(safeString(errLike));
+    const ctx = buildContext();
+    const text = `[${kind}] ${ctx.ts}\n${message}\n\nURL: ${ctx.href}\nUA: ${ctx.ua}\nTG: ${safeString(ctx.tg)}`;
+    writeOverlay(text);
+    report({ kind, message, ctx });
+  }
+
+  window.addEventListener("error", (e) => {
+    // e.error is the actual Error object in many cases
+    handle("window.error", e.error || `${e.message}\n@${e.filename}:${e.lineno}:${e.colno}`);
+  });
+
+  window.addEventListener("unhandledrejection", (e) => {
+    handle("unhandledrejection", e.reason || "Promise rejected");
+  });
+
+  // Optional: also surface console.error
+  const origConsoleError = console.error;
+  console.error = function(...args) {
+    try { handle("console.error", args.map(safeString).join(" ")); } catch (_) {}
+    origConsoleError.apply(console, args);
+  };
+
+})( {
+  // reportUrl: "https://your-backend.com/log-js-error"
+});
+
+*/
+</script>
+
+
     <script src="server-time.js?v=1"></script>
 
     <script>
@@ -327,7 +463,60 @@
             name="description"
             content="MindWarrior"
     />
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    
+    
+        <script src="https://telegram.org/js/telegram-web-app.js?59"></script>
+<script>
+  (function () {
+    const FALLBACK = "vendor/telegram-web-app.js?59"; // serve from your domain/CDN
+
+    function inject(src) {
+      const s = document.createElement("script");
+      s.src = src;
+      s.async = true;
+      document.head.appendChild(s);
+      return s;
+    }
+    if (!window.Telegram){
+        inject(FALLBACK);
+    }
+  })();
+
+function whenTelegramWebAppReady(cb) {
+  if (window?.Telegram?.WebApp) {
+    return cb(window.Telegram.WebApp);
+  }
+
+  const id = setInterval(() => {
+    if (window?.Telegram?.WebApp) {
+      clearInterval(id);
+      cb(window.Telegram.WebApp);
+    }
+  }, 50);
+}
+
+function tgReadyDeferred() {
+    whenTelegramWebAppReady((wa) => wa.ready());
+}
+
+function tgExpandDeferred() {
+    whenTelegramWebAppReady((wa) => wa.expand());
+}
+
+function tgCloseDeferred() {
+    whenTelegramWebAppReady((wa) => wa.close());
+}
+
+function tgGetQueryId() {
+    return new Promise((resolve) => {
+        whenTelegramWebAppReady((wa) => {
+            resolve(wa.initDataUnsafe.query_id);
+        });
+    });
+}
+</script>
+
+
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -669,826 +858,831 @@
 
 <script>
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const langCode = urlParams.get('lang_code') || 'en';
-    window.lang = window.langs[langCode];
+const urlParams = new URLSearchParams(window.location.search);
+const langCode = urlParams.get('lang_code') || 'en';
+window.lang = window.langs[langCode];
 
-    window.expandChunk = (idx) => {
-        if (document.getElementById('chunk' + idx).style.display === 'block') {
-            document.getElementById('chunk' + idx).style.display = 'none';
-            document.getElementById('chunkLink' + idx).style.display = 'block';
-            return;
-        }
-        document.getElementById('chunk' + idx).style.display = 'block';
-        document.getElementById('chunkLink' + idx).style.display = 'none';
-    };
+window.expandChunk = (idx) => {
+    if (document.getElementById('chunk' + idx).style.display === 'block') {
+        document.getElementById('chunk' + idx).style.display = 'none';
+        document.getElementById('chunkLink' + idx).style.display = 'block';
+        return;
+    }
+    document.getElementById('chunk' + idx).style.display = 'block';
+    document.getElementById('chunkLink' + idx).style.display = 'none';
+};
 
-    const SERVER_TIME = new ServerTime();
+const SERVER_TIME = new ServerTime();
 
-    // https://github.com/adamvleggett/drawdown/blob/master/drawdown.js
-    // Copy-pasting it because:
-    //  1. It's small
-    //  2. Don't want to over-complicate things with webpack
-    //  3. Don't want to load it externally to speed up the page load
-    //  4. To easily share in public-formulas generator (to preserve same algorithm)
-    function markdown(n){var r=/\\([\\\|`*_{}\[\]()#+\-~])/g,t=/\n *&gt; *([^]*?)(?=(\n|$){2})/g,e=/\n( *)(?:[*\-+]|((\d+)|([a-z])|[A-Z])[.)]) +([^]*?)(?=(\n|$){2})/g,u=/(^|[^A-Za-z\d\\])(([*_])|(~)|(\^)|(--)|(\+\+)|`)(\2?)([^<]*?)\2\8(?!\2)(?=\W|_|$)/g,c=/^.*\n( *\|( *\:?-+\:?-+\:? *\|)* *\n|)/,f=/.*\n/g,l=/\||(.*?[^\\])\|/g;function o(r,t){n=n.replace(r,t)}function a(n,r){return"<"+n+">"+r+"</"+n+">"}function g(n){return n.replace(u,function(n,r,t,e,u,c,f,l,o,i){return r+a(e?o?"strong":"em":u?o?"s":"sub":c?"sup":f?"small":l?"big":"code",g(i))})}function i(n){return n.replace(r,"$1")}var p=[],s=0;return n="\n"+n+"\n",o(/</g,"&lt;"),o(/>/g,"&gt;"),o(/\t|\r|\uf8ff/g,"  "),n=function n(r){return r.replace(t,function(r,t){return a("blockquote",n(g(t.replace(/^ *&gt; */gm,""))))})}(n),o(/^([*\-=_] *){3,}$/gm,"<hr/>"),n=function n(r){return r.replace(e,function(r,t,e,u,c,f){var l=a("li",g(f.split(RegExp("\n ?"+t+"(?:(?:\\d+|[a-zA-Z])[.)]|[*\\-+]) +","g")).map(n).join("</li><li>")));return"\n"+(e?'<ol start="'+(u?e+'">':parseInt(e,36)-9+'" style="list-style-type:'+(c?"low":"upp")+'er-alpha">')+l+"</ol>":a("ul",l))})}(n),o(/<\/(ol|ul)>\n\n<\1>/g,""),o(/\n((```|~~~).*\n?([^]*?)\n?\2|((    .*?\n)+))/g,function(n,r,t,e,u){return p[--s]=a("pre",a("code",e||u.replace(/^    /gm,""))),s+""}),o(/((!?)\[(.*?)\]\((.*?)( ".*")?\)|\\([\\`*_{}\[\]()#+\-.!~]))/g,function(n,r,t,e,u,c,f){return p[--s]=u?t?'<img src="'+u+'" alt="'+e+'"/>':'<a href="'+u+'">'+i(g(e))+"</a>":f,s+""}),o(/\n(( *\|.*?\| *\n)+)/g,function(n,r){var t=r.match(c)[1];return"\n"+a("table",r.replace(f,function(n,r){return n==t?"":a("tr",n.replace(l,function(n,e,u){return u?a(t&&!r?"th":"td",i(g(e||""))):""}))}))}),o(/(?=^|>|\n)([>\s]*?)(#{1,6}) (.*?)( #*)? *(?=\n|$)/g,function(n,r,t,e){return r+a("h"+t.length,i(g(e)))}),o(/(?=^|>|\n)\s*\n+([^<]+?)\n+\s*(?=\n|<|$)/g,function(n,r){return a("p",i(g(r)))}),o(/-\d+\uf8ff/g,function(n){return p[parseInt(n)]}),n.trim()}
+// https://github.com/adamvleggett/drawdown/blob/master/drawdown.js
+// Copy-pasting it because:
+//  1. It's small
+//  2. Don't want to over-complicate things with webpack
+//  3. Don't want to load it externally to speed up the page load
+//  4. To easily share in public-formulas generator (to preserve same algorithm)
+function markdown(n){var r=/\\([\\\|`*_{}\[\]()#+\-~])/g,t=/\n *&gt; *([^]*?)(?=(\n|$){2})/g,e=/\n( *)(?:[*\-+]|((\d+)|([a-z])|[A-Z])[.)]) +([^]*?)(?=(\n|$){2})/g,u=/(^|[^A-Za-z\d\\])(([*_])|(~)|(\^)|(--)|(\+\+)|`)(\2?)([^<]*?)\2\8(?!\2)(?=\W|_|$)/g,c=/^.*\n( *\|( *\:?-+\:?-+\:? *\|)* *\n|)/,f=/.*\n/g,l=/\||(.*?[^\\])\|/g;function o(r,t){n=n.replace(r,t)}function a(n,r){return"<"+n+">"+r+"</"+n+">"}function g(n){return n.replace(u,function(n,r,t,e,u,c,f,l,o,i){return r+a(e?o?"strong":"em":u?o?"s":"sub":c?"sup":f?"small":l?"big":"code",g(i))})}function i(n){return n.replace(r,"$1")}var p=[],s=0;return n="\n"+n+"\n",o(/</g,"&lt;"),o(/>/g,"&gt;"),o(/\t|\r|\uf8ff/g,"  "),n=function n(r){return r.replace(t,function(r,t){return a("blockquote",n(g(t.replace(/^ *&gt; */gm,""))))})}(n),o(/^([*\-=_] *){3,}$/gm,"<hr/>"),n=function n(r){return r.replace(e,function(r,t,e,u,c,f){var l=a("li",g(f.split(RegExp("\n ?"+t+"(?:(?:\\d+|[a-zA-Z])[.)]|[*\\-+]) +","g")).map(n).join("</li><li>")));return"\n"+(e?'<ol start="'+(u?e+'">':parseInt(e,36)-9+'" style="list-style-type:'+(c?"low":"upp")+'er-alpha">')+l+"</ol>":a("ul",l))})}(n),o(/<\/(ol|ul)>\n\n<\1>/g,""),o(/\n((```|~~~).*\n?([^]*?)\n?\2|((    .*?\n)+))/g,function(n,r,t,e,u){return p[--s]=a("pre",a("code",e||u.replace(/^    /gm,""))),s+""}),o(/((!?)\[(.*?)\]\((.*?)( ".*")?\)|\\([\\`*_{}\[\]()#+\-.!~]))/g,function(n,r,t,e,u,c,f){return p[--s]=u?t?'<img src="'+u+'" alt="'+e+'"/>':'<a href="'+u+'">'+i(g(e))+"</a>":f,s+""}),o(/\n(( *\|.*?\| *\n)+)/g,function(n,r){var t=r.match(c)[1];return"\n"+a("table",r.replace(f,function(n,r){return n==t?"":a("tr",n.replace(l,function(n,e,u){return u?a(t&&!r?"th":"td",i(g(e||""))):""}))}))}),o(/(?=^|>|\n)([>\s]*?)(#{1,6}) (.*?)( #*)? *(?=\n|$)/g,function(n,r,t,e){return r+a("h"+t.length,i(g(e)))}),o(/(?=^|>|\n)\s*\n+([^<]+?)\n+\s*(?=\n|<|$)/g,function(n,r){return a("p",i(g(r)))}),o(/-\d+\uf8ff/g,function(n){return p[parseInt(n)]}),n.trim()}
 
-    function myMarkdown(str) {
-        const result = markdown(str);
-        return result.split("&lt;br&gt;").join("<br />");
+function myMarkdown(str) {
+    const result = markdown(str);
+    return result.split("&lt;br&gt;").join("<br />");
+}
+
+
+function updateCounter(counterNo, counterId, delta) {
+    const counter = document.getElementById("counter" + counterId);
+    window.localStorage.setItem("counter" + counterNo, (parseInt(window.localStorage.getItem("counter" + counterNo)) || 0) + delta);
+    counter.querySelector("span").innerText = (window.localStorage.getItem("counter" + counterNo) || 0);
+}
+
+function decreaseCounter(timerNo, timerId) {
+    updateCounter(timerNo, timerId, -1);
+}
+
+function increaseCounter(timerNo, timerId) {
+    updateCounter(timerNo, timerId, 1);
+}
+
+function resetCounter(timerNo, timerId) {
+    if (confirm(window.lang.sure)) {
+        updateCounter(timerNo, timerId, -window.localStorage.getItem("counter" + timerNo) || 0);
+    }
+}
+
+function initCounters(html) {
+    let nCounter = 0;
+    html = html.replaceAll("{counter}", () => {
+        nCounter ++;
+        const randomString = Math.random().toString(36).substring(7);
+        const initialValue = window.localStorage.getItem("counter" + nCounter) || 0;
+        return "<span class='counter' id='counter" + randomString + "'>" +
+            "<a href='javascript:decreaseCounter(" + nCounter +",\"" + randomString + "\")'>➖</a> " +
+            "<span>" + initialValue + "</span> " +
+            "<a href='javascript:increaseCounter(" + nCounter +",\"" + randomString + "\")'>➕</a> | " +
+            "<a href='javascript:resetCounter(" + nCounter +",\"" + randomString + "\")'>↻</a>" +
+            "</span>";
+    });
+    return html;
+}
+
+function toStopwatchValue(nMsecs) {
+    let nSecs = Math.floor(nMsecs / 1000);
+    let nMins = Math.floor(nSecs / 60);
+    let nHours = Math.floor(nMins / 60);
+    const nDays = Math.floor(nHours / 24);
+
+    nSecs = nSecs % 60;
+    nMins = nMins % 60;
+    nHours = nHours % 24;
+
+    let ret = "";
+    if (nSecs < 10) {
+        ret = "0" + nSecs;
+    } else {
+        ret = nSecs;
     }
 
-
-    function updateCounter(counterNo, counterId, delta) {
-        const counter = document.getElementById("counter" + counterId);
-        window.localStorage.setItem("counter" + counterNo, (parseInt(window.localStorage.getItem("counter" + counterNo)) || 0) + delta);
-        counter.querySelector("span").innerText = (window.localStorage.getItem("counter" + counterNo) || 0);
+    if (nMins < 10) {
+        ret = "0" + nMins + "." + ret;
+    } else {
+        ret = nMins + "." + ret;
     }
 
-    function decreaseCounter(timerNo, timerId) {
-        updateCounter(timerNo, timerId, -1);
+    if (nHours < 10) {
+        ret = "0" + nHours + ":" + ret;
+    } else {
+        ret = nHours + ":" + ret;
     }
 
-    function increaseCounter(timerNo, timerId) {
-        updateCounter(timerNo, timerId, 1);
+    if (nDays > 0) {
+        ret = nDays + " " + ret;
     }
+    return ret;
+}
 
-    function resetCounter(timerNo, timerId) {
-        if (confirm(window.lang.sure)) {
-            updateCounter(timerNo, timerId, -window.localStorage.getItem("counter" + timerNo) || 0);
-        }
+function resetStopwatch(nStopwatch, randomString) {
+    if (confirm(window.lang.sure)) {
+        window.localStorage.setItem("stopwatchStartedAt" + nStopwatch, Date.now());
+        document.getElementById("stopwatch" + randomString).querySelector('span').innerText = toStopwatchValue(0);
     }
+}
 
-    function initCounters(html) {
-        let nCounter = 0;
-        html = html.replaceAll("{counter}", () => {
-            nCounter ++;
-            const randomString = Math.random().toString(36).substring(7);
-            const initialValue = window.localStorage.getItem("counter" + nCounter) || 0;
-            return "<span class='counter' id='counter" + randomString + "'>" +
-                "<a href='javascript:decreaseCounter(" + nCounter +",\"" + randomString + "\")'>➖</a> " +
-                "<span>" + initialValue + "</span> " +
-                "<a href='javascript:increaseCounter(" + nCounter +",\"" + randomString + "\")'>➕</a> | " +
-                "<a href='javascript:resetCounter(" + nCounter +",\"" + randomString + "\")'>↻</a>" +
-                "</span>";
-        });
-        return html;
-    }
+setInterval(() => {
+    document.querySelectorAll('.stopwatch').forEach((elt) => {
+        const nStopwatch = elt.getAttribute('data-n');
+        const initialValue = parseInt(window.localStorage.getItem("stopwatchStartedAt" + nStopwatch) || Date.now());
+        elt.querySelector('span').innerText = toStopwatchValue(Date.now() - initialValue);
+    });
+}, 1000);
 
-    function toStopwatchValue(nMsecs) {
-        let nSecs = Math.floor(nMsecs / 1000);
-        let nMins = Math.floor(nSecs / 60);
-        let nHours = Math.floor(nMins / 60);
-        const nDays = Math.floor(nHours / 24);
-
-        nSecs = nSecs % 60;
-        nMins = nMins % 60;
-        nHours = nHours % 24;
-
-        let ret = "";
-        if (nSecs < 10) {
-            ret = "0" + nSecs;
-        } else {
-            ret = nSecs;
-        }
-
-        if (nMins < 10) {
-            ret = "0" + nMins + "." + ret;
-        } else {
-            ret = nMins + "." + ret;
-        }
-
-        if (nHours < 10) {
-            ret = "0" + nHours + ":" + ret;
-        } else {
-            ret = nHours + ":" + ret;
-        }
-
-        if (nDays > 0) {
-            ret = nDays + " " + ret;
-        }
-        return ret;
-    }
-
-    function resetStopwatch(nStopwatch, randomString) {
-        if (confirm(window.lang.sure)) {
+function initStopwatches(html) {
+    let nStopwatch = 0;
+    html = html.replaceAll("{stopwatch}", () => {
+        nStopwatch ++;
+        const randomString = Math.random().toString(36).substring(7);
+        if (!window.localStorage.getItem("stopwatchStartedAt" + nStopwatch)) {
             window.localStorage.setItem("stopwatchStartedAt" + nStopwatch, Date.now());
-            document.getElementById("stopwatch" + randomString).querySelector('span').innerText = toStopwatchValue(0);
         }
-    }
+        const initialValue = parseInt(window.localStorage.getItem("stopwatchStartedAt" + nStopwatch));
+        return "<span class='stopwatch' data-n='" + nStopwatch + "' id='stopwatch" + randomString + "'>" +
+            "<span>" + toStopwatchValue(Date.now() - initialValue) + "</span> " +
+            "<a href='javascript:resetStopwatch(" + nStopwatch +",\"" + randomString + "\")'>↻</a>" +
+            "</span>";
+    });
+    return html;
+}
 
-    setInterval(() => {
-        document.querySelectorAll('.stopwatch').forEach((elt) => {
-            const nStopwatch = elt.getAttribute('data-n');
-            const initialValue = parseInt(window.localStorage.getItem("stopwatchStartedAt" + nStopwatch) || Date.now());
-            elt.querySelector('span').innerText = toStopwatchValue(Date.now() - initialValue);
-        });
-    }, 1000);
+function textToHtml(inputText, lang) {
 
-    function initStopwatches(html) {
-        let nStopwatch = 0;
-        html = html.replaceAll("{stopwatch}", () => {
-            nStopwatch ++;
-            const randomString = Math.random().toString(36).substring(7);
-            if (!window.localStorage.getItem("stopwatchStartedAt" + nStopwatch)) {
-                window.localStorage.setItem("stopwatchStartedAt" + nStopwatch, Date.now());
-            }
-            const initialValue = parseInt(window.localStorage.getItem("stopwatchStartedAt" + nStopwatch));
-            return "<span class='stopwatch' data-n='" + nStopwatch + "' id='stopwatch" + randomString + "'>" +
-                "<span>" + toStopwatchValue(Date.now() - initialValue) + "</span> " +
-                "<a href='javascript:resetStopwatch(" + nStopwatch +",\"" + randomString + "\")'>↻</a>" +
-                "</span>";
-        });
-        return html;
-    }
-
-    function textToHtml(inputText, lang) {
-
-        const chunks = [];
-        let chunk = '';
-        let nHeaders = 0;
-        inputText.trim().split('\n').forEach((line) => {
-            if (line.trim().startsWith('# ')) {
-                chunks.push(chunk.trim());
-                chunks.push(line);
-                chunk = '';
-                nHeaders ++;
-            } else {
-                chunk += line + '\n';
-            }
-        });
-        if (chunk) {
+    const chunks = [];
+    let chunk = '';
+    let nHeaders = 0;
+    inputText.trim().split('\n').forEach((line) => {
+        if (line.trim().startsWith('# ')) {
             chunks.push(chunk.trim());
+            chunks.push(line);
+            chunk = '';
+            nHeaders ++;
+        } else {
+            chunk += line + '\n';
         }
+    });
+    if (chunk) {
+        chunks.push(chunk.trim());
+    }
 
-        let ret = '';
-        for (let idx = 0; idx < chunks.length; idx++) {
-            if (!chunks[idx].trim()) {
-            } if (chunks[idx].startsWith('# ')) {
-                ret += '<h1><a href="javascript:window.expandChunk(' + (idx + 1) + ')">' + chunks[idx].substring(2) + '</a></h1>';
+    let ret = '';
+    for (let idx = 0; idx < chunks.length; idx++) {
+        if (!chunks[idx].trim()) {
+        } if (chunks[idx].startsWith('# ')) {
+            ret += '<h1><a href="javascript:window.expandChunk(' + (idx + 1) + ')">' + chunks[idx].substring(2) + '</a></h1>';
+        } else {
+            if (idx > 0) {
+                ret += "<div style='display:none' id='chunk" + idx + "'>" + myMarkdown(chunks[idx]) + "</div>";
+                ret += "<div id='chunkLink" + idx + "'><a href='javascript:window.expandChunk(" + idx + ")'>(" + lang.expand + ")</a></div>"
             } else {
-                if (idx > 0) {
-                    ret += "<div style='display:none' id='chunk" + idx + "'>" + myMarkdown(chunks[idx]) + "</div>";
-                    ret += "<div id='chunkLink" + idx + "'><a href='javascript:window.expandChunk(" + idx + ")'>(" + lang.expand + ")</a></div>"
-                } else {
-                    ret += myMarkdown(chunks[idx]);
-                }
+                ret += myMarkdown(chunks[idx]);
             }
         }
-
-        return ret;
-    }
-    const HEADER = {
-        parent: document.querySelector('#header'),
-        menu: document.querySelectorAll('#header img')[0],
-        close: document.querySelectorAll('#header img')[1],
-        dummyRightImg: document.querySelectorAll('#header img')[2],
-        actionButton: document.querySelector('#header button'),
-
-    };
-
-    const CONTENT = {
-        textarea: document.querySelector('#content textarea'),
-        review: document.querySelector('#content #review'),
-        text: {
-            parent: document.querySelector('#content #text'),
-            title: document.querySelector('#content #text .title'),
-            preFirst: document.querySelectorAll('#content #text pre')[0],
-            preSecond: document.querySelectorAll('#content #text pre')[1],
-            span1: document.querySelectorAll('#content #text span')[0],
-            span2: document.querySelectorAll('#content #text span')[1],
-            select1: document.querySelectorAll('#content #text select')[0],
-            select1Disabled: document.querySelectorAll('#content #text select')[0].querySelector('option.disabled'),
-            select2: document.querySelectorAll('#content #text select')[1],
-            select2Disabled: document.querySelectorAll('#content #text select')[1].querySelector('option.disabled'),
-            link: document.querySelector('#content #text a'),
-            buttonConfirm: document.querySelectorAll('#content #text button')[0],
-            buttonSubmit: document.querySelectorAll('#content #text button')[1],
-            input: document.querySelector('#content #text input')
-        }
-    };
-
-    const PREVIEW_BTN = {
-        parent: document.querySelector('#preview-btn'),
-        link: document.querySelector('#preview-btn a')
-    };
-
-
-    const BACK_TO_EDIT = {
-        parent: document.querySelector('#back-to-edit'),
-        link: document.querySelector('#back-to-edit a')
-    };
-
-    const MENU = {
-        parent: document.querySelector('#menu'),
-        insert: document.querySelector('#menu .insert'),
-        insertHeader: document.querySelector('#menu .insert-header'),
-        insertSubheader: document.querySelector('#menu .insert-subheader'),
-        insertBold: document.querySelector('#menu .insert-bold'),
-        insertCursive: document.querySelector('#menu .insert-cursive'),
-        insertList: document.querySelector('#menu .insert-list'),
-        insertStopwatch: document.querySelector('#menu .insert-stopwatch'),
-        help: document.querySelector('#menu .help'),
-        share: document.querySelector('#menu .share')
-    };
-
-    const FOOTER = document.querySelector('#footer');
-    FOOTER.innerHTML = window.lang.footer;
-
-    function hide(elt) {
-        elt.classList.add('hidden');
     }
 
-    function show(elt) {
-        elt.classList.remove('hidden');
+    return ret;
+}
+const HEADER = {
+    parent: document.querySelector('#header'),
+    menu: document.querySelectorAll('#header img')[0],
+    close: document.querySelectorAll('#header img')[1],
+    dummyRightImg: document.querySelectorAll('#header img')[2],
+    actionButton: document.querySelector('#header button'),
+
+};
+
+const CONTENT = {
+    textarea: document.querySelector('#content textarea'),
+    review: document.querySelector('#content #review'),
+    text: {
+        parent: document.querySelector('#content #text'),
+        title: document.querySelector('#content #text .title'),
+        preFirst: document.querySelectorAll('#content #text pre')[0],
+        preSecond: document.querySelectorAll('#content #text pre')[1],
+        span1: document.querySelectorAll('#content #text span')[0],
+        span2: document.querySelectorAll('#content #text span')[1],
+        select1: document.querySelectorAll('#content #text select')[0],
+        select1Disabled: document.querySelectorAll('#content #text select')[0].querySelector('option.disabled'),
+        select2: document.querySelectorAll('#content #text select')[1],
+        select2Disabled: document.querySelectorAll('#content #text select')[1].querySelector('option.disabled'),
+        link: document.querySelector('#content #text a'),
+        buttonConfirm: document.querySelectorAll('#content #text button')[0],
+        buttonSubmit: document.querySelectorAll('#content #text button')[1],
+        input: document.querySelector('#content #text input')
+    }
+};
+
+const PREVIEW_BTN = {
+    parent: document.querySelector('#preview-btn'),
+    link: document.querySelector('#preview-btn a')
+};
+
+
+const BACK_TO_EDIT = {
+    parent: document.querySelector('#back-to-edit'),
+    link: document.querySelector('#back-to-edit a')
+};
+
+const MENU = {
+    parent: document.querySelector('#menu'),
+    insert: document.querySelector('#menu .insert'),
+    insertHeader: document.querySelector('#menu .insert-header'),
+    insertSubheader: document.querySelector('#menu .insert-subheader'),
+    insertBold: document.querySelector('#menu .insert-bold'),
+    insertCursive: document.querySelector('#menu .insert-cursive'),
+    insertList: document.querySelector('#menu .insert-list'),
+    insertStopwatch: document.querySelector('#menu .insert-stopwatch'),
+    help: document.querySelector('#menu .help'),
+    share: document.querySelector('#menu .share')
+};
+
+const FOOTER = document.querySelector('#footer');
+FOOTER.innerHTML = window.lang.footer;
+
+function hide(elt) {
+    elt.classList.add('hidden');
+}
+
+function show(elt) {
+    elt.classList.remove('hidden');
+}
+
+function hideEverything() {
+    hide(HEADER.actionButton);
+    hide(HEADER.menu);
+    hide(HEADER.close);
+    hide(HEADER.dummyRightImg);
+
+    hide(CONTENT.textarea);
+    hide(CONTENT.review);
+
+    hide(CONTENT.text.parent);
+    hide(CONTENT.text.preSecond);
+    hide(CONTENT.text.link);
+    hide(CONTENT.text.buttonConfirm);
+    hide(CONTENT.text.buttonSubmit);
+    hide(CONTENT.text.input);
+
+    hide(CONTENT.text.span1);
+    hide(CONTENT.text.span2);
+    hide(CONTENT.text.select1);
+    hide(CONTENT.text.select2);
+
+    hide(BACK_TO_EDIT.parent);
+
+    hide(PREVIEW_BTN.parent);
+
+    hide(MENU.parent);
+
+    hide(FOOTER);
+}
+
+class DataSubmitComponent {
+    constructor(lang) {
+        this.data = null;
+        this.lang = lang;
     }
 
-    function hideEverything() {
-        hide(HEADER.actionButton);
-        hide(HEADER.menu);
-        hide(HEADER.close);
-        hide(HEADER.dummyRightImg);
+    _showData(data) {
+        hideEverything();
 
-        hide(CONTENT.textarea);
-        hide(CONTENT.review);
-
-        hide(CONTENT.text.parent);
+        show(CONTENT.text.parent);
         hide(CONTENT.text.preSecond);
         hide(CONTENT.text.link);
-        hide(CONTENT.text.buttonConfirm);
-        hide(CONTENT.text.buttonSubmit);
-        hide(CONTENT.text.input);
 
-        hide(CONTENT.text.span1);
-        hide(CONTENT.text.span2);
-        hide(CONTENT.text.select1);
-        hide(CONTENT.text.select2);
+        CONTENT.text.title.innerHTML = this.lang.submittingData;
+        CONTENT.text.link.innerHTML = this.lang.tryAgain;
 
-        hide(BACK_TO_EDIT.parent);
-
-        hide(PREVIEW_BTN.parent);
-
-        hide(MENU.parent);
-
-        hide(FOOTER);
+        show(CONTENT.text.preFirst);
+        CONTENT.text.preFirst.textContent = data;
     }
 
-    class DataSubmitComponent {
-        constructor(app, lang) {
-            this.app = app;
-            this.queryId = app.initDataUnsafe.query_id;
-            this.data = null;
-            this.lang = lang;
-        }
+    _showError(error) {
+        show(CONTENT.text.preSecond);
+        show(CONTENT.text.link);
+        CONTENT.text.preSecond.textContent = this.lang.error + ': ' + error;
 
-        _showData(data) {
-            hideEverything();
-
-            show(CONTENT.text.parent);
+        const tryAgainHandler = (e) => {
+            e.preventDefault();
             hide(CONTENT.text.preSecond);
             hide(CONTENT.text.link);
+            this.submitData(this.dataProvider);
+            CONTENT.text.link.removeEventListener("click", tryAgainHandler);
 
-            CONTENT.text.title.innerHTML = this.lang.submittingData;
-            CONTENT.text.link.innerHTML = this.lang.tryAgain;
-
-            show(CONTENT.text.preFirst);
-            CONTENT.text.preFirst.textContent = data;
+            CONTENT.text.link.removeEventListener('click', tryAgainHandler);
         }
 
-        _showError(error) {
-            show(CONTENT.text.preSecond);
-            show(CONTENT.text.link);
-            CONTENT.text.preSecond.textContent = this.lang.error + ': ' + error;
+        CONTENT.text.link.addEventListener('click', tryAgainHandler);
+    }
 
-            const tryAgainHandler = (e) => {
-                e.preventDefault();
-                hide(CONTENT.text.preSecond);
-                hide(CONTENT.text.link);
-                this.submitData(this.dataProvider);
-                CONTENT.text.link.removeEventListener("click", tryAgainHandler);
+    async submitData(dataProvider) {
+        const urlParams = new URLSearchParams(window.location.search);
+        const langCode = urlParams.get('lang_code') || 'en';
+        const env = urlParams.get('env') || "prod";
 
-                CONTENT.text.link.removeEventListener('click', tryAgainHandler);
+        this.dataProvider = dataProvider;
+        const data = this.dataProvider();
+        this._showData(data);
+        const queryId = await tgGetQueryId();
+        const baseUrl = window.getServerBaseUrl();
+        if (!baseUrl) {
+            tgCloseDeferred();
+            return;
+        }
+        const url = baseUrl + `/index.php?env=${env}&lang_code=${langCode}&query_id=` + 
+            encodeURIComponent(queryId) + '&data=' + encodeURIComponent(data)+'&_=' + new Date().getTime();
+        const corsUrl = url; //'https://corsproxy.io/?' + encodeURIComponent(url);
+
+        if (!AbortSignal.timeout) {
+            AbortSignal.timeout = function timeout(ms) {
+                const ctrl = new AbortController()
+                setTimeout(() => ctrl.abort(), ms)
+                return ctrl.signal
+            }
+        }
+
+        try {
+            const response = await fetch(corsUrl, {mode: 'cors', signal: AbortSignal.timeout(15000)});
+            if (!response.ok) {
+                this._showError(this.lang.errBackend + `${response.status} ${response.statusText}`);
+                return;
+            }
+            const json = await response.json();
+            if (json.status < 200 || json.status > 299) {
+                this._showError(this.lang.errTelegram + `${json.status} ${json.response}`);
+                return;
+            }
+            tgCloseDeferred();
+        } catch (err) {
+            this._showError(err.message);
+        }
+
+    }
+}
+
+class DeleteDataComponent {
+    constructor(dataSubmitter, lang) {
+        hideEverything();
+
+        show(CONTENT.text.parent);
+        CONTENT.text.title.innerHTML = lang.sureDelete;
+        CONTENT.text.preFirst.innerHTML = lang.sureDeleteDetails;
+        show(CONTENT.text.buttonConfirm);
+        CONTENT.text.buttonConfirm.textContent = lang.yesDelete;
+        CONTENT.text.buttonConfirm.addEventListener("click", (e) => {
+            e.preventDefault();
+            window.localStorage.clear();
+
+            dataSubmitter.submitData(() => "delete_data_confirmed");
+        });
+    }
+}
+
+class ViewLocalstorageDataComponent {
+    constructor() {
+        hideEverything();
+
+        show(CONTENT.text.parent);
+        CONTENT.text.parent.innerHTML = JSON.stringify(window.localStorage, null, 2).replace(/\n( *)/g, function (match, p1) {
+            return '<br>' + '&nbsp;'.repeat(p1.length);
+        });
+        CONTENT.text.parent.style['text-align'] = "left";
+    }
+}
+
+class NextReviewDataProvider {
+    constructor(nextReviewPromptMinutes) {
+        this.nextReviewPromptMinutes = nextReviewPromptMinutes;
+    }
+
+    calculateNextReviewsData() {
+        const splitOffsets = this.nextReviewPromptMinutes.split(',');
+        console.log("Client time", Date.now());
+        console.log("Server time", SERVER_TIME.now());
+        const nextReviewTimes = splitOffsets.map(offset => {
+            const offsetInt = parseInt(offset);
+            const nextReviewAt = new Date(SERVER_TIME.now() + offsetInt * 60 * 1000);
+            return nextReviewAt.toLocaleTimeString(undefined, { hour: 'numeric', minute: 'numeric' });
+        });
+
+        return "next_review:" + nextReviewTimes.join(',,');
+    }
+
+}
+
+class SleepConfigScreen {
+    constructor(dataSubmitter, lang, enabled, bedTime, wakeUpTime) {
+        hideEverything();
+
+        show(CONTENT.text.parent);
+        show(CONTENT.text.preFirst);
+        show(CONTENT.text.span1);
+        show(CONTENT.text.span2);
+        show(CONTENT.text.select1);
+        show(CONTENT.text.select2);
+        show(CONTENT.text.buttonSubmit);
+
+        CONTENT.text.title.innerHTML = lang.sleepTimeHeader;
+        CONTENT.text.preFirst.innerHTML = lang.sleepTimeDescription;
+        CONTENT.text.buttonSubmit.innerHTML = lang.applyChange;
+        CONTENT.text.span1.innerHTML = lang.sleepStart;
+        CONTENT.text.span2.innerHTML = lang.sleepEnd;
+
+
+        const selects = [CONTENT.text.select1, CONTENT.text.select2];
+        let isDisabled = false;
+        for (let select of selects) {
+            {
+                const option = document.createElement('option');
+                option.value = 'disabled';
+                option.textContent = lang.sleepDisabled;
+                select.appendChild(option);
             }
 
-            CONTENT.text.link.addEventListener('click', tryAgainHandler);
-        }
-
-        async submitData(dataProvider) {
-            const urlParams = new URLSearchParams(window.location.search);
-            const langCode = urlParams.get('lang_code') || 'en';
-            const env = urlParams.get('env') || "prod";
-
-            this.dataProvider = dataProvider;
-            const data = this.dataProvider();
-            this._showData(data);
-            const url = window.getServerBaseUrl() + `/index.php?env=${env}&lang_code=${langCode}&query_id=` + encodeURIComponent(this.queryId) + '&data=' + encodeURIComponent(data)+'&_=' + new Date().getTime();
-            const corsUrl = url; //'https://corsproxy.io/?' + encodeURIComponent(url);
-
-            if (!AbortSignal.timeout) {
-                AbortSignal.timeout = function timeout(ms) {
-                    const ctrl = new AbortController()
-                    setTimeout(() => ctrl.abort(), ms)
-                    return ctrl.signal
-                }
+            for (let idx = 0; idx < 48; idx++) {
+                const hours = (Math.floor(idx / 2) < 10 ? "0" : "" ) + Math.floor(idx / 2);
+                const mins = idx % 2 === 0 ? '00' : '30';
+                const option = document.createElement('option');
+                option.value = hours + ':' + mins;
+                option.textContent = hours + ':' + mins;
+                select.appendChild(option);
             }
-
-            try {
-                const response = await fetch(corsUrl, {mode: 'cors', signal: AbortSignal.timeout(15000)});
-                if (!response.ok) {
-                    this._showError(this.lang.errBackend + `${response.status} ${response.statusText}`);
-                    return;
-                }
-                const json = await response.json();
-                if (json.status < 200 || json.status > 299) {
-                    this._showError(this.lang.errTelegram + `${json.status} ${json.response}`);
-                    return;
-                }
-                this.app.close();
-            } catch (err) {
-                this._showError(err.message);
-            }
-
-        }
-    }
-
-    class DeleteDataComponent {
-        constructor(dataSubmitter, lang) {
-            hideEverything();
-
-            show(CONTENT.text.parent);
-            CONTENT.text.title.innerHTML = lang.sureDelete;
-            CONTENT.text.preFirst.innerHTML = lang.sureDeleteDetails;
-            show(CONTENT.text.buttonConfirm);
-            CONTENT.text.buttonConfirm.textContent = lang.yesDelete;
-            CONTENT.text.buttonConfirm.addEventListener("click", (e) => {
-                e.preventDefault();
-                window.localStorage.clear();
-
-                dataSubmitter.submitData(() => "delete_data_confirmed");
-            });
-        }
-    }
-
-    class ViewLocalstorageDataComponent {
-        constructor() {
-            hideEverything();
-
-            show(CONTENT.text.parent);
-            CONTENT.text.parent.innerHTML = JSON.stringify(window.localStorage, null, 2).replace(/\n( *)/g, function (match, p1) {
-                return '<br>' + '&nbsp;'.repeat(p1.length);
-            });
-            CONTENT.text.parent.style['text-align'] = "left";
-        }
-    }
-
-    class NextReviewDataProvider {
-        constructor(nextReviewPromptMinutes) {
-            this.nextReviewPromptMinutes = nextReviewPromptMinutes;
-        }
-
-        calculateNextReviewsData() {
-            const splitOffsets = this.nextReviewPromptMinutes.split(',');
-            console.log("Client time", Date.now());
-            console.log("Server time", SERVER_TIME.now());
-            const nextReviewTimes = splitOffsets.map(offset => {
-                const offsetInt = parseInt(offset);
-                const nextReviewAt = new Date(SERVER_TIME.now() + offsetInt * 60 * 1000);
-                return nextReviewAt.toLocaleTimeString(undefined, { hour: 'numeric', minute: 'numeric' });
-            });
-
-            return "next_review:" + nextReviewTimes.join(',,');
-        }
-
-    }
-
-    class SleepConfigScreen {
-        constructor(dataSubmitter, lang, enabled, bedTime, wakeUpTime) {
-            hideEverything();
-
-            show(CONTENT.text.parent);
-            show(CONTENT.text.preFirst);
-            show(CONTENT.text.span1);
-            show(CONTENT.text.span2);
-            show(CONTENT.text.select1);
-            show(CONTENT.text.select2);
-            show(CONTENT.text.buttonSubmit);
-
-            CONTENT.text.title.innerHTML = lang.sleepTimeHeader;
-            CONTENT.text.preFirst.innerHTML = lang.sleepTimeDescription;
-            CONTENT.text.buttonSubmit.innerHTML = lang.applyChange;
-            CONTENT.text.span1.innerHTML = lang.sleepStart;
-            CONTENT.text.span2.innerHTML = lang.sleepEnd;
-
-
-            const selects = [CONTENT.text.select1, CONTENT.text.select2];
-            let isDisabled = false;
-            for (let select of selects) {
-                {
-                    const option = document.createElement('option');
-                    option.value = 'disabled';
-                    option.textContent = lang.sleepDisabled;
-                    select.appendChild(option);
-                }
-
-                for (let idx = 0; idx < 48; idx++) {
-                    const hours = (Math.floor(idx / 2) < 10 ? "0" : "" ) + Math.floor(idx / 2);
-                    const mins = idx % 2 === 0 ? '00' : '30';
-                    const option = document.createElement('option');
-                    option.value = hours + ':' + mins;
-                    option.textContent = hours + ':' + mins;
-                    select.appendChild(option);
-                }
-                select.onchange = (e) => {
-                    let nDisabledSelects = 0;
-                    for (let select of selects) {
-                        if (select.value === 'disabled') {
-                            nDisabledSelects++;
-                        }
+            select.onchange = (e) => {
+                let nDisabledSelects = 0;
+                for (let select of selects) {
+                    if (select.value === 'disabled') {
+                        nDisabledSelects++;
                     }
-                    if (nDisabledSelects === 1) {
-                        if (isDisabled) {
-                            isDisabled = false;
-                            for (let select of selects) {
-                                if (select.value === 'disabled') {
-                                    select.value = '00:00';
-                                }
+                }
+                if (nDisabledSelects === 1) {
+                    if (isDisabled) {
+                        isDisabled = false;
+                        for (let select of selects) {
+                            if (select.value === 'disabled') {
+                                select.value = '00:00';
                             }
-                        } else {
-                            isDisabled = true;
-                            for (let select of selects) {
-                                if (select.value !== 'disabled') {
-                                    select.value = 'disabled';
-                                }
+                        }
+                    } else {
+                        isDisabled = true;
+                        for (let select of selects) {
+                            if (select.value !== 'disabled') {
+                                select.value = 'disabled';
                             }
                         }
                     }
                 }
             }
+        }
 
-            if (enabled) {
-                CONTENT.text.select1.value = bedTime;
-                CONTENT.text.select2.value = wakeUpTime;
+        if (enabled) {
+            CONTENT.text.select1.value = bedTime;
+            CONTENT.text.select2.value = wakeUpTime;
+        } else {
+            CONTENT.text.select1.value = 'disabled';
+            CONTENT.text.select2.value = 'disabled';
+            isDisabled = true;
+        }
+
+        const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        const offsetSecs = -(new Date().getTimezoneOffset()) * 60;
+        console.log(timeZone, offsetSecs);
+
+        CONTENT.text.buttonSubmit.onclick = (e) => {
+            e.preventDefault();
+            if (!isDisabled && CONTENT.text.select1.value === CONTENT.text.select2.value) {
+                return;
+            }
+            const bedTime = isDisabled ? '22:00' : CONTENT.text.select1.value;
+            const wakeUpTime = isDisabled ? '06:00' : CONTENT.text.select2.value;
+            dataSubmitter.submitData(() => {
+                return `sleep_config:${isDisabled ? "False" : "True"},,${timeZone},,${offsetSecs},,${bedTime},,${wakeUpTime}`;
+            });
+        }
+
+    }
+}
+
+class ReviewComponent {
+    constructor(dataSubmitter, lang, nextReviewPromptMinutes) {
+
+        this.dataSubmitter = dataSubmitter;
+
+        this.nextReviewsDataProvider = new NextReviewDataProvider(nextReviewPromptMinutes);
+
+        hideEverything();
+
+        show(CONTENT.review);
+        CONTENT.review.innerHTML = initStopwatches(initCounters(textToHtml(window.localStorage.getItem("formula") || '', lang)));
+
+        show(HEADER.actionButton);
+
+        HEADER.actionButton.addEventListener("click", (e) => {
+            e.preventDefault();
+
+            this.dataSubmitter.submitData(() => {
+
+                return "reviewed_at:__timestamp__;" + this.nextReviewsDataProvider.calculateNextReviewsData();
+            });
+        });
+
+        let reviewCountdown = 10;
+        function refreshReviewButton() {
+            reviewCountdown--;
+            if (reviewCountdown > 0) {
+                HEADER.actionButton.innerHTML = lang.reward + " <span style='color: white'>(" + reviewCountdown + ")</span>";
+                HEADER.actionButton.setAttribute('disabled', 'disabled');
+            }
+            if (reviewCountdown === 0) {
+                HEADER.actionButton.innerHTML = lang.reward;
+                HEADER.actionButton.removeAttribute('disabled');
+            }
+        }
+        setInterval(() => {
+            refreshReviewButton()
+        }, 1000);
+        refreshReviewButton();
+    }
+}
+
+class FormulaEditor {
+    constructor(dataSubmitter, isNewGame, lang, nextReviewPromptMinutes) {
+        this.dataSubmitter = dataSubmitter;
+
+        const nextReviewsDataProvider = nextReviewPromptMinutes ? new NextReviewDataProvider(nextReviewPromptMinutes) : null;
+
+        this._showEditorLayout();
+
+        HEADER.actionButton.textContent = isNewGame ? lang.startNewGame : lang.applyChange;
+
+        CONTENT.textarea.placeholder = isNewGame ? lang.placeholderNewGame : lang.placeholderChange;
+
+        HEADER.actionButton.addEventListener("click", (e) => {
+            e.preventDefault();
+            window.localStorage.setItem("formula", CONTENT.textarea.value);
+            this.dataSubmitter.submitData(() => {
+                let data = isNewGame ? "start_game" : "formula_updated";
+                if (nextReviewsDataProvider) {
+                    data += ";" + nextReviewsDataProvider.calculateNextReviewsData();
+                }
+                return data;
+            });
+        });
+        HEADER.actionButton.setAttribute('disabled', true);
+
+        CONTENT.textarea.addEventListener("input", () => {
+            const value = CONTENT.textarea.value;
+            if (value.trim()) {
+                HEADER.actionButton.removeAttribute("disabled");
             } else {
-                CONTENT.text.select1.value = 'disabled';
-                CONTENT.text.select2.value = 'disabled';
-                isDisabled = true;
+                HEADER.actionButton.setAttribute('disabled', true);
             }
+        });
 
-            const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-            const offsetSecs = -(new Date().getTimezoneOffset()) * 60;
-            console.log(timeZone, offsetSecs);
-
-            CONTENT.text.buttonSubmit.onclick = (e) => {
-                e.preventDefault();
-                if (!isDisabled && CONTENT.text.select1.value === CONTENT.text.select2.value) {
-                    return;
+        CONTENT.textarea.value = window.localStorage.getItem("formula") || "";
+        if (!CONTENT.textarea.value) {
+            let cnt = 0;
+            const interval = setInterval(() => {
+                cnt ++;
+                if (cnt < 5) {
+                    CONTENT.textarea.classList.toggle('active');
                 }
-                const bedTime = isDisabled ? '22:00' : CONTENT.text.select1.value;
-                const wakeUpTime = isDisabled ? '06:00' : CONTENT.text.select2.value;
-                dataSubmitter.submitData(() => {
-                    return `sleep_config:${isDisabled ? "False" : "True"},,${timeZone},,${offsetSecs},,${bedTime},,${wakeUpTime}`;
-                });
-            }
-
-        }
-    }
-
-    class ReviewComponent {
-        constructor(dataSubmitter, lang, nextReviewPromptMinutes) {
-
-            this.dataSubmitter = dataSubmitter;
-
-            this.nextReviewsDataProvider = new NextReviewDataProvider(nextReviewPromptMinutes);
-
-            hideEverything();
-
-            show(CONTENT.review);
-            CONTENT.review.innerHTML = initStopwatches(initCounters(textToHtml(window.localStorage.getItem("formula") || '', lang)));
-
-            show(HEADER.actionButton);
-
-            HEADER.actionButton.addEventListener("click", (e) => {
-                e.preventDefault();
-
-                this.dataSubmitter.submitData(() => {
-
-                    return "reviewed_at:__timestamp__;" + this.nextReviewsDataProvider.calculateNextReviewsData();
-                });
+                CONTENT.textarea.focus();
+            }, 300);
+            CONTENT.textarea.addEventListener('click', () => {
+                clearInterval(interval);
+                CONTENT.textarea.classList.remove('active');
             });
-
-            let reviewCountdown = 10;
-            function refreshReviewButton() {
-                reviewCountdown--;
-                if (reviewCountdown > 0) {
-                    HEADER.actionButton.innerHTML = lang.reward + " <span style='color: white'>(" + reviewCountdown + ")</span>";
-                    HEADER.actionButton.setAttribute('disabled', 'disabled');
-                }
-                if (reviewCountdown === 0) {
-                    HEADER.actionButton.innerHTML = lang.reward;
-                    HEADER.actionButton.removeAttribute('disabled');
-                }
-            }
-            setInterval(() => {
-                refreshReviewButton()
-            }, 1000);
-            refreshReviewButton();
         }
-    }
 
-    class FormulaEditor {
-        constructor(dataSubmitter, isNewGame, lang, nextReviewPromptMinutes) {
-            this.dataSubmitter = dataSubmitter;
+        show(PREVIEW_BTN.parent);
+        PREVIEW_BTN.link.textContent = lang.preview;
 
-            const nextReviewsDataProvider = nextReviewPromptMinutes ? new NextReviewDataProvider(nextReviewPromptMinutes) : null;
+        PREVIEW_BTN.link.addEventListener("click", (e) => {
+            e.preventDefault();
+            hide(HEADER.parent);
+            hide(PREVIEW_BTN.parent);
+            hide(CONTENT.textarea);
+            hide(MENU.parent);
+            show(CONTENT.review);
+            show(BACK_TO_EDIT.parent);
+            hide(FOOTER);
+            CONTENT.review.innerHTML = initStopwatches(initCounters(textToHtml(CONTENT.textarea.value, lang)));
+        });
+
+        BACK_TO_EDIT.link.textContent = lang.backToEditor;
+
+        BACK_TO_EDIT.link.addEventListener("click", (e) => {
+            e.preventDefault();
 
             this._showEditorLayout();
+        });
 
-            HEADER.actionButton.textContent = isNewGame ? lang.startNewGame : lang.applyChange;
+        show(HEADER.menu);
 
-            CONTENT.textarea.placeholder = isNewGame ? lang.placeholderNewGame : lang.placeholderChange;
+        HEADER.menu.addEventListener("click", (e) => {
+            e.preventDefault();
+            hide(HEADER.menu);
+            show(HEADER.close);
+            show(MENU.parent);
+        });
 
-            HEADER.actionButton.addEventListener("click", (e) => {
-                e.preventDefault();
-                window.localStorage.setItem("formula", CONTENT.textarea.value);
-                this.dataSubmitter.submitData(() => {
-                    let data = isNewGame ? "start_game" : "formula_updated";
-                    if (nextReviewsDataProvider) {
-                        data += ";" + nextReviewsDataProvider.calculateNextReviewsData();
-                    }
-                    return data;
-                });
-            });
-            HEADER.actionButton.setAttribute('disabled', true);
-
-            CONTENT.textarea.addEventListener("input", () => {
-                const value = CONTENT.textarea.value;
-                if (value.trim()) {
-                    HEADER.actionButton.removeAttribute("disabled");
-                } else {
-                    HEADER.actionButton.setAttribute('disabled', true);
-                }
-            });
-
-            CONTENT.textarea.value = window.localStorage.getItem("formula") || "";
-            if (!CONTENT.textarea.value) {
-                let cnt = 0;
-                const interval = setInterval(() => {
-                    cnt ++;
-                    if (cnt < 5) {
-                        CONTENT.textarea.classList.toggle('active');
-                    }
-                    CONTENT.textarea.focus();
-                }, 300);
-                CONTENT.textarea.addEventListener('click', () => {
-                    clearInterval(interval);
-                    CONTENT.textarea.classList.remove('active');
-                });
-            }
-
-            show(PREVIEW_BTN.parent);
-            PREVIEW_BTN.link.textContent = lang.preview;
-
-            PREVIEW_BTN.link.addEventListener("click", (e) => {
-                e.preventDefault();
-                hide(HEADER.parent);
-                hide(PREVIEW_BTN.parent);
-                hide(CONTENT.textarea);
-                hide(MENU.parent);
-                show(CONTENT.review);
-                show(BACK_TO_EDIT.parent);
-                hide(FOOTER);
-                CONTENT.review.innerHTML = initStopwatches(initCounters(textToHtml(CONTENT.textarea.value, lang)));
-            });
-
-            BACK_TO_EDIT.link.textContent = lang.backToEditor;
-
-            BACK_TO_EDIT.link.addEventListener("click", (e) => {
-                e.preventDefault();
-
-                this._showEditorLayout();
-            });
-
+        HEADER.close.addEventListener("click", (e) => {
+            e.preventDefault();
             show(HEADER.menu);
-
-            HEADER.menu.addEventListener("click", (e) => {
-                e.preventDefault();
-                hide(HEADER.menu);
-                show(HEADER.close);
-                show(MENU.parent);
-            });
-
-            HEADER.close.addEventListener("click", (e) => {
-                e.preventDefault();
-                show(HEADER.menu);
-                hide(HEADER.close);
-                hide(MENU.parent);
-            });
+            hide(HEADER.close);
+            hide(MENU.parent);
+        });
 
 
-            MENU.share.href = MENU.share.href.split("ru.html").join(langCode + ".html");
+        MENU.share.href = MENU.share.href.split("ru.html").join(langCode + ".html");
 
-            const insertHeader = (e, headerBeginning, newHeader) => {
-                show(HEADER.menu);
-                hide(HEADER.close);
-                hide(MENU.parent);
+        const insertHeader = (e, headerBeginning, newHeader) => {
+            show(HEADER.menu);
+            hide(HEADER.close);
+            hide(MENU.parent);
 
-                let beginningOfLine = CONTENT.textarea.selectionStart;
-                while (beginningOfLine > 1 && CONTENT.textarea.value[beginningOfLine - 1] !== '\n') {
-                    beginningOfLine--;
-                }
-                let endOfLine = CONTENT.textarea.selectionStart;
-                while (endOfLine < CONTENT.textarea.value.length && CONTENT.textarea.value[endOfLine] !== '\n') {
-                    endOfLine++;
-                }
-                let line = CONTENT.textarea.value.substring(beginningOfLine, endOfLine);
-                let endSelection;
-                if (line.trim() === '') {
-                    CONTENT.textarea.value = CONTENT.textarea.value.substring(0, beginningOfLine) + headerBeginning + " " + newHeader + CONTENT.textarea.value.substring(beginningOfLine);
-                    endSelection = beginningOfLine + headerBeginning.length + newHeader.length + 1;
-                } else if (!line.startsWith('#')) {
-                    CONTENT.textarea.value = CONTENT.textarea.value.substring(0, beginningOfLine) + headerBeginning + " " + CONTENT.textarea.value.substring(beginningOfLine);
-                    endSelection = endOfLine + headerBeginning.length + 1;
-                }
-
-                // https://stackoverflow.com/questions/29899364/how-do-you-scroll-to-the-position-of-the-cursor-in-a-textarea
-                CONTENT.textarea.setSelectionRange(beginningOfLine, beginningOfLine);
-                CONTENT.textarea.focus();
-                CONTENT.textarea.setSelectionRange(beginningOfLine, endSelection);
-                CONTENT.textarea.focus();
+            let beginningOfLine = CONTENT.textarea.selectionStart;
+            while (beginningOfLine > 1 && CONTENT.textarea.value[beginningOfLine - 1] !== '\n') {
+                beginningOfLine--;
+            }
+            let endOfLine = CONTENT.textarea.selectionStart;
+            while (endOfLine < CONTENT.textarea.value.length && CONTENT.textarea.value[endOfLine] !== '\n') {
+                endOfLine++;
+            }
+            let line = CONTENT.textarea.value.substring(beginningOfLine, endOfLine);
+            let endSelection;
+            if (line.trim() === '') {
+                CONTENT.textarea.value = CONTENT.textarea.value.substring(0, beginningOfLine) + headerBeginning + " " + newHeader + CONTENT.textarea.value.substring(beginningOfLine);
+                endSelection = beginningOfLine + headerBeginning.length + newHeader.length + 1;
+            } else if (!line.startsWith('#')) {
+                CONTENT.textarea.value = CONTENT.textarea.value.substring(0, beginningOfLine) + headerBeginning + " " + CONTENT.textarea.value.substring(beginningOfLine);
+                endSelection = endOfLine + headerBeginning.length + 1;
             }
 
-            const insertAtLineEnd = (e, newText) => {
-                show(HEADER.menu);
-                hide(HEADER.close);
-                hide(MENU.parent);
-                let endOfLine = CONTENT.textarea.selectionStart;
-                while (endOfLine < CONTENT.textarea.value.length && CONTENT.textarea.value[endOfLine] !== '\n') {
-                    endOfLine++;
-                }
-                CONTENT.textarea.value = CONTENT.textarea.value.substring(0, endOfLine) + newText + CONTENT.textarea.value.substring(endOfLine);
-
-                // https://stackoverflow.com/questions/29899364/how-do-you-scroll-to-the-position-of-the-cursor-in-a-textarea
-                CONTENT.textarea.setSelectionRange(endOfLine, endOfLine);
-                CONTENT.textarea.focus();
-                CONTENT.textarea.setSelectionRange(endOfLine, endOfLine + newText.length);
-                CONTENT.textarea.focus();
-            }
-
-            const insertModifier = (e, modifier, newText) => {
-                show(HEADER.menu);
-                hide(HEADER.close);
-                hide(MENU.parent);
-
-                e.preventDefault();
-                let textToInsert = newText;
-                let startAt = CONTENT.textarea.selectionStart;
-                if (CONTENT.textarea.selectionStart !== CONTENT.textarea.selectionEnd) {
-                    textToInsert = CONTENT.textarea.value.substring(CONTENT.textarea.selectionStart, CONTENT.textarea.selectionEnd);
-                }
-                CONTENT.textarea.value = CONTENT.textarea.value.substring(0, CONTENT.textarea.selectionStart) + " " + modifier + textToInsert + modifier + " " + CONTENT.textarea.value.substring(CONTENT.textarea.selectionEnd);
-
-                // https://stackoverflow.com/questions/29899364/how-do-you-scroll-to-the-position-of-the-cursor-in-a-textarea
-                CONTENT.textarea.setSelectionRange(startAt + 1, startAt + 1);
-                CONTENT.textarea.focus();
-                CONTENT.textarea.setSelectionRange(startAt + 1, startAt + 1 + textToInsert.length + modifier.length * 2);
-                CONTENT.textarea.focus();
-            }
-
-            MENU.insertHeader.textContent = lang.menuHeader;
-            MENU.insertHeader.addEventListener("click", (e) => {
-                insertHeader(e, "#", lang.myNewHeader);
-            });
-
-            MENU.insertSubheader.textContent = lang.menuSubheader;
-            MENU.insertSubheader.addEventListener("click", (e) => {
-                insertHeader(e, "##", lang.myNewSubheader);
-            });
-
-            MENU.insertBold.textContent = lang.menuBold;
-            MENU.insertBold.addEventListener("click", (e) => {
-                insertModifier(e, "**", lang.myBold);
-            });
-
-            MENU.insertCursive.textContent = lang.menuItalic;
-            MENU.insertCursive.addEventListener("click", (e) => {
-                insertModifier(e, "*", lang.myItalic);
-            });
-
-            MENU.insertList.textContent = lang.menuList;
-            MENU.insertList.addEventListener("click", (e) => {
-                insertAtLineEnd(e, lang.myList, 3, 1);
-            });
-
-            MENU.insertStopwatch.textContent = lang.menuInsertStopwatch;
-            MENU.insertStopwatch.addEventListener("click", (e) => {
-                insertAtLineEnd(e, "{stopwatch}");
-            });
-
-            MENU.insert.textContent = lang.menuInsert;
-            MENU.help.textContent = lang.menuHelp;
-            MENU.help.href = MENU.help.href.split('faq.ru').join('faq.' + langCode);
-            MENU.share.textContent = lang.menuShare;
-
+            // https://stackoverflow.com/questions/29899364/how-do-you-scroll-to-the-position-of-the-cursor-in-a-textarea
+            CONTENT.textarea.setSelectionRange(beginningOfLine, beginningOfLine);
             CONTENT.textarea.focus();
-
-
+            CONTENT.textarea.setSelectionRange(beginningOfLine, endSelection);
+            CONTENT.textarea.focus();
         }
 
-        _showEditorLayout() {
-            hideEverything();
-
-            show(HEADER.parent);
-            show(HEADER.actionButton);
-            show(HEADER.dummyRightImg);
-            show(CONTENT.textarea);
+        const insertAtLineEnd = (e, newText) => {
             show(HEADER.menu);
-            show(PREVIEW_BTN.parent);
-            show(FOOTER);
-        }
-    }
+            hide(HEADER.close);
+            hide(MENU.parent);
+            let endOfLine = CONTENT.textarea.selectionStart;
+            while (endOfLine < CONTENT.textarea.value.length && CONTENT.textarea.value[endOfLine] !== '\n') {
+                endOfLine++;
+            }
+            CONTENT.textarea.value = CONTENT.textarea.value.substring(0, endOfLine) + newText + CONTENT.textarea.value.substring(endOfLine);
 
-    class SetDifficultyComponent {
-        constructor(dataSubmitter, lang, newDifficulty, nextReviewPromptMinutes) {
-            hideEverything();
-
-            show(CONTENT.text.parent);
-            CONTENT.text.title.innerHTML = lang.sureSetDifficulty;
-            CONTENT.text.preFirst.innerHTML = lang.sureSetDifficultyDetail;
-            show(CONTENT.text.buttonConfirm);
-            CONTENT.text.buttonConfirm.textContent = lang.yesSetDifficulty;
-            CONTENT.text.buttonConfirm.addEventListener("click", (e) => {
-                e.preventDefault();
-
-                dataSubmitter.submitData(() => "set_difficulty:" + newDifficulty + ";" + new NextReviewDataProvider(nextReviewPromptMinutes).calculateNextReviewsData());
-            });
-        }
-    }
-
-
-    const app = window?.Telegram?.WebApp;
-
-    const isNewGame = !!(urlParams.get('new_game'));
-    const isReview = !!(urlParams.get('review'));
-    const isFormula = !!(urlParams.get('formula'));
-    const isDeleteData = !!(urlParams.get('delete_data'));
-    const isViewLocalstorageData = !!(urlParams.get('view_localstorage'));
-    const newDifficulty = urlParams.get('set_difficulty') || null;
-
-
-    const sleep = urlParams.get('sleep') || null;
-    const sleepEnabled = (urlParams.get('enabled') || null) === 'true';
-    const sleepBedTime = urlParams.get('bed_time') || null;
-    const sleepWakeUpTime = urlParams.get('wakeup_time') || null;
-
-
-    const nextReviewPromptMinutes = urlParams.get('next_review_prompt_minutes') || null;
-
-    const dataSubmitter = new DataSubmitComponent(app, window.langs[langCode]);
-
-    if (newDifficulty) {
-        new SetDifficultyComponent(dataSubmitter, window.langs[langCode], newDifficulty, nextReviewPromptMinutes);
-        // dataSubmitter.submitData(() => "set_difficulty:" + newDifficulty + ";" + new NextReviewDataProvider(nextReviewPromptMinutes).calculateNextReviewsData());
-    }
-
-    if (isDeleteData) {
-        new DeleteDataComponent(dataSubmitter, window.langs[langCode]);
-    }
-
-    if (isViewLocalstorageData) {
-        new ViewLocalstorageDataComponent();
-    }
-
-    if (sleep) {
-        new SleepConfigScreen(dataSubmitter, window.langs[langCode], sleepEnabled, sleepBedTime, sleepWakeUpTime);
-    }
-
-    class EnterFormulaPrompt {
-        constructor(lang) {
-            hideEverything();
-
-            show(CONTENT.text.parent);
-            CONTENT.text.title.innerHTML = lang.noFormulaTitle;
-            CONTENT.text.preFirst.innerHTML = lang.noFormulaExplanation;
+            // https://stackoverflow.com/questions/29899364/how-do-you-scroll-to-the-position-of-the-cursor-in-a-textarea
+            CONTENT.textarea.setSelectionRange(endOfLine, endOfLine);
+            CONTENT.textarea.focus();
+            CONTENT.textarea.setSelectionRange(endOfLine, endOfLine + newText.length);
+            CONTENT.textarea.focus();
         }
 
-    }
+        const insertModifier = (e, modifier, newText) => {
+            show(HEADER.menu);
+            hide(HEADER.close);
+            hide(MENU.parent);
 
-    if (isReview) {
-        if (window.localStorage.getItem("formula") === null) {
-            new EnterFormulaPrompt(window.langs[langCode]);
-        } else {
-            new ReviewComponent(dataSubmitter, window.langs[langCode], nextReviewPromptMinutes);
+            e.preventDefault();
+            let textToInsert = newText;
+            let startAt = CONTENT.textarea.selectionStart;
+            if (CONTENT.textarea.selectionStart !== CONTENT.textarea.selectionEnd) {
+                textToInsert = CONTENT.textarea.value.substring(CONTENT.textarea.selectionStart, CONTENT.textarea.selectionEnd);
+            }
+            CONTENT.textarea.value = CONTENT.textarea.value.substring(0, CONTENT.textarea.selectionStart) + " " + modifier + textToInsert + modifier + " " + CONTENT.textarea.value.substring(CONTENT.textarea.selectionEnd);
+
+            // https://stackoverflow.com/questions/29899364/how-do-you-scroll-to-the-position-of-the-cursor-in-a-textarea
+            CONTENT.textarea.setSelectionRange(startAt + 1, startAt + 1);
+            CONTENT.textarea.focus();
+            CONTENT.textarea.setSelectionRange(startAt + 1, startAt + 1 + textToInsert.length + modifier.length * 2);
+            CONTENT.textarea.focus();
         }
+
+        MENU.insertHeader.textContent = lang.menuHeader;
+        MENU.insertHeader.addEventListener("click", (e) => {
+            insertHeader(e, "#", lang.myNewHeader);
+        });
+
+        MENU.insertSubheader.textContent = lang.menuSubheader;
+        MENU.insertSubheader.addEventListener("click", (e) => {
+            insertHeader(e, "##", lang.myNewSubheader);
+        });
+
+        MENU.insertBold.textContent = lang.menuBold;
+        MENU.insertBold.addEventListener("click", (e) => {
+            insertModifier(e, "**", lang.myBold);
+        });
+
+        MENU.insertCursive.textContent = lang.menuItalic;
+        MENU.insertCursive.addEventListener("click", (e) => {
+            insertModifier(e, "*", lang.myItalic);
+        });
+
+        MENU.insertList.textContent = lang.menuList;
+        MENU.insertList.addEventListener("click", (e) => {
+            insertAtLineEnd(e, lang.myList, 3, 1);
+        });
+
+        MENU.insertStopwatch.textContent = lang.menuInsertStopwatch;
+        MENU.insertStopwatch.addEventListener("click", (e) => {
+            insertAtLineEnd(e, "{stopwatch}");
+        });
+
+        MENU.insert.textContent = lang.menuInsert;
+        MENU.help.textContent = lang.menuHelp;
+        MENU.help.href = MENU.help.href.split('faq.ru').join('faq.' + langCode);
+        MENU.share.textContent = lang.menuShare;
+
+        CONTENT.textarea.focus();
+
+
     }
 
-    if (isFormula || isNewGame) {
-        (new FormulaEditor(dataSubmitter, isNewGame, window.langs[langCode], nextReviewPromptMinutes));
+    _showEditorLayout() {
+        hideEverything();
+
+        show(HEADER.parent);
+        show(HEADER.actionButton);
+        show(HEADER.dummyRightImg);
+        show(CONTENT.textarea);
+        show(HEADER.menu);
+        show(PREVIEW_BTN.parent);
+        show(FOOTER);
+    }
+}
+
+class SetDifficultyComponent {
+    constructor(dataSubmitter, lang, newDifficulty, nextReviewPromptMinutes) {
+        hideEverything();
+
+        show(CONTENT.text.parent);
+        CONTENT.text.title.innerHTML = lang.sureSetDifficulty;
+        CONTENT.text.preFirst.innerHTML = lang.sureSetDifficultyDetail;
+        show(CONTENT.text.buttonConfirm);
+        CONTENT.text.buttonConfirm.textContent = lang.yesSetDifficulty;
+        CONTENT.text.buttonConfirm.addEventListener("click", (e) => {
+            e.preventDefault();
+
+            dataSubmitter.submitData(() => "set_difficulty:" + newDifficulty + ";" + new NextReviewDataProvider(nextReviewPromptMinutes).calculateNextReviewsData());
+        });
+    }
+}
+
+
+
+
+const isNewGame = !!(urlParams.get('new_game'));
+const isReview = !!(urlParams.get('review'));
+const isFormula = !!(urlParams.get('formula'));
+const isDeleteData = !!(urlParams.get('delete_data'));
+const isViewLocalstorageData = !!(urlParams.get('view_localstorage'));
+const newDifficulty = urlParams.get('set_difficulty') || null;
+
+
+const sleep = urlParams.get('sleep') || null;
+const sleepEnabled = (urlParams.get('enabled') || null) === 'true';
+const sleepBedTime = urlParams.get('bed_time') || null;
+const sleepWakeUpTime = urlParams.get('wakeup_time') || null;
+
+
+const nextReviewPromptMinutes = urlParams.get('next_review_prompt_minutes') || null;
+
+const dataSubmitter = new DataSubmitComponent(window.langs[langCode]);
+
+if (newDifficulty) {
+    new SetDifficultyComponent(dataSubmitter, window.langs[langCode], newDifficulty, nextReviewPromptMinutes);
+    // dataSubmitter.submitData(() => "set_difficulty:" + newDifficulty + ";" + new NextReviewDataProvider(nextReviewPromptMinutes).calculateNextReviewsData());
+}
+
+if (isDeleteData) {
+    new DeleteDataComponent(dataSubmitter, window.langs[langCode]);
+}
+
+if (isViewLocalstorageData) {
+    new ViewLocalstorageDataComponent();
+}
+
+if (sleep) {
+    new SleepConfigScreen(dataSubmitter, window.langs[langCode], sleepEnabled, sleepBedTime, sleepWakeUpTime);
+}
+
+class EnterFormulaPrompt {
+    constructor(lang) {
+        hideEverything();
+
+        show(CONTENT.text.parent);
+        CONTENT.text.title.innerHTML = lang.noFormulaTitle;
+        CONTENT.text.preFirst.innerHTML = lang.noFormulaExplanation;
     }
 
-    app?.ready();
-    setTimeout(() => {
-        app?.expand();
-    }, 0);
+}
+
+if (isReview) {
+    if (window.localStorage.getItem("formula") === null) {
+        new EnterFormulaPrompt(window.langs[langCode]);
+    } else {
+        new ReviewComponent(dataSubmitter, window.langs[langCode], nextReviewPromptMinutes);
+    }
+}
+
+if (isFormula || isNewGame) {
+    (new FormulaEditor(dataSubmitter, isNewGame, window.langs[langCode], nextReviewPromptMinutes));
+}
+
+tgReadyDeferred();
+setTimeout(() => {
+    tgExpandDeferred();
+}, 0);
 
 </script>
 

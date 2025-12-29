@@ -4,6 +4,8 @@ window.getServerBaseUrl = function() {
     let baseUrl = "https://boo.great-site.net";
     if (window.location.href.indexOf("ru.mindwarriorgame.org") >= 0) {
         baseUrl = "https://ru.mindwarriorgame.org/miniapp-backend";
+    } else if (window.location.href.indexOf("file:") == 0) {
+        baseUrl = undefined;
     }
     console.log("Base URL detected", baseUrl, window.location.href);
     return baseUrl;
@@ -17,6 +19,10 @@ class ServerTime {
         syncOffset = () => {
             const started = Date.now();
             let finished = Date.now();
+            const baseUrl = window.getServerBaseUrl();
+            if (!baseUrl) {
+                return;
+            }
             fetch(window.getServerBaseUrl() + '/time.php', {method: 'POST', mode: 'cors'})
                 .then(response => {
                     if (response.ok) {

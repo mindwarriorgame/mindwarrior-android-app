@@ -14,7 +14,56 @@
     <script src="board-scripts/progress-registry.js"></script>
     <script src="server-time.js?v=1"></script>
 
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://telegram.org/js/telegram-web-app.js?59"></script>
+<script>
+  (function () {
+    const FALLBACK = "vendor/telegram-web-app.js?59"; // serve from your domain/CDN
+
+    function inject(src) {
+      const s = document.createElement("script");
+      s.src = src;
+      s.async = true;
+      document.head.appendChild(s);
+      return s;
+    }
+    if (!window.Telegram){
+        inject(FALLBACK);
+    }
+  })();
+
+function whenTelegramWebAppReady(cb) {
+  if (window?.Telegram?.WebApp) {
+    return cb(window.Telegram.WebApp);
+  }
+
+  const id = setInterval(() => {
+    if (window?.Telegram?.WebApp) {
+      clearInterval(id);
+      cb(window.Telegram.WebApp);
+    }
+  }, 50);
+}
+
+function tgReadyDeferred() {
+    whenTelegramWebAppReady((wa) => wa.ready());
+}
+
+function tgExpandDeferred() {
+    whenTelegramWebAppReady((wa) => wa.expand());
+}
+
+function tgCloseDeferred() {
+    whenTelegramWebAppReady((wa) => wa.close());
+}
+
+function tgGetQueryId() {
+    return new Promise((resolve) => {
+        whenTelegramWebAppReady((wa) => {
+            resolve(wa.initDataUnsafe.query_id);
+        });
+    });
+}
+</script>
 
     <style>
         body {
@@ -615,12 +664,12 @@
             board2.showActionButton();
         });
         board2.setActionButton(lang.action_button_back_to_game, () => {
-            window?.Telegram?.WebApp?.close();
+            tgCloseDeferred();
         });
     } else {
         board1.setHeader(newBadge ? lang.level_congrats.replace('###', level) : lang.level_board2.replace('###', level));
         board1.setActionButton(lang.action_button_back_to_game, () => {
-            window?.Telegram?.WebApp?.close();
+            tgCloseDeferred();
         });
     }
 
@@ -643,18 +692,23 @@
         }, newBadge ? 250 : 0);
     }
 
-    Promise.all([board1.waitTillReady(), board2 ? board2.waitTillReady() : Promise.resolve()]).then(() => {
+    Promise.all([board1.waitTillReady(), board2 ? board2.waitTillReady() : Promise.resolve()]).then(async () => {
 
-        window?.Telegram?.WebApp?.ready();
-        window?.Telegram?.WebApp?.expand();
+        tgReadyDeferred();
+        tgExpandDeferred();
 
         if (Math.abs(parseInt(ts || 0) * 1000 - serverTime.now()) > 5 * 60 * 1000) {
             console.log("Old page detected");
             document.getElementById('outdated').style.display = 'block';
             document.querySelector('#outdated button').addEventListener('click', async () => {
                 document.querySelector('#outdated button').innerHTML += '...';
-                const queryId = window?.Telegram?.WebApp?.initDataUnsafe.query_id;
-                const url = window.getServerBaseUrl() + `/index.php?env=${env}&lang_code=${langCode}&query_id=` + encodeURIComponent(queryId) + '&data=regenerate_achievements_button'+'&_=' + new Date().getTime();
+                const queryId = await tgGetQueryId();
+                const baseUrl = window.getServerBaseUrl();
+                if (!baseUrl) {
+                    tgCloseDeferred();
+                    return;
+                }
+                const url = baseUrl + `/index.php?env=${env}&lang_code=${langCode}&query_id=` + encodeURIComponent(queryId) + '&data=regenerate_achievements_button'+'&_=' + new Date().getTime();
                 const corsUrl = url; //'https://corsproxy.io/?' + encodeURIComponent(url);
                 try {
                     const response = await fetch(corsUrl, {mode: 'cors', signal: AbortSignal.timeout(15000)});
