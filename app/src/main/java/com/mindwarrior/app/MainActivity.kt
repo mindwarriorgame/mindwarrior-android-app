@@ -45,8 +45,10 @@ class MainActivity : AppCompatActivity() {
             visible = !visible
             if (visible) {
                 binding.snowflake.visibility = android.view.View.VISIBLE
+                binding.snowflakeTimer.visibility = android.view.View.VISIBLE
             } else {
                 binding.snowflake.visibility = android.view.View.GONE
+                binding.snowflakeTimer.visibility = android.view.View.GONE
             }
             handler.postDelayed(this, 1000L)
         }

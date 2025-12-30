@@ -280,6 +280,16 @@
                     android:text="@string/snowflake"
                     android:textColor="@color/timer_text"
                     android:textSize="20sp" />
+
+                <TextView
+                    android:id="@+id/snowflake_timer"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:fontFamily="monospace"
+                    android:text="@string/snowflake_timer_text"
+                    android:textColor="@color/timer_text"
+                    android:textSize="14sp" />
             </LinearLayout>
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>

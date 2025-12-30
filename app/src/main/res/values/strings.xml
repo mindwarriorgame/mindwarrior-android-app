@@ -14,6 +14,7 @@
     <string name="pause_button_resume">▶️</string>
     <string name="pause_indicator">⏸</string>
     <string name="snowflake">❄️</string>
+    <string name="snowflake_timer_text">01:35</string>
     <string name="review_button">Review Formula</string>
     <string name="logs_title">Battle Log</string>
     <string name="achievements_title">Achievements Board</string>
