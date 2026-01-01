@@ -11,6 +11,7 @@ class AssetWebViewLoader(private val assets: AssetManager) {
         val baseUrl: String,
         val assetPath: String,
         val replacements: List<Pair<String, String>> = emptyList(),
+        val injectedScript: String? = null,
         val javascriptInterfaceName: String? = null,
         val javascriptInterface: Any? = null
     )
@@ -28,18 +29,34 @@ class AssetWebViewLoader(private val assets: AssetManager) {
         webView.webViewClient = WebViewClient()
         webView.loadDataWithBaseURL(
             config.baseUrl,
-            loadHtml(config.assetPath, config.replacements),
+            loadHtml(config.assetPath, config.replacements, config.injectedScript),
             "text/html",
             "UTF-8",
             null
         )
     }
 
-    private fun loadHtml(assetPath: String, replacements: List<Pair<String, String>>): String {
+    private fun loadHtml(
+        assetPath: String,
+        replacements: List<Pair<String, String>>,
+        injectedScript: String?
+    ): String {
         val rawHtml = assets.open(assetPath).use { input ->
             input.bufferedReader(StandardCharsets.UTF_8).readText()
         }
-        return replacements.fold(rawHtml) { acc, (from, to) -> acc.replace(from, to) }
+        val replaced = replacements.fold(rawHtml) { acc, (from, to) -> acc.replace(from, to) }
+        return injectEarlyScript(replaced, injectedScript)
+    }
+
+    private fun injectEarlyScript(html: String, injectedScript: String?): String {
+        val script = injectedScript?.trim().orEmpty()
+        if (script.isEmpty()) return html
+        val headMatch = Regex("<head[^>]*>", RegexOption.IGNORE_CASE).find(html)
+        if (headMatch != null) {
+            val insertAt = headMatch.range.last + 1
+            return html.substring(0, insertAt) + "\n" + script + "\n" + html.substring(insertAt)
+        }
+        return script + "\n" + html
     }
 
     companion object {

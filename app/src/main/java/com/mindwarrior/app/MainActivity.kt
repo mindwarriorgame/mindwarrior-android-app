@@ -222,7 +222,7 @@ class MainActivity : AppCompatActivity() {
             val intent = android.content.Intent(this, BoardWebViewActivity::class.java)
             intent.putExtra(
                 BoardWebViewActivity.EXTRA_BASE_URL,
-                "file:///android_asset/miniapp-frontend/index.html?review=1"
+                "file:///android_asset/miniapp-frontend/index.html?review=1&next_review_prompt_minutes=1,2,3,4,5"
             )
             intent.putExtra(
                 BoardWebViewActivity.EXTRA_ASSET_PATH,
