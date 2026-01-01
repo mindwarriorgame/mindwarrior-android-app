@@ -217,6 +217,19 @@ class MainActivity : AppCompatActivity() {
             )
             startActivity(intent)
         }
+
+        binding.reviewButton.setOnClickListener {
+            val intent = android.content.Intent(this, BoardWebViewActivity::class.java)
+            intent.putExtra(
+                BoardWebViewActivity.EXTRA_BASE_URL,
+                "file:///android_asset/miniapp-frontend/index.html?review=1"
+            )
+            intent.putExtra(
+                BoardWebViewActivity.EXTRA_ASSET_PATH,
+                "miniapp-frontend/index.html"
+            )
+            startActivity(intent)
+        }
     }
 
     private fun updatePauseUi(paused: Boolean) {
