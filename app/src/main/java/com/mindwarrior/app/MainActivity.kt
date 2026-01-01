@@ -198,10 +198,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.diamondsButton.setOnClickListener {
-            getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
-                .edit()
-                .putBoolean(KEY_TIMER_FLAG, true)
-                .apply()
+            startActivity(android.content.Intent(this, ShopActivity::class.java))
         }
 
         binding.progressButton.setOnClickListener {

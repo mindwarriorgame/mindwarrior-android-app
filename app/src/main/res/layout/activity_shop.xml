@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/menu_bg">
+
+    <ScrollView
+        android:id="@+id/shop_scroll"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:id="@+id/shop_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="24dp"
+            android:background="@drawable/panel_difficulty"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/shop_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-black"
+                android:text="@string/shop_title"
+                android:textAlignment="center"
+                android:textColor="@color/menu_text"
+                android:textSize="22sp" />
+
+            <TextView
+                android:id="@+id/shop_subtitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="@string/shop_subtitle"
+                android:textAlignment="center"
+                android:textColor="@color/menu_text"
+                android:textSize="13sp" />
+
+            <LinearLayout
+                android:id="@+id/shop_item_next_achievement"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/log_item_bg"
+                android:orientation="vertical"
+                android:padding="12dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/shop_item_next_achievement_icon"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/shop_item_next_achievement_icon"
+                        android:textSize="22sp" />
+
+                    <TextView
+                        android:id="@+id/shop_item_next_achievement_title"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp"
+                        android:layout_weight="1"
+                        android:fontFamily="sans-serif-medium"
+                        android:text="@string/shop_item_next_achievement_title"
+                        android:textColor="@color/menu_text"
+                        android:textSize="16sp" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/shop_item_next_achievement_description"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="@string/shop_item_next_achievement_description"
+                    android:textColor="@color/log_text"
+                    android:textSize="13sp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/shop_item_next_achievement_price"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/shop_item_next_achievement_price"
+                        android:textColor="@color/menu_text"
+                        android:textSize="13sp" />
+
+                    <androidx.appcompat.widget.AppCompatButton
+                        android:id="@+id/shop_item_next_achievement_buy"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/chip_bg_state"
+                        android:paddingHorizontal="14dp"
+                        android:paddingVertical="6dp"
+                        android:text="@string/shop_buy_now"
+                        android:textAllCaps="false"
+                        android:textColor="@color/chip_text" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/shop_item_expel_grumpy"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/log_item_bg"
+                android:orientation="vertical"
+                android:padding="12dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/shop_item_expel_grumpy_icon"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/shop_item_expel_grumpy_icon"
+                        android:textSize="22sp" />
+
+                    <TextView
+                        android:id="@+id/shop_item_expel_grumpy_title"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp"
+                        android:layout_weight="1"
+                        android:fontFamily="sans-serif-medium"
+                        android:text="@string/shop_item_expel_grumpy_title"
+                        android:textColor="@color/menu_text"
+                        android:textSize="16sp" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/shop_item_expel_grumpy_description"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="@string/shop_item_expel_grumpy_description"
+                    android:textColor="@color/log_text"
+                    android:textSize="13sp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/shop_item_expel_grumpy_price"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/shop_item_expel_grumpy_price"
+                        android:textColor="@color/menu_text"
+                        android:textSize="13sp" />
+
+                    <androidx.appcompat.widget.AppCompatButton
+                        android:id="@+id/shop_item_expel_grumpy_buy"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/chip_bg_state"
+                        android:paddingHorizontal="14dp"
+                        android:paddingVertical="6dp"
+                        android:text="@string/shop_buy_now"
+                        android:textAllCaps="false"
+                        android:textColor="@color/chip_text" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/shop_item_prevent_attack"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/log_item_bg"
+                android:orientation="vertical"
+                android:padding="12dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/shop_item_prevent_attack_icon"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/shop_item_prevent_attack_icon"
+                        android:textSize="22sp" />
+
+                    <TextView
+                        android:id="@+id/shop_item_prevent_attack_title"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp"
+                        android:layout_weight="1"
+                        android:fontFamily="sans-serif-medium"
+                        android:text="@string/shop_item_prevent_attack_title"
+                        android:textColor="@color/menu_text"
+                        android:textSize="16sp" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/shop_item_prevent_attack_description"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="@string/shop_item_prevent_attack_description"
+                    android:textColor="@color/log_text"
+                    android:textSize="13sp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/shop_item_prevent_attack_price"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/shop_item_prevent_attack_price"
+                        android:textColor="@color/menu_text"
+                        android:textSize="13sp" />
+
+                    <androidx.appcompat.widget.AppCompatButton
+                        android:id="@+id/shop_item_prevent_attack_buy"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/chip_bg_state"
+                        android:paddingHorizontal="14dp"
+                        android:paddingVertical="6dp"
+                        android:text="@string/shop_buy_now"
+                        android:textAllCaps="false"
+                        android:textColor="@color/chip_text" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/shop_close"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/chip_bg_state"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="8dp"
+                android:text="@string/shop_close"
+                android:textAllCaps="false"
+                android:textColor="@color/chip_text" />
+        </LinearLayout>
+    </ScrollView>
+</androidx.constraintlayout.widget.ConstraintLayout>
