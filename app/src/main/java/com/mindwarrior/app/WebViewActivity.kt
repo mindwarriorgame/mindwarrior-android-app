@@ -4,14 +4,14 @@ import android.os.Bundle
 import android.util.Base64
 import android.webkit.JavascriptInterface
 import androidx.appcompat.app.AppCompatActivity
-import com.mindwarrior.app.databinding.ActivityBoardWebviewBinding
+import com.mindwarrior.app.databinding.ActivityWebviewBinding
 
-class BoardWebViewActivity : AppCompatActivity() {
-    private lateinit var binding: ActivityBoardWebviewBinding
+class WebViewActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityWebviewBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityBoardWebviewBinding.inflate(layoutInflater)
+        binding = ActivityWebviewBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         val baseUrlExtra = intent.getStringExtra(EXTRA_BASE_URL)
@@ -19,28 +19,28 @@ class BoardWebViewActivity : AppCompatActivity() {
 
         val loader = AssetWebViewLoader(assets)
         loader.loadInto(
-            binding.boardWebview,
+            binding.webview,
             AssetWebViewLoader.Config(
-                baseUrl = (baseUrlExtra ?: BOARD_ASSET_PAGE_URL) +
+                baseUrl = (baseUrlExtra ?: DEFAULT_ASSET_PAGE_URL) +
                     "&ts=" + (java.util.Date().time / 1000),
-                assetPath = assetPathExtra ?: BOARD_ASSET_PATH,
+                assetPath = assetPathExtra ?: DEFAULT_ASSET_PATH,
                 replacements = AssetWebViewLoader.defaultReplacements(),
                 injectedScript = buildLocalStorageRestoreScript(),
                 javascriptInterfaceName = JS_INTERFACE_NAME,
-                javascriptInterface = BoardWebViewBridge()
+                javascriptInterface = WebViewBridge()
             )
         )
     }
 
     override fun onBackPressed() {
-        if (binding.boardWebview.canGoBack()) {
-            binding.boardWebview.goBack()
+        if (binding.webview.canGoBack()) {
+            binding.webview.goBack()
         } else {
             super.onBackPressed()
         }
     }
 
-    private inner class BoardWebViewBridge {
+    private inner class WebViewBridge {
         @JavascriptInterface
         fun close() {
             runOnUiThread { saveLocalStorageAndFinish() }
@@ -48,7 +48,7 @@ class BoardWebViewActivity : AppCompatActivity() {
     }
 
     private fun saveLocalStorageAndFinish() {
-        binding.boardWebview.evaluateJavascript(LOCAL_STORAGE_SNAPSHOT_JS) { result ->
+        binding.webview.evaluateJavascript(LOCAL_STORAGE_SNAPSHOT_JS) { result ->
             if (!result.isNullOrBlank() && result != "null" && result != "undefined") {
                 getSharedPreferences(STORAGE_PREFS_NAME, MODE_PRIVATE)
                     .edit()
@@ -98,9 +98,9 @@ class BoardWebViewActivity : AppCompatActivity() {
         const val EXTRA_BASE_URL = "extra_base_url"
         const val EXTRA_ASSET_PATH = "extra_asset_path"
         private const val JS_INTERFACE_NAME = "MindWarrior"
-        private const val BOARD_ASSET_PAGE_URL =
+        private const val DEFAULT_ASSET_PAGE_URL =
             "file:///android_asset/miniapp-frontend/board.html?lang=en&env=prod&new_badge=s1&level=12&b1=c1_s1a_c2_c2_s1am_s2_t0_t0_c0_c0_c0&bp1=c1_49829_31--c0_0_100--t0_85829_20--s2_15_0"
-        private const val BOARD_ASSET_PATH = "miniapp-frontend/board.html"
+        private const val DEFAULT_ASSET_PATH = "miniapp-frontend/board.html"
         private const val LOCAL_STORAGE_SNAPSHOT_JS =
             "(function(){try{var data={};" +
                 "for(var i=0;i<localStorage.length;i++){" +

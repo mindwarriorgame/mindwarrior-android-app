@@ -25,7 +25,7 @@
             android:screenOrientation="portrait" />
 
         <activity
-            android:name=".BoardWebViewActivity"
+            android:name=".WebViewActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
 

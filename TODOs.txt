@@ -1,0 +1,3 @@
+- when no formula and Review is hit, customize description for Android app
+
+- make external links work

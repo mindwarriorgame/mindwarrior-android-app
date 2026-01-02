@@ -202,30 +202,30 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.progressButton.setOnClickListener {
-            startActivity(android.content.Intent(this, BoardWebViewActivity::class.java))
+            startActivity(android.content.Intent(this, WebViewActivity::class.java))
         }
 
         binding.labButton.setOnClickListener {
-            val intent = android.content.Intent(this, BoardWebViewActivity::class.java)
+            val intent = android.content.Intent(this, WebViewActivity::class.java)
             intent.putExtra(
-                BoardWebViewActivity.EXTRA_BASE_URL,
+                WebViewActivity.EXTRA_BASE_URL,
                 "file:///android_asset/miniapp-frontend/index.html?formula=1"
             )
             intent.putExtra(
-                BoardWebViewActivity.EXTRA_ASSET_PATH,
+                WebViewActivity.EXTRA_ASSET_PATH,
                 "miniapp-frontend/index.html"
             )
             startActivity(intent)
         }
 
         binding.reviewButton.setOnClickListener {
-            val intent = android.content.Intent(this, BoardWebViewActivity::class.java)
+            val intent = android.content.Intent(this, WebViewActivity::class.java)
             intent.putExtra(
-                BoardWebViewActivity.EXTRA_BASE_URL,
+                WebViewActivity.EXTRA_BASE_URL,
                 "file:///android_asset/miniapp-frontend/index.html?review=1&next_review_prompt_minutes=1,2,3,4,5"
             )
             intent.putExtra(
-                BoardWebViewActivity.EXTRA_ASSET_PATH,
+                WebViewActivity.EXTRA_ASSET_PATH,
                 "miniapp-frontend/index.html"
             )
             startActivity(intent)
