@@ -1,16 +1,10 @@
 package com.mindwarrior.app
 
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.mindwarrior.app.databinding.ActivityMainBinding
-import java.text.SimpleDateFormat
-import java.util.Locale
-import kotlin.random.Random
-import android.view.Gravity
 import android.graphics.Rect
 import android.Manifest
 import android.content.pm.PackageManager
@@ -18,79 +12,25 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.appcompat.app.AlertDialog
 import android.view.View
+import androidx.lifecycle.ViewModelProvider
+import com.mindwarrior.app.viewmodel.MainViewModel
 import kotlin.math.max
 import kotlin.math.min
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
-    private val handler = Handler(Looper.getMainLooper())
     private val logAdapter = LogAdapter()
-    private val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
-    private val dayFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
-    private val sampleMessages = listOf(
-        "⚔️ Clash triggered: Warden +25% focus boost",
-        "🧠 Formula locked\n- Focus 8m\n- Recall 4m\n- Break 2m",
-        "💥 Combo x3 landed. Stamina drops to 62%",
-        "🧭 New waypoint unlocked: Quiet Zone",
-        "🧪 Potion brewed: Calm Serum (1 use)",
-        "🏆 Level check: 55% 😾",
-        "🛡️ Shield restored by ally protocol",
-        "📜 Journal sync complete\nMindMap updated"
-    )
-    private var tickCount = 0
-
-    private val snowflakeBlink = object : Runnable {
-        private var visible = true
-        override fun run() {
-            visible = !visible
-            if (visible) {
-                binding.snowflake.visibility = android.view.View.VISIBLE
-                binding.snowflakeTimer.visibility = android.view.View.VISIBLE
-            } else {
-                binding.snowflake.visibility = android.view.View.GONE
-                binding.snowflakeTimer.visibility = android.view.View.GONE
-            }
-            handler.postDelayed(this, 1000L)
-        }
-    }
-
-    private val logTicker = object : Runnable {
-        override fun run() {
-            tickCount += 1
-            val newLogs = mutableListOf<LogItem>()
-            newLogs.add(buildLogItem())
-            if (tickCount % 2 == 0) {
-                newLogs.add(buildLogItem())
-                newLogs.add(buildLogItem())
-            }
-            logAdapter.prependLogs(newLogs)
-            logAdapter.trimTo(MAX_LOG_ITEMS)
-            binding.logsRecycler.scrollToPosition(0)
-            handler.postDelayed(this, 15_000L)
-        }
-    }
-
-    private val timerTicker = object : Runnable {
-        override fun run() {
-            updateTimerDisplay()
-            handler.postDelayed(this, 1000L)
-        }
-    }
-
-    private val timerFlagChecker = object : Runnable {
-        override fun run() {
-            checkTimerFlag()
-            handler.postDelayed(this, TIMER_FLAG_POLL_MS)
-        }
-    }
+    private lateinit var viewModel: MainViewModel
 
     private var quickStartStep = 0
     private var timerFlagDialogShowing = false
+    private var lastTimerFlagEvent = 0L
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        viewModel = ViewModelProvider(this)[MainViewModel::class.java]
 
         setupMenu()
         setupLogs()
@@ -102,30 +42,27 @@ class MainActivity : AppCompatActivity() {
         }
         updatePauseUi(BattleTimerScheduler.isPaused(this))
 
-        seedInitialLogs()
-
+        bindViewModel()
         showQuickStartIfNeeded()
     }
 
     override fun onResume() {
         super.onResume()
         updateDifficultyLabel()
-        updateTimerDisplay()
         updatePauseUi(BattleTimerScheduler.isPaused(this))
-        showTimerFlagDialogIfNeeded()
-        startTickers()
-        handler.post(timerFlagChecker)
+        viewModel.startTickers()
+        viewModel.refreshTimerDisplay()
+        viewModel.startTimerFlagChecker()
     }
 
     override fun onPause() {
         super.onPause()
-        stopTickers()
-        handler.removeCallbacks(timerFlagChecker)
+        viewModel.stopTickers()
+        viewModel.stopTimerFlagChecker()
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        handler.removeCallbacksAndMessages(null)
     }
 
     override fun onBackPressed() {
@@ -237,7 +174,6 @@ class MainActivity : AppCompatActivity() {
         )
         binding.pauseButton.alpha = 1f
         binding.pauseButton.isSelected = paused
-        updateTimerDisplay()
         if (paused) {
             binding.pauseIndicator.visibility = View.VISIBLE
         } else {
@@ -245,38 +181,37 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun startTimerService() {
-        if (android.os.Build.VERSION.SDK_INT >= 33) {
-            val granted = ContextCompat.checkSelfPermission(
-                this,
-                Manifest.permission.POST_NOTIFICATIONS
-            ) == PackageManager.PERMISSION_GRANTED
-            if (!granted) return
-        }
-        val intent = android.content.Intent(this, TimerForegroundService::class.java)
-        androidx.core.content.ContextCompat.startForegroundService(this, intent)
-    }
-
-    private fun showQuickStartIfNeeded() {
+   private fun showQuickStartIfNeeded() {
         val prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
         if (prefs.getBoolean(KEY_QUICK_START_DONE, false)) return
         quickStartStep = 1
         binding.root.post { showQuickStartStep() }
     }
 
-    private fun startTickers() {
-        handler.removeCallbacks(snowflakeBlink)
-        handler.removeCallbacks(logTicker)
-        handler.removeCallbacks(timerTicker)
-        handler.post(snowflakeBlink)
-        handler.postDelayed(logTicker, 15_000L)
-        handler.post(timerTicker)
-    }
-
-    private fun stopTickers() {
-        handler.removeCallbacks(snowflakeBlink)
-        handler.removeCallbacks(logTicker)
-        handler.removeCallbacks(timerTicker)
+    private fun bindViewModel() {
+        viewModel.timerText.observe(this) { text ->
+            binding.timerText.text = text
+        }
+        viewModel.timerWarning.observe(this) { warning ->
+            binding.timerText.setTextColor(
+                if (warning) getColor(R.color.timer_text_warning) else getColor(R.color.timer_text)
+            )
+        }
+        viewModel.snowflakeVisible.observe(this) { visible ->
+            val visibility = if (visible) View.VISIBLE else View.GONE
+            binding.snowflake.visibility = visibility
+            binding.snowflakeTimer.visibility = visibility
+        }
+        viewModel.logs.observe(this) { logs ->
+            logAdapter.submitList(logs) {
+                binding.logsRecycler.scrollToPosition(0)
+            }
+        }
+        viewModel.timerFlagEvent.observe(this) { timestamp ->
+            if (timestamp <= lastTimerFlagEvent) return@observe
+            lastTimerFlagEvent = timestamp
+            showTimerFlagDialog()
+        }
     }
 
     private fun showQuickStartStep() {
@@ -383,23 +318,14 @@ class MainActivity : AppCompatActivity() {
             getString(R.string.menu_difficulty, getString(difficulty.labelRes))
     }
 
-    private fun updateTimerDisplay() {
-        val remainingMillis = BattleTimerScheduler.getRemainingMillis(this)
-        binding.timerText.text = formatRemaining(remainingMillis)
-        val warning = remainingMillis in 1..WARNING_THRESHOLD_MILLIS
-        binding.timerText.setTextColor(
-            if (warning) getColor(R.color.timer_text_warning) else getColor(R.color.timer_text)
-        )
-    }
-
-    private fun showTimerFlagDialogIfNeeded() {
-        if (timerFlagDialogShowing || !isTimerFlagSet()) return
+    private fun showTimerFlagDialog() {
+        if (timerFlagDialogShowing) return
         timerFlagDialogShowing = true
         AlertDialog.Builder(this)
             .setTitle(getString(R.string.timer_flag_title))
             .setMessage(getString(R.string.timer_flag_message))
             .setPositiveButton(getString(R.string.timer_flag_done)) { _, _ ->
-                clearTimerFlag()
+                viewModel.clearTimerFlag()
                 addTimerLog()
                 timerFlagDialogShowing = false
             }
@@ -408,31 +334,8 @@ class MainActivity : AppCompatActivity() {
             .show()
     }
 
-    private fun checkTimerFlag() {
-        if (timerFlagDialogShowing || !isTimerFlagSet()) return
-        showTimerFlagDialogIfNeeded()
-        clearTimerFlag()
-        addTimerLog()
-    }
-
     private fun addTimerLog() {
-        val now = System.currentTimeMillis()
-        val log = LogItem(formatTimeLabel(now), getString(R.string.timer_flag_log))
-        logAdapter.prependLogs(listOf(log))
-        logAdapter.trimTo(MAX_LOG_ITEMS)
-        binding.logsRecycler.scrollToPosition(0)
-    }
-
-    private fun isTimerFlagSet(): Boolean {
-        return getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
-            .getBoolean(KEY_TIMER_FLAG, false)
-    }
-
-    private fun clearTimerFlag() {
-        getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
-            .edit()
-            .remove(KEY_TIMER_FLAG)
-            .apply()
+        viewModel.addLog(getString(R.string.timer_flag_log))
     }
 
     private fun requestNotificationPermission() {
@@ -471,62 +374,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun seedInitialLogs() {
-        val now = System.currentTimeMillis()
-        val seeds = listOf(
-            LogSeed(now - 2 * 60 * 1000L, sampleMessages[0]),
-            LogSeed(now - 12 * 60 * 1000L, sampleMessages[1]),
-            LogSeed(now - 42 * 60 * 1000L, sampleMessages[2]),
-            LogSeed(now - 3 * 60 * 60 * 1000L, sampleMessages[3]),
-            LogSeed(now - 28 * 60 * 60 * 1000L, sampleMessages[4])
-        )
-        val seededItems = seeds.map { seed ->
-            LogItem(formatTimeLabel(seed.timestamp), seed.message)
-        }
-        logAdapter.prependLogs(seededItems)
-        logAdapter.trimTo(MAX_LOG_ITEMS)
-    }
-
-    private fun buildLogItem(): LogItem {
-        val message = sampleMessages.random()
-        val timeOffsetMinutes = Random.nextInt(1, 180)
-        val timeMillis = System.currentTimeMillis() - timeOffsetMinutes * 60_000L
-        return LogItem(formatTimeLabel(timeMillis), message)
-    }
-
-    private fun formatTimeLabel(timeMillis: Long): String {
-        val now = System.currentTimeMillis()
-        val diff = now - timeMillis
-        return if (diff < DAY_MILLIS) {
-            val relative = when {
-                diff < 60_000L -> "${diff / 1000}s ago"
-                diff < 3_600_000L -> "${diff / 60_000}m ago"
-                else -> "${diff / 3_600_000}h ago"
-            }
-            "$relative · ${timeFormat.format(timeMillis)}"
-        } else {
-            dayFormat.format(timeMillis)
-        }
-    }
-
-    private fun formatRemaining(remainingMillis: Long): String {
-        val totalSeconds = remainingMillis / 1000
-        val hours = totalSeconds / 3600
-        val minutes = (totalSeconds % 3600) / 60
-        val seconds = totalSeconds % 60
-        return String.format(Locale.getDefault(), "%02d:%02d:%02d", hours, minutes, seconds)
-    }
-
-    data class LogSeed(val timestamp: Long, val message: String)
-
     companion object {
-        private const val MAX_LOG_ITEMS = 20
-        private const val DAY_MILLIS = 24 * 60 * 60 * 1000L
-        private const val WARNING_THRESHOLD_MILLIS = 15 * 60 * 1000L
-        private const val TIMER_FLAG_POLL_MS = 100L
         private const val NOTIFICATION_PERMISSION_REQUEST = 1003
         private const val PREFS_NAME = "mindwarrior_prefs"
         private const val KEY_QUICK_START_DONE = "quick_start_done5"
-        private const val KEY_TIMER_FLAG = "timer_flag"
     }
 }
