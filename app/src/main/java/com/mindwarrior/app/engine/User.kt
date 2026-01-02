@@ -9,9 +9,9 @@ enum class AlertType {
 }
 
 data class User(
-    val pausedTimerSerialized: Optional<String>,
-    val activePlayTimerSerialized: String,
-    val lastRewardAtActivePlayTime: Long,
-    val reviewTimerSerialized: String,
-    val nextAlertType: AlertType
+    var pausedTimerSerialized: Optional<String>,
+    var activePlayTimerSerialized: String,
+    var lastRewardAtActivePlayTime: Long,
+    var reviewTimerSerialized: String,
+    var nextAlertType: AlertType
 )

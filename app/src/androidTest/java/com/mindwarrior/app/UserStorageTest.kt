@@ -6,7 +6,6 @@ import com.mindwarrior.app.engine.AlertType
 import com.mindwarrior.app.engine.User
 import java.util.Optional
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -38,8 +37,7 @@ class UserStorageTest {
         UserStorage.upsertUser(context, user)
         val loaded = UserStorage.getUser(context)
 
-        assertTrue(loaded.isPresent)
-        assertEquals(user, loaded.get())
+        assertEquals(user, loaded)
     }
 
     @Test
@@ -56,12 +54,11 @@ class UserStorageTest {
         UserStorage.upsertUser(context, user)
         val loaded = UserStorage.getUser(context)
 
-        assertTrue(loaded.isPresent)
-        assertEquals(user, loaded.get())
+        assertEquals(user, loaded)
     }
 
     @Test
-    fun getUserReturnsEmptyWhenMissingRequiredFields() {
+    fun getUserReturnsDefaultsWhenMissingRequiredFields() {
         val context = ApplicationProvider.getApplicationContext<android.content.Context>()
         val prefs = context.getSharedPreferences(PREFS_NAME, android.content.Context.MODE_PRIVATE)
         prefs.edit()
@@ -70,7 +67,11 @@ class UserStorageTest {
 
         val loaded = UserStorage.getUser(context)
 
-        assertFalse(loaded.isPresent)
+        assertTrue(loaded.activePlayTimerSerialized.isNotBlank())
+        assertTrue(loaded.reviewTimerSerialized.isNotBlank())
+        assertEquals(0L, loaded.lastRewardAtActivePlayTime)
+        assertEquals(AlertType.Reminder, loaded.nextAlertType)
+        assertTrue(!loaded.pausedTimerSerialized.isPresent)
     }
 
     companion object {
