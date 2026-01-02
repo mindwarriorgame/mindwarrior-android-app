@@ -103,9 +103,6 @@ class MainActivity : AppCompatActivity() {
         updatePauseUi(BattleTimerScheduler.isPaused(this))
 
         seedInitialLogs()
-        handler.post(snowflakeBlink)
-        handler.postDelayed(logTicker, 15_000L)
-        handler.post(timerTicker)
 
         showQuickStartIfNeeded()
     }
@@ -116,11 +113,13 @@ class MainActivity : AppCompatActivity() {
         updateTimerDisplay()
         updatePauseUi(BattleTimerScheduler.isPaused(this))
         showTimerFlagDialogIfNeeded()
+        startTickers()
         handler.post(timerFlagChecker)
     }
 
     override fun onPause() {
         super.onPause()
+        stopTickers()
         handler.removeCallbacks(timerFlagChecker)
     }
 
@@ -263,6 +262,21 @@ class MainActivity : AppCompatActivity() {
         if (prefs.getBoolean(KEY_QUICK_START_DONE, false)) return
         quickStartStep = 1
         binding.root.post { showQuickStartStep() }
+    }
+
+    private fun startTickers() {
+        handler.removeCallbacks(snowflakeBlink)
+        handler.removeCallbacks(logTicker)
+        handler.removeCallbacks(timerTicker)
+        handler.post(snowflakeBlink)
+        handler.postDelayed(logTicker, 15_000L)
+        handler.post(timerTicker)
+    }
+
+    private fun stopTickers() {
+        handler.removeCallbacks(snowflakeBlink)
+        handler.removeCallbacks(logTicker)
+        handler.removeCallbacks(timerTicker)
     }
 
     private fun showQuickStartStep() {
