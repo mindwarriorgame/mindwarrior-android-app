@@ -60,7 +60,7 @@
             android:foregroundServiceType="dataSync" />
 
         <receiver
-            android:name=".TimerAlarmReceiver"
+            android:name=".BattleTimerReceiver"
             android:exported="false" />
 
         <receiver

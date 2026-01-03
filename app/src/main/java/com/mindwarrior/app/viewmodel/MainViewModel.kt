@@ -8,6 +8,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.mindwarrior.app.BattleTimerScheduler
 import com.mindwarrior.app.LogItem
+import com.mindwarrior.app.UserStorage
 import java.text.SimpleDateFormat
 import java.util.Locale
 import kotlin.random.Random
@@ -39,6 +40,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _timerWarning = MutableLiveData<Boolean>()
     val timerWarning: LiveData<Boolean> = _timerWarning
 
+    private val _isPaused = MutableLiveData<Boolean>()
+    val isPaused: LiveData<Boolean> = _isPaused
+
     private val _snowflakeVisible = MutableLiveData<Boolean>(true)
     val snowflakeVisible: LiveData<Boolean> = _snowflakeVisible
 
@@ -47,6 +51,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _timerFlagEvent = MutableLiveData<Long>()
     val timerFlagEvent: LiveData<Long> = _timerFlagEvent
+
+    private val userListener = object : UserStorage.UserUpdateListener {
+        override fun onUserUpdated(user: com.mindwarrior.app.engine.User) {
+            _isPaused.value = user.pausedTimerSerialized.isPresent
+        }
+    }
 
     private val snowflakeBlink = object : Runnable {
         private var visible = true
@@ -99,6 +109,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     init {
         seedInitialLogs()
         refreshTimerDisplay()
+        val user = UserStorage.getUser(getApplication())
+        _isPaused.value = user.pausedTimerSerialized.isPresent
+        UserStorage.observeUserChanges(getApplication(), userListener)
     }
 
     fun startTickers() {

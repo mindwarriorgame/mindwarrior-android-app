@@ -18,7 +18,6 @@ object BattleTimerScheduler {
     private const val PREFS_NAME = "mindwarrior_prefs"
     private const val KEY_NEXT_TRIGGER = "battle_next_trigger"
     private const val KEY_NOTIFICATION_COUNT = "battle_notification_count"
-    private const val KEY_PAUSED = "battle_timer_paused"
     private const val KEY_PAUSED_REMAINING = "battle_timer_remaining"
 
     const val CHANNEL_ID = "battle_timer_channel"
@@ -26,11 +25,11 @@ object BattleTimerScheduler {
     private const val NOTIFICATION_ID = 1002
 
     fun ensureScheduled(context: Context) {
-        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        val now = System.currentTimeMillis()
-        if (prefs.getBoolean(KEY_PAUSED, false)) {
+        if (UserStorage.getUser(context).pausedTimerSerialized.isPresent) {
             return
         }
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val now = System.currentTimeMillis()
         val current = prefs.getLong(KEY_NEXT_TRIGGER, 0L)
         val next = if (current == 0L || current <= now) {
             now + getIntervalMillis(DifficultyPreferences.getDifficulty(context))
@@ -38,6 +37,7 @@ object BattleTimerScheduler {
             current
         }
         prefs.edit().putLong(KEY_NEXT_TRIGGER, next).apply()
+        cancelAlarm(context)
         scheduleAlarm(context, next)
     }
 
@@ -46,15 +46,15 @@ object BattleTimerScheduler {
         val next = System.currentTimeMillis() + getIntervalMillis(DifficultyPreferences.getDifficulty(context))
         prefs.edit()
             .putLong(KEY_NEXT_TRIGGER, next)
-            .putBoolean(KEY_PAUSED, false)
             .remove(KEY_PAUSED_REMAINING)
             .apply()
+        cancelAlarm(context)
         scheduleAlarm(context, next)
     }
 
     fun getRemainingMillis(context: Context): Long {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        if (prefs.getBoolean(KEY_PAUSED, false)) {
+        if (UserStorage.getUser(context).pausedTimerSerialized.isPresent) {
             return prefs.getLong(KEY_PAUSED_REMAINING, 0L)
         }
         val next = prefs.getLong(KEY_NEXT_TRIGGER, 0L)
@@ -66,7 +66,6 @@ object BattleTimerScheduler {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val remaining = getRemainingMillis(context)
         prefs.edit()
-            .putBoolean(KEY_PAUSED, true)
             .putLong(KEY_PAUSED_REMAINING, remaining)
             .apply()
         cancelAlarm(context)
@@ -78,16 +77,11 @@ object BattleTimerScheduler {
         val remaining = prefs.getLong(KEY_PAUSED_REMAINING, 0L)
         val next = System.currentTimeMillis() + remaining
         prefs.edit()
-            .putBoolean(KEY_PAUSED, false)
             .putLong(KEY_NEXT_TRIGGER, next)
             .remove(KEY_PAUSED_REMAINING)
             .apply()
+        cancelAlarm(context)
         scheduleAlarm(context, next)
-    }
-
-    fun isPaused(context: Context): Boolean {
-        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        return prefs.getBoolean(KEY_PAUSED, false)
     }
 
     fun handleAlarm(context: Context) {
@@ -115,13 +109,7 @@ object BattleTimerScheduler {
 
     private fun scheduleAlarm(context: Context, triggerAtMillis: Long) {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        val intent = Intent(context, TimerAlarmReceiver::class.java)
-        val pendingIntent = PendingIntent.getBroadcast(
-            context,
-            1001,
-            intent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
+        val pendingIntent = createAlarmPendingIntent(context)
         if (android.os.Build.VERSION.SDK_INT >= 31) {
             if (alarmManager.canScheduleExactAlarms()) {
                 alarmManager.setExactAndAllowWhileIdle(
@@ -147,13 +135,7 @@ object BattleTimerScheduler {
 
     private fun cancelAlarm(context: Context) {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        val intent = Intent(context, TimerAlarmReceiver::class.java)
-        val pendingIntent = PendingIntent.getBroadcast(
-            context,
-            1001,
-            intent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
+        val pendingIntent = createAlarmPendingIntent(context)
         alarmManager.cancel(pendingIntent)
     }
 
@@ -192,6 +174,16 @@ object BattleTimerScheduler {
         val uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
         val ringtone = RingtoneManager.getRingtone(context, uri)
         ringtone.play()
+    }
+
+    private fun createAlarmPendingIntent(context: Context): PendingIntent {
+        val intent = Intent(context, BattleTimerReceiver::class.java)
+        return PendingIntent.getBroadcast(
+            context,
+            1001,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
     }
 
     fun ensureNotificationChannel(context: Context) {

@@ -14,6 +14,8 @@ import androidx.appcompat.app.AlertDialog
 import android.view.View
 import androidx.lifecycle.ViewModelProvider
 import com.mindwarrior.app.viewmodel.MainViewModel
+import com.mindwarrior.app.engine.Counter
+import java.util.Optional
 import kotlin.math.max
 import kotlin.math.min
 
@@ -40,7 +42,6 @@ class MainActivity : AppCompatActivity() {
         if (SettingsPreferences.isForegroundEnabled(this)) {
             TimerServiceController.start(this)
         }
-        updatePauseUi(BattleTimerScheduler.isPaused(this))
 
         bindViewModel()
         showQuickStartIfNeeded()
@@ -49,7 +50,6 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         updateDifficultyLabel()
-        updatePauseUi(BattleTimerScheduler.isPaused(this))
         viewModel.startTickers()
         viewModel.refreshTimerDisplay()
         viewModel.startTimerFlagChecker()
@@ -124,13 +124,13 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupControls() {
         binding.pauseButton.setOnClickListener {
-            val paused = BattleTimerScheduler.isPaused(this)
+            val paused = viewModel.isPaused.value == true
             if (paused) {
                 BattleTimerScheduler.resumeTimer(this)
             } else {
                 BattleTimerScheduler.pauseTimer(this)
             }
-            updatePauseUi(!paused)
+            updateUserPausedState(!paused)
         }
 
         binding.diamondsButton.setOnClickListener {
@@ -181,7 +181,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-   private fun showQuickStartIfNeeded() {
+    private fun showQuickStartIfNeeded() {
         val prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
         if (prefs.getBoolean(KEY_QUICK_START_DONE, false)) return
         quickStartStep = 1
@@ -212,6 +212,19 @@ class MainActivity : AppCompatActivity() {
             lastTimerFlagEvent = timestamp
             showTimerFlagDialog()
         }
+        viewModel.isPaused.observe(this) { paused ->
+            updatePauseUi(paused)
+        }
+    }
+
+    private fun updateUserPausedState(paused: Boolean) {
+        val user = UserStorage.getUser(this)
+        val pausedTimerSerialized = if (paused) {
+            Optional.of(Counter(null).serialize())
+        } else {
+            Optional.empty()
+        }
+        UserStorage.upsertUser(this, user.copy(pausedTimerSerialized = pausedTimerSerialized))
     }
 
     private fun showQuickStartStep() {

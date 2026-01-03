@@ -55,7 +55,7 @@ class TimerForegroundService : Service() {
     }
 
     private fun updateNotification() {
-        val paused = BattleTimerScheduler.isPaused(this)
+        val paused = UserStorage.getUser(this).pausedTimerSerialized.isPresent
         val contentText = if (paused) {
             getString(R.string.timer_notification_paused)
         } else {

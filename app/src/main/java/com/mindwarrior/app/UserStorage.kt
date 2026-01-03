@@ -5,6 +5,7 @@ import com.mindwarrior.app.engine.AlertType
 import com.mindwarrior.app.engine.Counter
 import com.mindwarrior.app.engine.User
 import java.util.Optional
+import java.lang.ref.WeakReference
 
 object UserStorage {
     private const val PREFS_NAME = "mindwarrior_user"
@@ -13,6 +14,7 @@ object UserStorage {
     private const val KEY_LAST_REWARD_AT_ACTIVE_PLAY_TIME = "last_reward_at_active_play_time"
     private const val KEY_REVIEW_TIMER_SERIALIZED = "review_timer_serialized"
     private const val KEY_NEXT_ALERT_TYPE = "next_alert_type"
+    private val userUpdateListeners = mutableListOf<WeakReference<UserUpdateListener>>()
 
     fun getUser(context: Context): User {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -51,6 +53,12 @@ object UserStorage {
         )
     }
 
+    fun observeUserChanges(context: Context, listener: UserUpdateListener) {
+        userUpdateListeners.add(WeakReference(listener))
+        pruneListeners()
+        listener.onUserUpdated(getUser(context))
+    }
+
     fun upsertUser(context: Context, user: User) {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val editor = prefs.edit()
@@ -64,6 +72,7 @@ object UserStorage {
             editor.remove(KEY_PAUSED_TIMER_SERIALIZED)
         }
         editor.apply()
+        notifyUserUpdated(user)
     }
 
     private fun defaultUser(): User {
@@ -74,5 +83,31 @@ object UserStorage {
             reviewTimerSerialized = Counter(null).serialize(),
             nextAlertType = AlertType.Reminder
         )
+    }
+
+    private fun notifyUserUpdated(user: User) {
+        pruneListeners()
+        val iterator = userUpdateListeners.iterator()
+        while (iterator.hasNext()) {
+            val listener = iterator.next().get()
+            if (listener == null) {
+                iterator.remove()
+            } else {
+                listener.onUserUpdated(user)
+            }
+        }
+    }
+
+    private fun pruneListeners() {
+        val iterator = userUpdateListeners.iterator()
+        while (iterator.hasNext()) {
+            if (iterator.next().get() == null) {
+                iterator.remove()
+            }
+        }
+    }
+
+    interface UserUpdateListener {
+        fun onUserUpdated(user: User)
     }
 }
