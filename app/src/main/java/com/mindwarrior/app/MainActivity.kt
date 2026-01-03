@@ -15,8 +15,8 @@ import android.view.View
 import androidx.lifecycle.ViewModelProvider
 import com.mindwarrior.app.viewmodel.MainViewModel
 import com.mindwarrior.app.engine.Counter
-import com.mindwarrior.app.apptimers.OneOffTimerController
-import com.mindwarrior.app.apptimers.StickyTimerController
+import com.mindwarrior.app.notifications.OneOffAlertController
+import com.mindwarrior.app.notifications.StickyAlertController
 import java.util.Optional
 import kotlin.math.max
 import kotlin.math.min
@@ -39,10 +39,10 @@ class MainActivity : AppCompatActivity() {
         setupMenu()
         setupLogs()
         setupControls()
-        OneOffTimerController.ensureScheduled(this)
+        OneOffAlertController.ensureScheduled(this)
         requestNotificationPermission()
         if (UserStorage.getUser(this).timerForegroundEnabled) {
-            StickyTimerController.start(this)
+            StickyAlertController.start(this)
         }
 
         bindViewModel()
@@ -153,9 +153,9 @@ class MainActivity : AppCompatActivity() {
         binding.pauseButton.setOnClickListener {
             val paused = viewModel.isPaused.value == true
             if (paused) {
-                OneOffTimerController.resumeTimer(this)
+                OneOffAlertController.resumeTimer(this)
             } else {
-                OneOffTimerController.pauseTimer(this)
+                OneOffAlertController.pauseTimer(this)
             }
             updateUserPausedState(!paused)
         }
@@ -408,7 +408,7 @@ class MainActivity : AppCompatActivity() {
                 finishAffinity()
             } else {
                 if (UserStorage.getUser(this).timerForegroundEnabled) {
-                    StickyTimerController.start(this)
+                    StickyAlertController.start(this)
                 }
             }
         }

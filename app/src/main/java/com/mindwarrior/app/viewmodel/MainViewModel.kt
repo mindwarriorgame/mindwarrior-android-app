@@ -6,7 +6,7 @@ import android.os.Looper
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.mindwarrior.app.apptimers.OneOffTimerController
+import com.mindwarrior.app.notifications.OneOffAlertController
 import com.mindwarrior.app.LogItem
 import com.mindwarrior.app.UserStorage
 import java.text.SimpleDateFormat
@@ -143,7 +143,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun refreshTimerDisplay() {
-        val remainingMillis = OneOffTimerController.getRemainingMillis(getApplication())
+        val remainingMillis = OneOffAlertController.getRemainingMillis(getApplication())
         _timerText.value = formatRemaining(remainingMillis)
         _timerWarning.value = remainingMillis in 1..WARNING_THRESHOLD_MILLIS
     }

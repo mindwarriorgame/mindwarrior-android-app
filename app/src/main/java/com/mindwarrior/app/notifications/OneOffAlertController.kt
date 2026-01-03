@@ -1,4 +1,4 @@
-package com.mindwarrior.app.apptimers
+package com.mindwarrior.app.notifications
 
 import android.app.AlarmManager
 import android.app.NotificationChannel
@@ -19,7 +19,7 @@ import com.mindwarrior.app.R
 import com.mindwarrior.app.UserStorage
 import kotlin.math.max
 
-object OneOffTimerController {
+object OneOffAlertController {
     private const val PREFS_NAME = "mindwarrior_prefs"
     private const val KEY_NEXT_TRIGGER = "battle_next_trigger"
     private const val KEY_NOTIFICATION_COUNT = "battle_notification_count"
@@ -182,7 +182,7 @@ object OneOffTimerController {
     }
 
     private fun createAlarmPendingIntent(context: Context): PendingIntent {
-        val intent = Intent(context, OneOffTimerReceiver::class.java)
+        val intent = Intent(context, OneOffAlertReceiver::class.java)
         return PendingIntent.getBroadcast(
             context,
             1001,

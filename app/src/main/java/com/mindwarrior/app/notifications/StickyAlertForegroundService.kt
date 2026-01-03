@@ -1,4 +1,4 @@
-package com.mindwarrior.app.apptimers
+package com.mindwarrior.app.notifications
 
 import android.app.Notification
 import android.app.NotificationManager
@@ -14,7 +14,7 @@ import com.mindwarrior.app.MainActivity
 import com.mindwarrior.app.R
 import com.mindwarrior.app.UserStorage
 
-class StickyTimerForegroundService : Service() {
+class StickyAlertForegroundService : Service() {
     private val handler = Handler(Looper.getMainLooper())
     private val ticker = object : Runnable {
         override fun run() {
@@ -42,8 +42,8 @@ class StickyTimerForegroundService : Service() {
     }
 
     private fun buildNotification(): Notification {
-        val channelId = OneOffTimerController.CHANNEL_ID
-        OneOffTimerController.ensureNotificationChannel(this)
+        val channelId = OneOffAlertController.CHANNEL_ID
+        OneOffAlertController.ensureNotificationChannel(this)
 
         return NotificationCompat.Builder(this, channelId)
             .setSmallIcon(R.drawable.ic_notification)
@@ -63,11 +63,11 @@ class StickyTimerForegroundService : Service() {
         val contentText = if (paused) {
             getString(R.string.timer_notification_paused)
         } else {
-            val remaining = OneOffTimerController.getRemainingMillis(this)
+            val remaining = OneOffAlertController.getRemainingMillis(this)
             getString(R.string.timer_notification_running, formatRemaining(remaining))
         }
 
-        val notification = NotificationCompat.Builder(this, OneOffTimerController.CHANNEL_ID)
+        val notification = NotificationCompat.Builder(this, OneOffAlertController.CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_notification)
             .setOngoing(true)
             .setContentIntent(createContentIntent())

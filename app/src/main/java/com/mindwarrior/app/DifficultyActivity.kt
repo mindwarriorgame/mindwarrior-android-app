@@ -3,7 +3,7 @@ package com.mindwarrior.app
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.mindwarrior.app.databinding.ActivityDifficultyBinding
-import com.mindwarrior.app.apptimers.OneOffTimerController
+import com.mindwarrior.app.notifications.OneOffAlertController
 import com.mindwarrior.app.engine.Difficulty
 
 class DifficultyActivity : AppCompatActivity() {
@@ -36,7 +36,7 @@ class DifficultyActivity : AppCompatActivity() {
             if (selected != current) {
                 val user = UserStorage.getUser(this)
                 UserStorage.upsertUser(this, user.copy(difficulty = selected))
-                OneOffTimerController.restart(this)
+                OneOffAlertController.restart(this)
                 current = selected
             }
             updateDifficultyInfo(selected)

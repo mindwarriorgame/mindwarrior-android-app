@@ -1,11 +1,11 @@
-package com.mindwarrior.app.apptimers
+package com.mindwarrior.app.notifications
 
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 
-class OneOffTimerReceiver : BroadcastReceiver() {
+class OneOffAlertReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
-        OneOffTimerController.handleAlarm(context)
+        OneOffAlertController.handleAlarm(context)
     }
 }

@@ -1,4 +1,4 @@
-package com.mindwarrior.app.apptimers
+package com.mindwarrior.app.notifications
 
 import android.Manifest
 import android.content.Context
@@ -10,7 +10,7 @@ import android.os.Looper
 import androidx.core.content.ContextCompat
 import com.mindwarrior.app.UserStorage
 
-object StickyTimerController {
+object StickyAlertController {
     fun start(context: Context) {
         if (Build.VERSION.SDK_INT >= 33) {
             val granted = ContextCompat.checkSelfPermission(
@@ -27,10 +27,10 @@ object StickyTimerController {
                 return
             }
         }
-        ContextCompat.startForegroundService(context, Intent(context, StickyTimerForegroundService::class.java))
+        ContextCompat.startForegroundService(context, Intent(context, StickyAlertForegroundService::class.java))
     }
 
     fun stop(context: Context) {
-        context.stopService(Intent(context, StickyTimerForegroundService::class.java))
+        context.stopService(Intent(context, StickyAlertForegroundService::class.java))
     }
 }

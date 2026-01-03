@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.mindwarrior.app.databinding.ActivitySettingsBinding
-import com.mindwarrior.app.apptimers.StickyTimerController
+import com.mindwarrior.app.notifications.StickyAlertController
 import com.mindwarrior.app.viewmodel.SettingsViewModel
 
 class SettingsActivity : AppCompatActivity() {
@@ -29,9 +29,9 @@ class SettingsActivity : AppCompatActivity() {
             }
             viewModel.setTimerForegroundEnabled(isChecked)
             if (isChecked) {
-                StickyTimerController.start(this)
+                StickyAlertController.start(this)
             } else {
-                StickyTimerController.stop(this)
+                StickyAlertController.stop(this)
             }
         }
 

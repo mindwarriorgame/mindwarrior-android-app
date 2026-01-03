@@ -55,16 +55,16 @@
             android:screenOrientation="portrait" />
 
         <service
-            android:name=".apptimers.StickyTimerForegroundService"
+            android:name=".notifications.StickyAlertForegroundService"
             android:exported="false"
             android:foregroundServiceType="dataSync" />
 
         <receiver
-            android:name=".apptimers.OneOffTimerReceiver"
+            android:name=".notifications.OneOffAlertReceiver"
             android:exported="false" />
 
         <receiver
-            android:name=".apptimers.BootReceiver"
+            android:name=".notifications.BootReceiver"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
