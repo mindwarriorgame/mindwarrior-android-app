@@ -3,6 +3,7 @@ package com.mindwarrior.app
 import android.content.Context
 import com.mindwarrior.app.engine.AlertType
 import com.mindwarrior.app.engine.Counter
+import com.mindwarrior.app.engine.Difficulty
 import com.mindwarrior.app.engine.User
 import java.util.Optional
 import java.lang.ref.WeakReference
@@ -18,6 +19,7 @@ object UserStorage {
     private const val KEY_SLEEP_ENABLED = "sleep_enabled"
     private const val KEY_SLEEP_START_MINUTES = "sleep_start_minutes"
     private const val KEY_SLEEP_END_MINUTES = "sleep_end_minutes"
+    private const val KEY_DIFFICULTY = "difficulty"
     private val userUpdateListeners = mutableListOf<WeakReference<UserUpdateListener>>()
 
     fun getUser(context: Context): User {
@@ -55,6 +57,8 @@ object UserStorage {
         val sleepEnabled = prefs.getBoolean(KEY_SLEEP_ENABLED, defaults.sleepEnabled)
         val sleepStartMinutes = prefs.getInt(KEY_SLEEP_START_MINUTES, defaults.sleepStartMinutes)
         val sleepEndMinutes = prefs.getInt(KEY_SLEEP_END_MINUTES, defaults.sleepEndMinutes)
+        val difficultyId = prefs.getString(KEY_DIFFICULTY, defaults.difficulty.id)
+        val difficulty = difficultyFromId(difficultyId) ?: defaults.difficulty
         return User(
             pausedTimerSerialized = pausedTimerOptional,
             activePlayTimerSerialized = activePlayTimer,
@@ -64,7 +68,8 @@ object UserStorage {
             timerForegroundEnabled = timerForegroundEnabled,
             sleepEnabled = sleepEnabled,
             sleepStartMinutes = sleepStartMinutes,
-            sleepEndMinutes = sleepEndMinutes
+            sleepEndMinutes = sleepEndMinutes,
+            difficulty = difficulty
         )
     }
 
@@ -85,6 +90,7 @@ object UserStorage {
         editor.putBoolean(KEY_SLEEP_ENABLED, user.sleepEnabled)
         editor.putInt(KEY_SLEEP_START_MINUTES, user.sleepStartMinutes)
         editor.putInt(KEY_SLEEP_END_MINUTES, user.sleepEndMinutes)
+        editor.putString(KEY_DIFFICULTY, user.difficulty.id)
         if (user.pausedTimerSerialized.isPresent) {
             editor.putString(KEY_PAUSED_TIMER_SERIALIZED, user.pausedTimerSerialized.get())
         } else {
@@ -104,8 +110,13 @@ object UserStorage {
             timerForegroundEnabled = false,
             sleepEnabled = false,
             sleepStartMinutes = 23 * 60,
-            sleepEndMinutes = 7 * 60
+            sleepEndMinutes = 7 * 60,
+            difficulty = Difficulty.EASY
         )
+    }
+
+    private fun difficultyFromId(id: String?): Difficulty? {
+        return Difficulty.values().firstOrNull { it.id == id }
     }
 
     private fun notifyUserUpdated(user: User) {

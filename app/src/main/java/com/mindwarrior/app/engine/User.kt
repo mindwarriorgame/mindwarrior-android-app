@@ -1,5 +1,6 @@
 package com.mindwarrior.app.engine
 
+import com.mindwarrior.app.engine.Difficulty
 import java.util.Optional
 
 enum class AlertType {
@@ -17,5 +18,6 @@ data class User(
     var timerForegroundEnabled: Boolean,
     var sleepEnabled: Boolean,
     var sleepStartMinutes: Int,
-    var sleepEndMinutes: Int
+    var sleepEndMinutes: Int,
+    var difficulty: Difficulty
 )

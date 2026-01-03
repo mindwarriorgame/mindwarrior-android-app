@@ -13,8 +13,7 @@ import android.graphics.Canvas
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.appcompat.content.res.AppCompatResources
-import com.mindwarrior.app.Difficulty
-import com.mindwarrior.app.DifficultyPreferences
+import com.mindwarrior.app.engine.Difficulty
 import com.mindwarrior.app.MainActivity
 import com.mindwarrior.app.R
 import com.mindwarrior.app.UserStorage
@@ -38,7 +37,7 @@ object OneOffTimerController {
         val now = System.currentTimeMillis()
         val current = prefs.getLong(KEY_NEXT_TRIGGER, 0L)
         val next = if (current == 0L || current <= now) {
-            now + getIntervalMillis(DifficultyPreferences.getDifficulty(context))
+            now + getIntervalMillis(UserStorage.getUser(context).difficulty)
         } else {
             current
         }
@@ -49,7 +48,7 @@ object OneOffTimerController {
 
     fun restart(context: Context) {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        val next = System.currentTimeMillis() + getIntervalMillis(DifficultyPreferences.getDifficulty(context))
+        val next = System.currentTimeMillis() + getIntervalMillis(UserStorage.getUser(context).difficulty)
         prefs.edit()
             .putLong(KEY_NEXT_TRIGGER, next)
             .remove(KEY_PAUSED_REMAINING)
@@ -97,7 +96,7 @@ object OneOffTimerController {
 
         showNotification(context)
 
-        val next = System.currentTimeMillis() + getIntervalMillis(DifficultyPreferences.getDifficulty(context))
+        val next = System.currentTimeMillis() + getIntervalMillis(UserStorage.getUser(context).difficulty)
         prefs.edit().putLong(KEY_NEXT_TRIGGER, next).apply()
         scheduleAlarm(context, next)
     }

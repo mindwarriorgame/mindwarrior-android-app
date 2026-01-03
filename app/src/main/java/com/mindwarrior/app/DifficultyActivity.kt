@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.mindwarrior.app.databinding.ActivityDifficultyBinding
 import com.mindwarrior.app.apptimers.OneOffTimerController
+import com.mindwarrior.app.engine.Difficulty
 
 class DifficultyActivity : AppCompatActivity() {
     private lateinit var binding: ActivityDifficultyBinding
@@ -13,7 +14,7 @@ class DifficultyActivity : AppCompatActivity() {
         binding = ActivityDifficultyBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        var current = DifficultyPreferences.getDifficulty(this)
+        var current = UserStorage.getUser(this).difficulty
         when (current) {
             Difficulty.BEGINNER -> binding.difficultyBeginner.isChecked = true
             Difficulty.EASY -> binding.difficultyEasy.isChecked = true
@@ -33,7 +34,8 @@ class DifficultyActivity : AppCompatActivity() {
                 else -> Difficulty.BEGINNER
             }
             if (selected != current) {
-                DifficultyPreferences.setDifficulty(this, selected)
+                val user = UserStorage.getUser(this)
+                UserStorage.upsertUser(this, user.copy(difficulty = selected))
                 OneOffTimerController.restart(this)
                 current = selected
             }

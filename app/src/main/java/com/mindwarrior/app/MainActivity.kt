@@ -353,7 +353,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateDifficultyLabel() {
-        val difficulty = DifficultyPreferences.getDifficulty(this)
+        val difficulty = UserStorage.getUser(this).difficulty
         binding.menuDifficulty.text =
             getString(R.string.menu_difficulty, getString(difficulty.labelRes))
     }

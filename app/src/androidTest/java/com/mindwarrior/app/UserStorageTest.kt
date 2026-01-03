@@ -3,6 +3,7 @@ package com.mindwarrior.app
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.mindwarrior.app.engine.AlertType
+import com.mindwarrior.app.engine.Difficulty
 import com.mindwarrior.app.engine.User
 import java.util.Optional
 import org.junit.Assert.assertEquals
@@ -35,7 +36,8 @@ class UserStorageTest {
             timerForegroundEnabled = true,
             sleepEnabled = true,
             sleepStartMinutes = 22 * 60,
-            sleepEndMinutes = 6 * 60
+            sleepEndMinutes = 6 * 60,
+            difficulty = Difficulty.HARD
         )
 
         UserStorage.upsertUser(context, user)
@@ -56,7 +58,8 @@ class UserStorageTest {
             timerForegroundEnabled = false,
             sleepEnabled = false,
             sleepStartMinutes = 23 * 60,
-            sleepEndMinutes = 7 * 60
+            sleepEndMinutes = 7 * 60,
+            difficulty = Difficulty.BEGINNER
         )
 
         UserStorage.upsertUser(context, user)
@@ -84,6 +87,7 @@ class UserStorageTest {
         assertTrue(!loaded.sleepEnabled)
         assertEquals(23 * 60, loaded.sleepStartMinutes)
         assertEquals(7 * 60, loaded.sleepEndMinutes)
+        assertEquals(Difficulty.BEGINNER, loaded.difficulty)
     }
 
     companion object {
