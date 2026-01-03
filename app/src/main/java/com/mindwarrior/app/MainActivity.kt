@@ -231,6 +231,10 @@ class MainActivity : AppCompatActivity() {
         viewModel.isPaused.observe(this) { paused ->
             updatePauseUi(paused)
         }
+        viewModel.reviewEnabled.observe(this) { enabled ->
+            binding.reviewButton.isEnabled = enabled
+            binding.reviewButton.alpha = if (enabled) 1f else 0.5f
+        }
     }
 
     private fun updateUserPausedState(paused: Boolean) {

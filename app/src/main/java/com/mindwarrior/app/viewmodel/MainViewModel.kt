@@ -42,6 +42,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _isPaused = MutableLiveData<Boolean>()
     val isPaused: LiveData<Boolean> = _isPaused
 
+    private val _reviewEnabled = MutableLiveData<Boolean>()
+    val reviewEnabled: LiveData<Boolean> = _reviewEnabled
+
     private val _snowflakeVisible = MutableLiveData<Boolean>(true)
     val snowflakeVisible: LiveData<Boolean> = _snowflakeVisible
 
@@ -54,6 +57,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val userListener = object : UserStorage.UserUpdateListener {
         override fun onUserUpdated(user: com.mindwarrior.app.engine.User) {
             _isPaused.value = user.pausedTimerSerialized.isPresent
+            _reviewEnabled.value = user.localStorageSnapshot.isPresent
         }
     }
 
@@ -110,6 +114,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         refreshTimerDisplay()
         val user = UserStorage.getUser(getApplication())
         _isPaused.value = user.pausedTimerSerialized.isPresent
+        _reviewEnabled.value = user.localStorageSnapshot.isPresent
         UserStorage.observeUserChanges(getApplication(), userListener)
     }
 
