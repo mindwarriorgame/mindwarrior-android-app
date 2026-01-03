@@ -101,6 +101,30 @@ class MainActivity : AppCompatActivity() {
             startActivity(android.content.Intent(this, SleepSchedulerActivity::class.java))
         }
         updateDifficultyLabel()
+        binding.menuPanel.setOnClickListener { }
+        binding.menuPanel.setOnTouchListener { _, event ->
+            if (event.action != android.view.MotionEvent.ACTION_UP) {
+                return@setOnTouchListener false
+            }
+            val items = listOf(
+                binding.menuSleep,
+                binding.menuProgress,
+                binding.menuDifficulty,
+                binding.menuSettings
+            )
+            val panelLocation = IntArray(2)
+            binding.menuPanel.getLocationOnScreen(panelLocation)
+            val localY = (event.rawY - panelLocation[1]).toInt()
+            items.forEach { item ->
+                val itemRect = Rect()
+                item.getHitRect(itemRect)
+                if (localY in itemRect.top..itemRect.bottom) {
+                    item.performClick()
+                    return@setOnTouchListener true
+                }
+            }
+            false
+        }
 
         binding.root.setOnTouchListener { _, event ->
             if (event.action == android.view.MotionEvent.ACTION_DOWN &&
@@ -117,6 +141,7 @@ class MainActivity : AppCompatActivity() {
             false
         }
     }
+
 
     private fun setupLogs() {
         binding.logsRecycler.layoutManager = LinearLayoutManager(this)

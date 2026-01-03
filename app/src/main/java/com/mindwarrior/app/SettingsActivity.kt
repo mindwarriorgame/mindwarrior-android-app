@@ -24,7 +24,9 @@ class SettingsActivity : AppCompatActivity() {
             suppressSwitchCallback = false
         }
         binding.timerForegroundSwitch.setOnCheckedChangeListener { _, isChecked ->
-            if (suppressSwitchCallback) return@setOnCheckedChangeListener
+            if (suppressSwitchCallback) {
+                return@setOnCheckedChangeListener
+            }
             viewModel.setTimerForegroundEnabled(isChecked)
             if (isChecked) {
                 StickyTimerController.start(this)
