@@ -12,10 +12,11 @@ class SettingsActivity : AppCompatActivity() {
         binding = ActivitySettingsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val enabled = SettingsPreferences.isForegroundEnabled(this)
+        val enabled = UserStorage.getUser(this).timerForegroundEnabled
         binding.timerForegroundSwitch.isChecked = enabled
         binding.timerForegroundSwitch.setOnCheckedChangeListener { _, isChecked ->
-            SettingsPreferences.setForegroundEnabled(this, isChecked)
+            val user = UserStorage.getUser(this)
+            UserStorage.upsertUser(this, user.copy(timerForegroundEnabled = isChecked))
             if (isChecked) {
                 BattleTimerStickyForegroundServiceController.start(this)
             } else {

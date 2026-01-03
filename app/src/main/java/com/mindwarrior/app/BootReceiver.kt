@@ -8,7 +8,7 @@ class BootReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action == Intent.ACTION_BOOT_COMPLETED) {
             BattleTimerScheduler.ensureScheduled(context)
-            if (SettingsPreferences.isForegroundEnabled(context)) {
+            if (UserStorage.getUser(context).timerForegroundEnabled) {
                 BattleTimerStickyForegroundServiceController.start(context)
             }
         }

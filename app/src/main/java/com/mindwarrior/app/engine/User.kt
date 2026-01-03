@@ -13,5 +13,6 @@ data class User(
     var activePlayTimerSerialized: String,
     var lastRewardAtActivePlayTime: Long,
     var reviewTimerSerialized: String,
-    var nextAlertType: AlertType
+    var nextAlertType: AlertType,
+    var timerForegroundEnabled: Boolean
 )

@@ -14,6 +14,7 @@ object UserStorage {
     private const val KEY_LAST_REWARD_AT_ACTIVE_PLAY_TIME = "last_reward_at_active_play_time"
     private const val KEY_REVIEW_TIMER_SERIALIZED = "review_timer_serialized"
     private const val KEY_NEXT_ALERT_TYPE = "next_alert_type"
+    private const val KEY_TIMER_FOREGROUND_ENABLED = "timer_foreground_enabled"
     private val userUpdateListeners = mutableListOf<WeakReference<UserUpdateListener>>()
 
     fun getUser(context: Context): User {
@@ -44,12 +45,17 @@ object UserStorage {
         } else {
             Optional.of(pausedTimerSerialized)
         }
+        val timerForegroundEnabled = prefs.getBoolean(
+            KEY_TIMER_FOREGROUND_ENABLED,
+            defaults.timerForegroundEnabled
+        )
         return User(
             pausedTimerSerialized = pausedTimerOptional,
             activePlayTimerSerialized = activePlayTimer,
             lastRewardAtActivePlayTime = lastRewardAtActivePlayTime,
             reviewTimerSerialized = reviewTimer,
-            nextAlertType = nextAlertType
+            nextAlertType = nextAlertType,
+            timerForegroundEnabled = timerForegroundEnabled
         )
     }
 
@@ -66,6 +72,7 @@ object UserStorage {
         editor.putString(KEY_REVIEW_TIMER_SERIALIZED, user.reviewTimerSerialized)
         editor.putLong(KEY_LAST_REWARD_AT_ACTIVE_PLAY_TIME, user.lastRewardAtActivePlayTime)
         editor.putString(KEY_NEXT_ALERT_TYPE, user.nextAlertType.name)
+        editor.putBoolean(KEY_TIMER_FOREGROUND_ENABLED, user.timerForegroundEnabled)
         if (user.pausedTimerSerialized.isPresent) {
             editor.putString(KEY_PAUSED_TIMER_SERIALIZED, user.pausedTimerSerialized.get())
         } else {
@@ -81,7 +88,8 @@ object UserStorage {
             activePlayTimerSerialized = Counter(null).serialize(),
             lastRewardAtActivePlayTime = 0L,
             reviewTimerSerialized = Counter(null).serialize(),
-            nextAlertType = AlertType.Reminder
+            nextAlertType = AlertType.Reminder,
+            timerForegroundEnabled = false
         )
     }
 
@@ -110,4 +118,5 @@ object UserStorage {
     interface UserUpdateListener {
         fun onUserUpdated(user: User)
     }
+
 }

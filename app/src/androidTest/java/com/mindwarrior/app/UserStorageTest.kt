@@ -31,7 +31,8 @@ class UserStorageTest {
             activePlayTimerSerialized = "{\"is_active\":true}",
             lastRewardAtActivePlayTime = 1234L,
             reviewTimerSerialized = "{\"is_active\":false}",
-            nextAlertType = AlertType.Reminder
+            nextAlertType = AlertType.Reminder,
+            timerForegroundEnabled = true
         )
 
         UserStorage.upsertUser(context, user)
@@ -48,7 +49,8 @@ class UserStorageTest {
             activePlayTimerSerialized = "{\"is_active\":true}",
             lastRewardAtActivePlayTime = 42L,
             reviewTimerSerialized = "{\"is_active\":false}",
-            nextAlertType = AlertType.WakeUp
+            nextAlertType = AlertType.WakeUp,
+            timerForegroundEnabled = false
         )
 
         UserStorage.upsertUser(context, user)
@@ -72,6 +74,7 @@ class UserStorageTest {
         assertEquals(0L, loaded.lastRewardAtActivePlayTime)
         assertEquals(AlertType.Reminder, loaded.nextAlertType)
         assertTrue(!loaded.pausedTimerSerialized.isPresent)
+        assertTrue(!loaded.timerForegroundEnabled)
     }
 
     companion object {

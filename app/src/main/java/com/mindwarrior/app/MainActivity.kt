@@ -39,7 +39,7 @@ class MainActivity : AppCompatActivity() {
         setupControls()
         BattleTimerScheduler.ensureScheduled(this)
         requestNotificationPermission()
-        if (SettingsPreferences.isForegroundEnabled(this)) {
+        if (UserStorage.getUser(this).timerForegroundEnabled) {
             BattleTimerStickyForegroundServiceController.start(this)
         }
 
@@ -380,7 +380,7 @@ class MainActivity : AppCompatActivity() {
             if (!granted) {
                 finishAffinity()
             } else {
-                if (SettingsPreferences.isForegroundEnabled(this)) {
+                if (UserStorage.getUser(this).timerForegroundEnabled) {
                     BattleTimerStickyForegroundServiceController.start(this)
                 }
             }

@@ -13,7 +13,9 @@ object BattleTimerStickyForegroundServiceController {
                 context,
                 Manifest.permission.POST_NOTIFICATIONS
             ) == PackageManager.PERMISSION_GRANTED
-            if (!granted) return
+            if (!granted) {
+                return
+            }
         }
         ContextCompat.startForegroundService(context, Intent(context, BattleTimerStickyForegroundService::class.java))
     }
