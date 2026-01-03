@@ -3,6 +3,7 @@ package com.mindwarrior.app
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.mindwarrior.app.databinding.ActivityDifficultyBinding
+import com.mindwarrior.app.apptimers.OneOffTimerController
 
 class DifficultyActivity : AppCompatActivity() {
     private lateinit var binding: ActivityDifficultyBinding
@@ -33,7 +34,7 @@ class DifficultyActivity : AppCompatActivity() {
             }
             if (selected != current) {
                 DifficultyPreferences.setDifficulty(this, selected)
-                BattleTimerScheduler.restart(this)
+                OneOffTimerController.restart(this)
                 current = selected
             }
             updateDifficultyInfo(selected)

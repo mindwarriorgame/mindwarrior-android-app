@@ -55,16 +55,16 @@
             android:screenOrientation="portrait" />
 
         <service
-            android:name=".BattleTimerStickyForegroundService"
+            android:name=".apptimers.StickyTimerForegroundService"
             android:exported="false"
             android:foregroundServiceType="dataSync" />
 
         <receiver
-            android:name=".BattleTimerReceiver"
+            android:name=".apptimers.OneOffTimerReceiver"
             android:exported="false" />
 
         <receiver
-            android:name=".BootReceiver"
+            android:name=".apptimers.BootReceiver"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />

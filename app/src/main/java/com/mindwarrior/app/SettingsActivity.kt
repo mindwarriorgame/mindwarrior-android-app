@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.mindwarrior.app.databinding.ActivitySettingsBinding
+import com.mindwarrior.app.apptimers.StickyTimerController
 import com.mindwarrior.app.viewmodel.SettingsViewModel
 
 class SettingsActivity : AppCompatActivity() {
@@ -26,9 +27,9 @@ class SettingsActivity : AppCompatActivity() {
             if (suppressSwitchCallback) return@setOnCheckedChangeListener
             viewModel.setTimerForegroundEnabled(isChecked)
             if (isChecked) {
-                BattleTimerStickyForegroundServiceController.start(this)
+                StickyTimerController.start(this)
             } else {
-                BattleTimerStickyForegroundServiceController.stop(this)
+                StickyTimerController.stop(this)
             }
         }
 

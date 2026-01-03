@@ -15,6 +15,8 @@ import android.view.View
 import androidx.lifecycle.ViewModelProvider
 import com.mindwarrior.app.viewmodel.MainViewModel
 import com.mindwarrior.app.engine.Counter
+import com.mindwarrior.app.apptimers.OneOffTimerController
+import com.mindwarrior.app.apptimers.StickyTimerController
 import java.util.Optional
 import kotlin.math.max
 import kotlin.math.min
@@ -37,10 +39,10 @@ class MainActivity : AppCompatActivity() {
         setupMenu()
         setupLogs()
         setupControls()
-        BattleTimerScheduler.ensureScheduled(this)
+        OneOffTimerController.ensureScheduled(this)
         requestNotificationPermission()
         if (UserStorage.getUser(this).timerForegroundEnabled) {
-            BattleTimerStickyForegroundServiceController.start(this)
+            StickyTimerController.start(this)
         }
 
         bindViewModel()
@@ -126,9 +128,9 @@ class MainActivity : AppCompatActivity() {
         binding.pauseButton.setOnClickListener {
             val paused = viewModel.isPaused.value == true
             if (paused) {
-                BattleTimerScheduler.resumeTimer(this)
+                OneOffTimerController.resumeTimer(this)
             } else {
-                BattleTimerScheduler.pauseTimer(this)
+                OneOffTimerController.pauseTimer(this)
             }
             updateUserPausedState(!paused)
         }
@@ -381,7 +383,7 @@ class MainActivity : AppCompatActivity() {
                 finishAffinity()
             } else {
                 if (UserStorage.getUser(this).timerForegroundEnabled) {
-                    BattleTimerStickyForegroundServiceController.start(this)
+                    StickyTimerController.start(this)
                 }
             }
         }

@@ -1,4 +1,4 @@
-package com.mindwarrior.app
+package com.mindwarrior.app.apptimers
 
 import android.app.AlarmManager
 import android.app.NotificationChannel
@@ -10,11 +10,17 @@ import android.media.AudioAttributes
 import android.media.RingtoneManager
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.appcompat.content.res.AppCompatResources
+import com.mindwarrior.app.Difficulty
+import com.mindwarrior.app.DifficultyPreferences
+import com.mindwarrior.app.MainActivity
+import com.mindwarrior.app.R
+import com.mindwarrior.app.UserStorage
 import kotlin.math.max
 
-object BattleTimerScheduler {
+object OneOffTimerController {
     private const val PREFS_NAME = "mindwarrior_prefs"
     private const val KEY_NEXT_TRIGGER = "battle_next_trigger"
     private const val KEY_NOTIFICATION_COUNT = "battle_notification_count"
@@ -110,7 +116,7 @@ object BattleTimerScheduler {
     private fun scheduleAlarm(context: Context, triggerAtMillis: Long) {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val pendingIntent = createAlarmPendingIntent(context)
-        if (android.os.Build.VERSION.SDK_INT >= 31) {
+        if (Build.VERSION.SDK_INT >= 31) {
             if (alarmManager.canScheduleExactAlarms()) {
                 alarmManager.setExactAndAllowWhileIdle(
                     AlarmManager.RTC_WAKEUP,
@@ -177,7 +183,7 @@ object BattleTimerScheduler {
     }
 
     private fun createAlarmPendingIntent(context: Context): PendingIntent {
-        val intent = Intent(context, BattleTimerReceiver::class.java)
+        val intent = Intent(context, OneOffTimerReceiver::class.java)
         return PendingIntent.getBroadcast(
             context,
             1001,

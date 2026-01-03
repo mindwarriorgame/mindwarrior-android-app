@@ -6,12 +6,11 @@ import android.os.Looper
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.mindwarrior.app.BattleTimerScheduler
+import com.mindwarrior.app.apptimers.OneOffTimerController
 import com.mindwarrior.app.LogItem
 import com.mindwarrior.app.UserStorage
 import java.text.SimpleDateFormat
 import java.util.Locale
-import kotlin.random.Random
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val handler = Handler(Looper.getMainLooper())
@@ -144,7 +143,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun refreshTimerDisplay() {
-        val remainingMillis = BattleTimerScheduler.getRemainingMillis(getApplication())
+        val remainingMillis = OneOffTimerController.getRemainingMillis(getApplication())
         _timerText.value = formatRemaining(remainingMillis)
         _timerWarning.value = remainingMillis in 1..WARNING_THRESHOLD_MILLIS
     }

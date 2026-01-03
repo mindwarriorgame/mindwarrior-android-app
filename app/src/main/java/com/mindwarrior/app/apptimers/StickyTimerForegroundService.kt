@@ -1,6 +1,7 @@
-package com.mindwarrior.app
+package com.mindwarrior.app.apptimers
 
 import android.app.Notification
+import android.app.NotificationManager
 import android.app.Service
 import android.content.Intent
 import android.os.Handler
@@ -9,8 +10,11 @@ import android.os.Looper
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import android.app.PendingIntent
+import com.mindwarrior.app.MainActivity
+import com.mindwarrior.app.R
+import com.mindwarrior.app.UserStorage
 
-class BattleTimerStickyForegroundService : Service() {
+class StickyTimerForegroundService : Service() {
     private val handler = Handler(Looper.getMainLooper())
     private val ticker = object : Runnable {
         override fun run() {
@@ -38,8 +42,8 @@ class BattleTimerStickyForegroundService : Service() {
     }
 
     private fun buildNotification(): Notification {
-        val channelId = BattleTimerScheduler.CHANNEL_ID
-        BattleTimerScheduler.ensureNotificationChannel(this)
+        val channelId = OneOffTimerController.CHANNEL_ID
+        OneOffTimerController.ensureNotificationChannel(this)
 
         return NotificationCompat.Builder(this, channelId)
             .setSmallIcon(R.drawable.ic_notification)
@@ -59,11 +63,11 @@ class BattleTimerStickyForegroundService : Service() {
         val contentText = if (paused) {
             getString(R.string.timer_notification_paused)
         } else {
-            val remaining = BattleTimerScheduler.getRemainingMillis(this)
+            val remaining = OneOffTimerController.getRemainingMillis(this)
             getString(R.string.timer_notification_running, formatRemaining(remaining))
         }
 
-        val notification = NotificationCompat.Builder(this, BattleTimerScheduler.CHANNEL_ID)
+        val notification = NotificationCompat.Builder(this, OneOffTimerController.CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_notification)
             .setOngoing(true)
             .setContentIntent(createContentIntent())
@@ -75,7 +79,7 @@ class BattleTimerStickyForegroundService : Service() {
             .setContentText(contentText)
             .build()
 
-        ContextCompat.getSystemService(this, android.app.NotificationManager::class.java)
+        ContextCompat.getSystemService(this, NotificationManager::class.java)
             ?.notify(NOTIFICATION_ID, notification)
     }
 
