@@ -6,7 +6,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.core.content.ContextCompat
 
-object TimerServiceController {
+object BattleTimerStickyForegroundServiceController {
     fun start(context: Context) {
         if (android.os.Build.VERSION.SDK_INT >= 33) {
             val granted = ContextCompat.checkSelfPermission(
@@ -15,10 +15,10 @@ object TimerServiceController {
             ) == PackageManager.PERMISSION_GRANTED
             if (!granted) return
         }
-        ContextCompat.startForegroundService(context, Intent(context, TimerForegroundService::class.java))
+        ContextCompat.startForegroundService(context, Intent(context, BattleTimerStickyForegroundService::class.java))
     }
 
     fun stop(context: Context) {
-        context.stopService(Intent(context, TimerForegroundService::class.java))
+        context.stopService(Intent(context, BattleTimerStickyForegroundService::class.java))
     }
 }

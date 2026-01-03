@@ -17,9 +17,9 @@ class SettingsActivity : AppCompatActivity() {
         binding.timerForegroundSwitch.setOnCheckedChangeListener { _, isChecked ->
             SettingsPreferences.setForegroundEnabled(this, isChecked)
             if (isChecked) {
-                TimerServiceController.start(this)
+                BattleTimerStickyForegroundServiceController.start(this)
             } else {
-                TimerServiceController.stop(this)
+                BattleTimerStickyForegroundServiceController.stop(this)
             }
         }
 

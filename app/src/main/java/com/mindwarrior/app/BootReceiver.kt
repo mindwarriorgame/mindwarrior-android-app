@@ -9,7 +9,7 @@ class BootReceiver : BroadcastReceiver() {
         if (intent.action == Intent.ACTION_BOOT_COMPLETED) {
             BattleTimerScheduler.ensureScheduled(context)
             if (SettingsPreferences.isForegroundEnabled(context)) {
-                TimerServiceController.start(context)
+                BattleTimerStickyForegroundServiceController.start(context)
             }
         }
     }

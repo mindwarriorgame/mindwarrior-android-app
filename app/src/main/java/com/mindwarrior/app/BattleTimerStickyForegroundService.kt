@@ -10,7 +10,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import android.app.PendingIntent
 
-class TimerForegroundService : Service() {
+class BattleTimerStickyForegroundService : Service() {
     private val handler = Handler(Looper.getMainLooper())
     private val ticker = object : Runnable {
         override fun run() {

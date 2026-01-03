@@ -40,7 +40,7 @@ class MainActivity : AppCompatActivity() {
         BattleTimerScheduler.ensureScheduled(this)
         requestNotificationPermission()
         if (SettingsPreferences.isForegroundEnabled(this)) {
-            TimerServiceController.start(this)
+            BattleTimerStickyForegroundServiceController.start(this)
         }
 
         bindViewModel()
@@ -381,7 +381,7 @@ class MainActivity : AppCompatActivity() {
                 finishAffinity()
             } else {
                 if (SettingsPreferences.isForegroundEnabled(this)) {
-                    TimerServiceController.start(this)
+                    BattleTimerStickyForegroundServiceController.start(this)
                 }
             }
         }

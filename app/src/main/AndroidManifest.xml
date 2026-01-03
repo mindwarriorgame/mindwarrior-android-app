@@ -55,7 +55,7 @@
             android:screenOrientation="portrait" />
 
         <service
-            android:name=".TimerForegroundService"
+            android:name=".BattleTimerStickyForegroundService"
             android:exported="false"
             android:foregroundServiceType="dataSync" />
 
