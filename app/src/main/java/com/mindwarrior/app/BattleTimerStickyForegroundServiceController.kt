@@ -4,6 +4,8 @@ import android.Manifest
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Handler
+import android.os.Looper
 import androidx.core.content.ContextCompat
 
 object BattleTimerStickyForegroundServiceController {
@@ -14,6 +16,12 @@ object BattleTimerStickyForegroundServiceController {
                 Manifest.permission.POST_NOTIFICATIONS
             ) == PackageManager.PERMISSION_GRANTED
             if (!granted) {
+                Handler(Looper.getMainLooper()).post {
+                    val user = UserStorage.getUser(context)
+                    if (user.timerForegroundEnabled) {
+                        UserStorage.upsertUser(context, user.copy(timerForegroundEnabled = false))
+                    }
+                }
                 return
             }
         }
