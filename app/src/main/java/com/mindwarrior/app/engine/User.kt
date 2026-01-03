@@ -19,5 +19,6 @@ data class User(
     var sleepEnabled: Boolean,
     var sleepStartMinutes: Int,
     var sleepEndMinutes: Int,
-    var difficulty: Difficulty
+    var difficulty: Difficulty,
+    var localStorageSnapshot: Optional<String>
 )

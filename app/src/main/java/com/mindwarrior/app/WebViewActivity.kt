@@ -5,6 +5,7 @@ import android.util.Base64
 import android.webkit.JavascriptInterface
 import androidx.appcompat.app.AppCompatActivity
 import com.mindwarrior.app.databinding.ActivityWebviewBinding
+import java.util.Optional
 
 class WebViewActivity : AppCompatActivity() {
     private lateinit var binding: ActivityWebviewBinding
@@ -50,21 +51,21 @@ class WebViewActivity : AppCompatActivity() {
     private fun saveLocalStorageAndFinish() {
         binding.webview.evaluateJavascript(LOCAL_STORAGE_SNAPSHOT_JS) { result ->
             if (!result.isNullOrBlank() && result != "null" && result != "undefined") {
-                getSharedPreferences(STORAGE_PREFS_NAME, MODE_PRIVATE)
-                    .edit()
-                    .putString(KEY_LOCAL_STORAGE, result)
-                    .apply()
+                val user = UserStorage.getUser(this)
+                UserStorage.upsertUser(
+                    this,
+                    user.copy(localStorageSnapshot = Optional.of(result))
+                )
             }
             finish()
         }
     }
 
     private fun buildLocalStorageRestoreScript(): String? {
-        val snapshot = getSharedPreferences(STORAGE_PREFS_NAME, MODE_PRIVATE)
-            .getString(KEY_LOCAL_STORAGE, null)
-            ?: return null
+        val snapshot = UserStorage.getUser(this).localStorageSnapshot
+        if (!snapshot.isPresent) return null
         val encoded = Base64.encodeToString(
-            snapshot.toByteArray(Charsets.UTF_8),
+            snapshot.get().toByteArray(Charsets.UTF_8),
             Base64.NO_WRAP
         )
         return """
@@ -93,8 +94,6 @@ class WebViewActivity : AppCompatActivity() {
     }
 
     companion object {
-        private const val STORAGE_PREFS_NAME = "mindwarrior_webview_storage"
-        private const val KEY_LOCAL_STORAGE = "local_storage_snapshot"
         const val EXTRA_BASE_URL = "extra_base_url"
         const val EXTRA_ASSET_PATH = "extra_asset_path"
         private const val JS_INTERFACE_NAME = "MindWarrior"

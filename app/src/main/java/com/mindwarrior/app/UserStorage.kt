@@ -20,6 +20,7 @@ object UserStorage {
     private const val KEY_SLEEP_START_MINUTES = "sleep_start_minutes"
     private const val KEY_SLEEP_END_MINUTES = "sleep_end_minutes"
     private const val KEY_DIFFICULTY = "difficulty"
+    private const val KEY_LOCAL_STORAGE = "local_storage_snapshot"
     private val userUpdateListeners = mutableListOf<WeakReference<UserUpdateListener>>()
 
     fun getUser(context: Context): User {
@@ -59,6 +60,12 @@ object UserStorage {
         val sleepEndMinutes = prefs.getInt(KEY_SLEEP_END_MINUTES, defaults.sleepEndMinutes)
         val difficultyId = prefs.getString(KEY_DIFFICULTY, defaults.difficulty.id)
         val difficulty = difficultyFromId(difficultyId) ?: defaults.difficulty
+        val localStorageSnapshot = prefs.getString(KEY_LOCAL_STORAGE, null)
+        val localStorageOptional = if (localStorageSnapshot == null) {
+            Optional.empty()
+        } else {
+            Optional.of(localStorageSnapshot)
+        }
         return User(
             pausedTimerSerialized = pausedTimerOptional,
             activePlayTimerSerialized = activePlayTimer,
@@ -69,7 +76,8 @@ object UserStorage {
             sleepEnabled = sleepEnabled,
             sleepStartMinutes = sleepStartMinutes,
             sleepEndMinutes = sleepEndMinutes,
-            difficulty = difficulty
+            difficulty = difficulty,
+            localStorageSnapshot = localStorageOptional
         )
     }
 
@@ -91,6 +99,11 @@ object UserStorage {
         editor.putInt(KEY_SLEEP_START_MINUTES, user.sleepStartMinutes)
         editor.putInt(KEY_SLEEP_END_MINUTES, user.sleepEndMinutes)
         editor.putString(KEY_DIFFICULTY, user.difficulty.id)
+        if (user.localStorageSnapshot.isPresent) {
+            editor.putString(KEY_LOCAL_STORAGE, user.localStorageSnapshot.get())
+        } else {
+            editor.remove(KEY_LOCAL_STORAGE)
+        }
         if (user.pausedTimerSerialized.isPresent) {
             editor.putString(KEY_PAUSED_TIMER_SERIALIZED, user.pausedTimerSerialized.get())
         } else {
@@ -111,7 +124,8 @@ object UserStorage {
             sleepEnabled = false,
             sleepStartMinutes = 23 * 60,
             sleepEndMinutes = 7 * 60,
-            difficulty = Difficulty.EASY
+            difficulty = Difficulty.BEGINNER,
+            localStorageSnapshot = Optional.empty()
         )
     }
 

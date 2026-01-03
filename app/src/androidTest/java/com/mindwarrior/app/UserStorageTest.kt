@@ -37,7 +37,8 @@ class UserStorageTest {
             sleepEnabled = true,
             sleepStartMinutes = 22 * 60,
             sleepEndMinutes = 6 * 60,
-            difficulty = Difficulty.HARD
+            difficulty = Difficulty.HARD,
+            localStorageSnapshot = Optional.of("{\"a\":\"b\"}")
         )
 
         UserStorage.upsertUser(context, user)
@@ -59,7 +60,8 @@ class UserStorageTest {
             sleepEnabled = false,
             sleepStartMinutes = 23 * 60,
             sleepEndMinutes = 7 * 60,
-            difficulty = Difficulty.BEGINNER
+            difficulty = Difficulty.BEGINNER,
+            localStorageSnapshot = Optional.empty()
         )
 
         UserStorage.upsertUser(context, user)
@@ -87,7 +89,8 @@ class UserStorageTest {
         assertTrue(!loaded.sleepEnabled)
         assertEquals(23 * 60, loaded.sleepStartMinutes)
         assertEquals(7 * 60, loaded.sleepEndMinutes)
-        assertEquals(Difficulty.EASY, loaded.difficulty)
+        assertEquals(Difficulty.BEGINNER, loaded.difficulty)
+        assertTrue(!loaded.localStorageSnapshot.isPresent)
     }
 
     companion object {
