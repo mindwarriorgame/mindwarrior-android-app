@@ -17,9 +17,10 @@ class SleepSchedulerActivity : AppCompatActivity() {
         binding = ActivitySleepSchedulerBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        draftEnabled = SleepPreferences.isEnabled(this)
-        draftStartMinutes = SleepPreferences.getStartMinutes(this)
-        draftEndMinutes = SleepPreferences.getEndMinutes(this)
+        val user = UserStorage.getUser(this)
+        draftEnabled = user.sleepEnabled
+        draftStartMinutes = user.sleepStartMinutes
+        draftEndMinutes = user.sleepEndMinutes
 
         binding.sleepEnabled.isChecked = draftEnabled
         updateTimeButtons(draftEnabled)
@@ -44,9 +45,12 @@ class SleepSchedulerActivity : AppCompatActivity() {
         }
 
         binding.sleepDoneButton.setOnClickListener {
-            SleepPreferences.setEnabled(this, draftEnabled)
-            SleepPreferences.setStartMinutes(this, draftStartMinutes)
-            SleepPreferences.setEndMinutes(this, draftEndMinutes)
+            val updated = UserStorage.getUser(this).copy(
+                sleepEnabled = draftEnabled,
+                sleepStartMinutes = draftStartMinutes,
+                sleepEndMinutes = draftEndMinutes
+            )
+            UserStorage.upsertUser(this, updated)
             finish()
         }
 

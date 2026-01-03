@@ -15,6 +15,9 @@ object UserStorage {
     private const val KEY_REVIEW_TIMER_SERIALIZED = "review_timer_serialized"
     private const val KEY_NEXT_ALERT_TYPE = "next_alert_type"
     private const val KEY_TIMER_FOREGROUND_ENABLED = "timer_foreground_enabled"
+    private const val KEY_SLEEP_ENABLED = "sleep_enabled"
+    private const val KEY_SLEEP_START_MINUTES = "sleep_start_minutes"
+    private const val KEY_SLEEP_END_MINUTES = "sleep_end_minutes"
     private val userUpdateListeners = mutableListOf<WeakReference<UserUpdateListener>>()
 
     fun getUser(context: Context): User {
@@ -49,13 +52,19 @@ object UserStorage {
             KEY_TIMER_FOREGROUND_ENABLED,
             defaults.timerForegroundEnabled
         )
+        val sleepEnabled = prefs.getBoolean(KEY_SLEEP_ENABLED, defaults.sleepEnabled)
+        val sleepStartMinutes = prefs.getInt(KEY_SLEEP_START_MINUTES, defaults.sleepStartMinutes)
+        val sleepEndMinutes = prefs.getInt(KEY_SLEEP_END_MINUTES, defaults.sleepEndMinutes)
         return User(
             pausedTimerSerialized = pausedTimerOptional,
             activePlayTimerSerialized = activePlayTimer,
             lastRewardAtActivePlayTime = lastRewardAtActivePlayTime,
             reviewTimerSerialized = reviewTimer,
             nextAlertType = nextAlertType,
-            timerForegroundEnabled = timerForegroundEnabled
+            timerForegroundEnabled = timerForegroundEnabled,
+            sleepEnabled = sleepEnabled,
+            sleepStartMinutes = sleepStartMinutes,
+            sleepEndMinutes = sleepEndMinutes
         )
     }
 
@@ -73,6 +82,9 @@ object UserStorage {
         editor.putLong(KEY_LAST_REWARD_AT_ACTIVE_PLAY_TIME, user.lastRewardAtActivePlayTime)
         editor.putString(KEY_NEXT_ALERT_TYPE, user.nextAlertType.name)
         editor.putBoolean(KEY_TIMER_FOREGROUND_ENABLED, user.timerForegroundEnabled)
+        editor.putBoolean(KEY_SLEEP_ENABLED, user.sleepEnabled)
+        editor.putInt(KEY_SLEEP_START_MINUTES, user.sleepStartMinutes)
+        editor.putInt(KEY_SLEEP_END_MINUTES, user.sleepEndMinutes)
         if (user.pausedTimerSerialized.isPresent) {
             editor.putString(KEY_PAUSED_TIMER_SERIALIZED, user.pausedTimerSerialized.get())
         } else {
@@ -89,7 +101,10 @@ object UserStorage {
             lastRewardAtActivePlayTime = 0L,
             reviewTimerSerialized = Counter(null).serialize(),
             nextAlertType = AlertType.Reminder,
-            timerForegroundEnabled = false
+            timerForegroundEnabled = false,
+            sleepEnabled = false,
+            sleepStartMinutes = 23 * 60,
+            sleepEndMinutes = 7 * 60
         )
     }
 
