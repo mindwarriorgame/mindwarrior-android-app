@@ -87,7 +87,7 @@ class UserStorageTest {
         assertTrue(!loaded.sleepEnabled)
         assertEquals(23 * 60, loaded.sleepStartMinutes)
         assertEquals(7 * 60, loaded.sleepEndMinutes)
-        assertEquals(Difficulty.BEGINNER, loaded.difficulty)
+        assertEquals(Difficulty.EASY, loaded.difficulty)
     }
 
     companion object {
