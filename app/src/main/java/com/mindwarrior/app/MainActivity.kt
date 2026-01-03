@@ -18,15 +18,12 @@ import com.mindwarrior.app.engine.Counter
 import com.mindwarrior.app.notifications.OneOffAlertController
 import com.mindwarrior.app.notifications.StickyAlertController
 import java.util.Optional
-import kotlin.math.max
-import kotlin.math.min
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private val logAdapter = LogAdapter()
     private lateinit var viewModel: MainViewModel
 
-    private var quickStartStep = 0
     private var timerFlagDialogShowing = false
     private var lastTimerFlagEvent = 0L
 
@@ -46,7 +43,6 @@ class MainActivity : AppCompatActivity() {
         }
 
         bindViewModel()
-        showQuickStartIfNeeded()
     }
 
     override fun onResume() {
@@ -208,13 +204,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun showQuickStartIfNeeded() {
-        val prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
-        if (prefs.getBoolean(KEY_QUICK_START_DONE, false)) return
-        quickStartStep = 1
-        binding.root.post { showQuickStartStep() }
-    }
-
     private fun bindViewModel() {
         viewModel.timerText.observe(this) { text ->
             binding.timerText.text = text
@@ -254,103 +243,6 @@ class MainActivity : AppCompatActivity() {
         UserStorage.upsertUser(this, user.copy(pausedTimerSerialized = pausedTimerSerialized))
     }
 
-    private fun showQuickStartStep() {
-        val (target, textRes, buttonRes) = when (quickStartStep) {
-            1 -> Triple(binding.labButton, R.string.quick_start_tube, R.string.quick_start_next)
-            else -> Triple(binding.reviewButton, R.string.quick_start_review, R.string.quick_start_done)
-        }
-        binding.quickStartOverlay.visibility = View.VISIBLE
-        binding.quickStartText.text = getString(textRes)
-        binding.quickStartButton.text = getString(buttonRes)
-        binding.quickStartButton.setOnClickListener {
-            if (quickStartStep == 1) {
-                quickStartStep = 2
-                showQuickStartStep()
-            } else {
-                getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
-                    .edit()
-                    .putBoolean(KEY_QUICK_START_DONE, true)
-                    .apply()
-                binding.quickStartOverlay.visibility = View.GONE
-            }
-        }
-        target.post { positionQuickStartHint(target) }
-    }
-
-    private fun positionQuickStartHint(target: View) {
-        val overlay = binding.quickStartOverlay
-        val hint = binding.quickStartHintContainer
-        val arrow = binding.quickStartArrow
-        val focus = binding.quickStartFocus
-        val dim = binding.quickStartDim
-
-        if (overlay.width == 0 || overlay.height == 0 || target.width == 0 || target.height == 0) {
-            target.post { positionQuickStartHint(target) }
-            return
-        }
-
-        val overlayLocation = IntArray(2)
-        val targetLocation = IntArray(2)
-        overlay.getLocationInWindow(overlayLocation)
-        target.getLocationInWindow(targetLocation)
-
-        val targetLeft = targetLocation[0] - overlayLocation[0]
-        val targetTop = targetLocation[1] - overlayLocation[1]
-        val targetCenterX = targetLeft + target.width / 2f
-
-        val focusPadding = resources.displayMetrics.density * 6
-        val focusWidth = target.width + (focusPadding * 2).toInt()
-        val focusHeight = target.height + (focusPadding * 2).toInt()
-        val focusParams = focus.layoutParams
-        focusParams.width = focusWidth
-        focusParams.height = focusHeight
-        focus.layoutParams = focusParams
-        focus.translationX = targetLeft - focusPadding
-        focus.translationY = targetTop - focusPadding
-        dim.setDimColor(0x99000000.toInt())
-        dim.setFocusRect(
-            targetLeft - focusPadding,
-            targetTop - focusPadding,
-            targetLeft + target.width + focusPadding,
-            targetTop + target.height + focusPadding,
-            resources.displayMetrics.density * 12
-        )
-
-        hint.measure(
-            View.MeasureSpec.makeMeasureSpec(overlay.width, View.MeasureSpec.AT_MOST),
-            View.MeasureSpec.makeMeasureSpec(overlay.height, View.MeasureSpec.AT_MOST)
-        )
-        val hintWidth = hint.measuredWidth
-        val hintHeight = hint.measuredHeight
-
-        val spaceAbove = targetTop
-        val spaceBelow = overlay.height - (targetTop + target.height)
-        val showAbove = spaceAbove > spaceBelow
-
-        val hintX = min(
-            overlay.width - hintWidth - 16f,
-            max(16f, targetCenterX - hintWidth / 2f)
-        )
-        val hintY = if (showAbove) {
-            max(16f, targetTop - hintHeight - 20f)
-        } else {
-            min(overlay.height - hintHeight - 16f, targetTop + target.height + 20f)
-        }
-
-        hint.translationX = hintX
-        hint.translationY = hintY
-
-        val arrowSize = arrow.layoutParams.width.toFloat()
-        val arrowX = targetCenterX - arrowSize / 2f
-        val arrowY = if (showAbove) {
-            hintY + hintHeight - arrowSize / 2f
-        } else {
-            hintY - arrowSize / 2f
-        }
-        arrow.translationX = arrowX
-        arrow.translationY = arrowY
-        arrow.rotation = if (showAbove) 225f else 45f
-    }
 
     private fun updateDifficultyLabel() {
         val difficulty = UserStorage.getUser(this).difficulty
@@ -416,7 +308,5 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         private const val NOTIFICATION_PERMISSION_REQUEST = 1003
-        private const val PREFS_NAME = "mindwarrior_prefs"
-        private const val KEY_QUICK_START_DONE = "quick_start_done5"
     }
 }

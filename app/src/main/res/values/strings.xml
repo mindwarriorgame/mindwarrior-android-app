@@ -24,10 +24,6 @@
     <string name="sleep_start">Sleep start time</string>
     <string name="sleep_end">Sleep end time</string>
     <string name="sleep_done">Done</string>
-    <string name="quick_start_tube">Tap the tube to edit your formula.</string>
-    <string name="quick_start_review">Tap Review to read your saved formula.</string>
-    <string name="quick_start_next">Next</string>
-    <string name="quick_start_done">Done</string>
     <string name="timer_flag_title">Timer ready</string>
     <string name="timer_flag_message">⏰ Timer complete!\n⚔️ Your next battle window is open.\n📝 Log the moment and keep moving.</string>
     <string name="timer_flag_done">Done</string>
