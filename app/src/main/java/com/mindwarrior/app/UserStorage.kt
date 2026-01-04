@@ -114,8 +114,10 @@ object UserStorage {
     }
 
     private fun defaultUser(): User {
+        val pausedTimer = Counter(null).serialize()
+        pausedTimer.resume()
         return User(
-            pausedTimerSerialized = Optional.empty(),
+            pausedTimerSerialized = Optional.of(pausedTimer),
             activePlayTimerSerialized = Counter(null).serialize(),
             lastRewardAtActivePlayTime = 0L,
             reviewTimerSerialized = Counter(null).serialize(),
@@ -124,7 +126,7 @@ object UserStorage {
             sleepEnabled = false,
             sleepStartMinutes = 23 * 60,
             sleepEndMinutes = 7 * 60,
-            difficulty = Difficulty.BEGINNER,
+            difficulty = Difficulty.EASY,
             localStorageSnapshot = Optional.empty()
         )
     }

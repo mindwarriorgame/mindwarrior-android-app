@@ -84,12 +84,12 @@ class UserStorageTest {
         assertTrue(loaded.reviewTimerSerialized.isNotBlank())
         assertEquals(0L, loaded.lastRewardAtActivePlayTime)
         assertEquals(AlertType.Reminder, loaded.nextAlertType)
-        assertTrue(!loaded.pausedTimerSerialized.isPresent)
+        assertTrue(loaded.pausedTimerSerialized.isPresent)
         assertTrue(!loaded.timerForegroundEnabled)
         assertTrue(!loaded.sleepEnabled)
         assertEquals(23 * 60, loaded.sleepStartMinutes)
         assertEquals(7 * 60, loaded.sleepEndMinutes)
-        assertEquals(Difficulty.BEGINNER, loaded.difficulty)
+        assertEquals(Difficulty.EASY, loaded.difficulty)
         assertTrue(!loaded.localStorageSnapshot.isPresent)
     }
 
