@@ -3,10 +3,12 @@ package com.mindwarrior.app
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.mindwarrior.app.engine.AlertType
+import com.mindwarrior.app.engine.Counter
 import com.mindwarrior.app.engine.Difficulty
 import com.mindwarrior.app.engine.User
 import java.util.Optional
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -82,6 +84,8 @@ class UserStorageTest {
 
         assertTrue(loaded.activePlayTimerSerialized.isNotBlank())
         assertTrue(loaded.reviewTimerSerialized.isNotBlank())
+        assertFalse(Counter(loaded.activePlayTimerSerialized).isActive())
+        assertFalse(Counter(loaded.reviewTimerSerialized).isActive())
         assertEquals(0L, loaded.lastRewardAtActivePlayTime)
         assertEquals(AlertType.Reminder, loaded.nextAlertType)
         assertTrue(loaded.pausedTimerSerialized.isPresent)
