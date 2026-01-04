@@ -21,7 +21,7 @@ data class User(
     var sleepEndMinutes: Int,
     var difficulty: Difficulty,
     var localStorageSnapshot: Optional<String>,
-    var nextNotificationMillis: Long
+    var nextReviewDeadlineAtMillis: Long
 )
 
 object UserFactory {
@@ -44,7 +44,8 @@ object UserFactory {
             sleepEndMinutes = 7 * 60,
             difficulty = difficulty,
             localStorageSnapshot = Optional.empty(),
-            nextNotificationMillis = System.currentTimeMillis() + DifficultyHelper.getReviewFrequencyMillis(difficulty)
+            nextReviewDeadlineAtMillis = System.currentTimeMillis() +
+                DifficultyHelper.getReviewFrequencyMillis(difficulty)
         )
     }
 }

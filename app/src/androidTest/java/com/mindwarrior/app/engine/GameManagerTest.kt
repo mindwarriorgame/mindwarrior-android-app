@@ -29,7 +29,7 @@ class GameManagerTest {
             pausedTimerSerialized = Optional.empty(),
             activePlayTimerSerialized = active,
             reviewTimerSerialized = review,
-            nextNotificationMillis = 55L
+            nextReviewDeadlineAtMillis = 55L
         )
 
         val updated = GameManager.onPaused(user)
@@ -98,7 +98,7 @@ class GameManagerTest {
     fun onDifficultyChangedResetsUserForNewDifficultyWhenUnpaused() {
         val user = UserFactory.createUser(Difficulty.EASY).copy(
             pausedTimerSerialized = Optional.empty(),
-            nextNotificationMillis = 77L
+            nextReviewDeadlineAtMillis = 77L
         )
 
         val updated = GameManager.onDifficultyChanged(user, Difficulty.HARD)
