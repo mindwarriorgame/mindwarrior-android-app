@@ -28,15 +28,14 @@ class GameManagerTest {
         val user = UserFactory.createUser(Difficulty.EASY).copy(
             pausedTimerSerialized = Optional.empty(),
             activePlayTimerSerialized = active,
-            reviewTimerSerialized = review,
-            nextReviewDeadlineAtMillis = 55L
+            nextPenaltyTimerSerialized = review
         )
 
         val updated = GameManager.onPaused(user)
 
         assertTrue(updated.pausedTimerSerialized.isPresent)
         assertFalse(Counter(updated.activePlayTimerSerialized).isActive())
-        assertFalse(Counter(updated.reviewTimerSerialized).isActive())
+        assertFalse(Counter(updated.nextPenaltyTimerSerialized).isActive())
     }
 
     @Test
@@ -47,7 +46,7 @@ class GameManagerTest {
 
         assertFalse(updated.pausedTimerSerialized.isPresent)
         assertTrue(Counter(updated.activePlayTimerSerialized).isActive())
-        assertTrue(Counter(updated.reviewTimerSerialized).isActive())
+        assertTrue(Counter(updated.nextPenaltyTimerSerialized).isActive())
     }
 
     @Test
@@ -60,7 +59,7 @@ class GameManagerTest {
         assertTrue(updated.localStorageSnapshot.isPresent)
         assertTrue(updated.pausedTimerSerialized.isEmpty)
         assertTrue(Counter(updated.activePlayTimerSerialized).isActive())
-        assertTrue(Counter(updated.reviewTimerSerialized).isActive())
+        assertTrue(Counter(updated.nextPenaltyTimerSerialized).isActive())
     }
 
     @Test
@@ -73,7 +72,7 @@ class GameManagerTest {
         assertTrue(updated.localStorageSnapshot.isPresent)
         assertTrue(updated.pausedTimerSerialized.isPresent)
         assertFalse(Counter(updated.activePlayTimerSerialized).isActive())
-        assertFalse(Counter(updated.reviewTimerSerialized).isActive())
+        assertFalse(Counter(updated.nextPenaltyTimerSerialized).isActive())
     }
 
     @Test
@@ -97,8 +96,7 @@ class GameManagerTest {
     @Test
     fun onDifficultyChangedResetsUserForNewDifficultyWhenUnpaused() {
         val user = UserFactory.createUser(Difficulty.EASY).copy(
-            pausedTimerSerialized = Optional.empty(),
-            nextReviewDeadlineAtMillis = 77L
+            pausedTimerSerialized = Optional.empty()
         )
 
         val updated = GameManager.onDifficultyChanged(user, Difficulty.HARD)
@@ -116,7 +114,7 @@ class GameManagerTest {
         assertEquals(Difficulty.HARD, updated.difficulty)
         assertTrue(updated.pausedTimerSerialized.isPresent)
         assertFalse(Counter(updated.activePlayTimerSerialized).isActive())
-        assertFalse(Counter(updated.reviewTimerSerialized).isActive())
+        assertFalse(Counter(updated.nextPenaltyTimerSerialized).isActive())
     }
 
     @Test

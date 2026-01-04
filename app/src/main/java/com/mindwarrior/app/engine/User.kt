@@ -13,19 +13,14 @@ data class User(
     var pausedTimerSerialized: Optional<String>,
     var activePlayTimerSerialized: String,
     var lastRewardAtActivePlayTime: Long,
-    var reviewTimerSerialized: String,
+    var nextPenaltyTimerSerialized: String,
     var nextAlertType: AlertType,
     var timerForegroundEnabled: Boolean,
     var sleepEnabled: Boolean,
     var sleepStartMinutes: Int,
     var sleepEndMinutes: Int,
     var difficulty: Difficulty,
-    var localStorageSnapshot: Optional<String>,
-
-    // Do not access directly as the value might be misleading when paused
-    // (correct value is nextReviewDeadlineAtMillis + pausedTimer.elapsedSecs() * whatever)
-    // Use GameManager instead
-    var nextReviewDeadlineAtMillis: Long
+    var localStorageSnapshot: Optional<String>
 )
 
 object UserFactory {
@@ -40,16 +35,14 @@ object UserFactory {
             pausedTimerSerialized = Optional.of(pausedTimer.serialize()),
             activePlayTimerSerialized = activePlayTimer.serialize(),
             lastRewardAtActivePlayTime = 0L,
-            reviewTimerSerialized = reviewTimerSerialized.serialize(),
+            nextPenaltyTimerSerialized = reviewTimerSerialized.serialize(),
             nextAlertType = AlertType.Reminder,
             timerForegroundEnabled = false,
             sleepEnabled = false,
             sleepStartMinutes = 23 * 60,
             sleepEndMinutes = 7 * 60,
             difficulty = difficulty,
-            localStorageSnapshot = Optional.empty(),
-            nextReviewDeadlineAtMillis = System.currentTimeMillis() +
-                DifficultyHelper.getReviewFrequencyMillis(difficulty)
+            localStorageSnapshot = Optional.empty()
         )
     }
 }

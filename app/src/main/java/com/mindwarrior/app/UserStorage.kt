@@ -21,7 +21,6 @@ object UserStorage {
     private const val KEY_SLEEP_END_MINUTES = "sleep_end_minutes"
     private const val KEY_DIFFICULTY = "difficulty"
     private const val KEY_LOCAL_STORAGE = "local_storage_snapshot"
-    private const val KEY_NEXT_REVIEW_DEADLINE_AT_MILLIS = "next_review_deadline_at_millis"
     private val userUpdateListeners = mutableListOf<WeakReference<UserUpdateListener>>()
 
     fun getUser(context: Context): User {
@@ -33,8 +32,8 @@ object UserStorage {
         ) ?: defaults.activePlayTimerSerialized
         val reviewTimerSerialized = prefs.getString(
             KEY_REVIEW_TIMER_SERIALIZED,
-            defaults.reviewTimerSerialized
-        ) ?: defaults.reviewTimerSerialized
+            defaults.nextPenaltyTimerSerialized
+        ) ?: defaults.nextPenaltyTimerSerialized
         val lastRewardAtActivePlayTime = if (prefs.contains(KEY_LAST_REWARD_AT_ACTIVE_PLAY_TIME)) {
             prefs.getLong(KEY_LAST_REWARD_AT_ACTIVE_PLAY_TIME, defaults.lastRewardAtActivePlayTime)
         } else {
@@ -71,27 +70,18 @@ object UserStorage {
         } else {
             Optional.of(localStorageSnapshot)
         }
-        val nextReviewDeadlineAtMillis = if (prefs.contains(KEY_NEXT_REVIEW_DEADLINE_AT_MILLIS)) {
-            prefs.getLong(
-                KEY_NEXT_REVIEW_DEADLINE_AT_MILLIS,
-                defaults.nextReviewDeadlineAtMillis
-            )
-        } else {
-            defaults.nextReviewDeadlineAtMillis
-        }
         return User(
             pausedTimerSerialized = maybePausedTimerSerialized,
             activePlayTimerSerialized = activePlayTimerSerialized,
             lastRewardAtActivePlayTime = lastRewardAtActivePlayTime,
-            reviewTimerSerialized = reviewTimerSerialized,
+            nextPenaltyTimerSerialized = reviewTimerSerialized,
             nextAlertType = nextAlertType,
             timerForegroundEnabled = timerForegroundEnabled,
             sleepEnabled = sleepEnabled,
             sleepStartMinutes = sleepStartMinutes,
             sleepEndMinutes = sleepEndMinutes,
             difficulty = difficulty,
-            localStorageSnapshot = localStorageOptional,
-            nextReviewDeadlineAtMillis = nextReviewDeadlineAtMillis
+            localStorageSnapshot = localStorageOptional
         )
     }
 
@@ -105,7 +95,7 @@ object UserStorage {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val editor = prefs.edit()
         editor.putString(KEY_ACTIVE_PLAY_TIMER_SERIALIZED, user.activePlayTimerSerialized)
-        editor.putString(KEY_REVIEW_TIMER_SERIALIZED, user.reviewTimerSerialized)
+        editor.putString(KEY_REVIEW_TIMER_SERIALIZED, user.nextPenaltyTimerSerialized)
         editor.putLong(KEY_LAST_REWARD_AT_ACTIVE_PLAY_TIME, user.lastRewardAtActivePlayTime)
         editor.putString(KEY_NEXT_ALERT_TYPE, user.nextAlertType.name)
         editor.putBoolean(KEY_TIMER_FOREGROUND_ENABLED, user.timerForegroundEnabled)
@@ -113,7 +103,6 @@ object UserStorage {
         editor.putInt(KEY_SLEEP_START_MINUTES, user.sleepStartMinutes)
         editor.putInt(KEY_SLEEP_END_MINUTES, user.sleepEndMinutes)
         editor.putString(KEY_DIFFICULTY, user.difficulty.id)
-        editor.putLong(KEY_NEXT_REVIEW_DEADLINE_AT_MILLIS, user.nextReviewDeadlineAtMillis)
         if (user.localStorageSnapshot.isPresent) {
             editor.putString(KEY_LOCAL_STORAGE, user.localStorageSnapshot.get())
         } else {

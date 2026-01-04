@@ -33,15 +33,15 @@ class UserStorageTest {
             pausedTimerSerialized = Optional.of("{\"is_active\":false}"),
             activePlayTimerSerialized = "{\"is_active\":true}",
             lastRewardAtActivePlayTime = 1234L,
-            reviewTimerSerialized = "{\"is_active\":false}",
+            // Penalty is issued when it reaches review threshold, then it got reset
+            nextPenaltyTimerSerialized = "{\"is_active\":false}",
             nextAlertType = AlertType.Reminder,
             timerForegroundEnabled = true,
             sleepEnabled = true,
             sleepStartMinutes = 22 * 60,
             sleepEndMinutes = 6 * 60,
             difficulty = Difficulty.HARD,
-            localStorageSnapshot = Optional.of("{\"a\":\"b\"}"),
-            nextReviewDeadlineAtMillis = 9876L
+            localStorageSnapshot = Optional.of("{\"a\":\"b\"}")
         )
 
         UserStorage.upsertUser(context, user)
@@ -57,15 +57,14 @@ class UserStorageTest {
             pausedTimerSerialized = Optional.empty(),
             activePlayTimerSerialized = "{\"is_active\":true}",
             lastRewardAtActivePlayTime = 42L,
-            reviewTimerSerialized = "{\"is_active\":false}",
+            nextPenaltyTimerSerialized = "{\"is_active\":false}",
             nextAlertType = AlertType.WakeUp,
             timerForegroundEnabled = false,
             sleepEnabled = false,
             sleepStartMinutes = 23 * 60,
             sleepEndMinutes = 7 * 60,
             difficulty = Difficulty.BEGINNER,
-            localStorageSnapshot = Optional.empty(),
-            nextReviewDeadlineAtMillis = 1234L
+            localStorageSnapshot = Optional.empty()
         )
 
         UserStorage.upsertUser(context, user)
@@ -85,10 +84,10 @@ class UserStorageTest {
         val loaded = UserStorage.getUser(context)
 
         assertTrue(loaded.activePlayTimerSerialized.isNotBlank())
-        assertTrue(loaded.reviewTimerSerialized.isNotBlank())
+        assertTrue(loaded.nextPenaltyTimerSerialized.isNotBlank())
         assertTrue(Counter(loaded.pausedTimerSerialized.get()).isActive())
         assertTrue(Counter(loaded.activePlayTimerSerialized).isActive())
-        assertFalse(Counter(loaded.reviewTimerSerialized).isActive())
+        assertFalse(Counter(loaded.nextPenaltyTimerSerialized).isActive())
         assertEquals(0L, loaded.lastRewardAtActivePlayTime)
         assertEquals(AlertType.Reminder, loaded.nextAlertType)
         assertTrue(loaded.pausedTimerSerialized.isPresent)
@@ -98,7 +97,6 @@ class UserStorageTest {
         assertEquals(7 * 60, loaded.sleepEndMinutes)
         assertEquals(Difficulty.EASY, loaded.difficulty)
         assertTrue(!loaded.localStorageSnapshot.isPresent)
-        assertTrue(loaded.nextReviewDeadlineAtMillis > 0L)
     }
 
     @Test

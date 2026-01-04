@@ -2,7 +2,6 @@ package com.mindwarrior.app.engine
 
 import java.util.Optional
 import org.json.JSONObject
-import kotlin.jvm.optionals.getOrNull
 
 object GameManager {
 
@@ -12,7 +11,7 @@ object GameManager {
             newUser.copy(
                 pausedTimerSerialized = Optional.of(Counter(null).resume().serialize()),
                 activePlayTimerSerialized = Counter(newUser.activePlayTimerSerialized).pause().serialize(),
-                reviewTimerSerialized = Counter(newUser.reviewTimerSerialized).pause().serialize()
+                nextPenaltyTimerSerialized = Counter(newUser.nextPenaltyTimerSerialized).pause().serialize()
             )
         } else {
             newUser
@@ -39,7 +38,7 @@ object GameManager {
         }
         return user.copy(
             pausedTimerSerialized = Optional.of(Counter(null).resume().serialize()),
-            reviewTimerSerialized = Counter(user.reviewTimerSerialized).pause().serialize(),
+            nextPenaltyTimerSerialized = Counter(user.nextPenaltyTimerSerialized).pause().serialize(),
             activePlayTimerSerialized = Counter(user.activePlayTimerSerialized).pause().serialize()
         )
     }
@@ -50,7 +49,7 @@ object GameManager {
         }
         return user.copy(
             pausedTimerSerialized = Optional.empty(),
-            reviewTimerSerialized = Counter(user.reviewTimerSerialized).resume().serialize(),
+            nextPenaltyTimerSerialized = Counter(user.nextPenaltyTimerSerialized).resume().serialize(),
             activePlayTimerSerialized = Counter(user.activePlayTimerSerialized).resume().serialize()
         )
     }
@@ -72,14 +71,14 @@ object GameManager {
         }
         return updatedUser.copy(
             pausedTimerSerialized = Optional.empty(),
-            reviewTimerSerialized = Counter(user.reviewTimerSerialized).resume().serialize(),
+            nextPenaltyTimerSerialized = Counter(user.nextPenaltyTimerSerialized).resume().serialize(),
             activePlayTimerSerialized = Counter(user.activePlayTimerSerialized).resume().serialize()
         )
     }
 
     fun calculateNextDeadlineAtMillis(user: User): Long {
         return System.currentTimeMillis() + DifficultyHelper.getReviewFrequencyMillis(user.difficulty) -
-                Counter(user.reviewTimerSerialized).getTotalSeconds() * 1000
+                Counter(user.nextPenaltyTimerSerialized).getTotalSeconds() * 1000
     }
 
     private fun hasFormula(localStorageJson: String): Boolean {
