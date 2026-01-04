@@ -5,6 +5,7 @@ import android.util.Base64
 import android.webkit.JavascriptInterface
 import androidx.appcompat.app.AppCompatActivity
 import com.mindwarrior.app.databinding.ActivityWebviewBinding
+import com.mindwarrior.app.engine.GameManager
 import java.util.Optional
 
 class WebViewActivity : AppCompatActivity() {
@@ -54,7 +55,7 @@ class WebViewActivity : AppCompatActivity() {
                 val user = UserStorage.getUser(this)
                 UserStorage.upsertUser(
                     this,
-                    user.copy(localStorageSnapshot = Optional.of(result))
+                    GameManager.onLocalStorageUpdated(user, Optional.of(result))
                 )
             }
             finish()

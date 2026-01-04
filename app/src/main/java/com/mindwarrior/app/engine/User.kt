@@ -1,6 +1,5 @@
 package com.mindwarrior.app.engine
 
-import com.mindwarrior.app.engine.Difficulty
 import java.util.Optional
 
 enum class AlertType {
@@ -9,6 +8,7 @@ enum class AlertType {
     WakeUp
 }
 
+// Do not modify the fields directly! Use GameManager for that!
 data class User(
     var pausedTimerSerialized: Optional<String>,
     var activePlayTimerSerialized: String,
@@ -22,3 +22,27 @@ data class User(
     var difficulty: Difficulty,
     var localStorageSnapshot: Optional<String>
 )
+
+object UserFactory {
+    fun createUser(difficulty: Difficulty): User {
+        val pausedTimer = Counter(null)
+        pausedTimer.resume()
+        val activePlayTimer = Counter(null)
+        activePlayTimer.pause()
+        val reviewTimerSerialized = Counter(null)
+        reviewTimerSerialized.pause()
+        return User(
+            pausedTimerSerialized = Optional.of(pausedTimer.serialize()),
+            activePlayTimerSerialized = activePlayTimer.serialize(),
+            lastRewardAtActivePlayTime = 0L,
+            reviewTimerSerialized = reviewTimerSerialized.serialize(),
+            nextAlertType = AlertType.Reminder,
+            timerForegroundEnabled = false,
+            sleepEnabled = false,
+            sleepStartMinutes = 23 * 60,
+            sleepEndMinutes = 7 * 60,
+            difficulty = difficulty,
+            localStorageSnapshot = Optional.empty()
+        )
+    }
+}

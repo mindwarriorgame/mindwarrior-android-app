@@ -2,9 +2,9 @@ package com.mindwarrior.app
 
 import android.content.Context
 import com.mindwarrior.app.engine.AlertType
-import com.mindwarrior.app.engine.Counter
 import com.mindwarrior.app.engine.Difficulty
 import com.mindwarrior.app.engine.User
+import com.mindwarrior.app.engine.UserFactory
 import java.util.Optional
 import java.lang.ref.WeakReference
 
@@ -25,7 +25,7 @@ object UserStorage {
 
     fun getUser(context: Context): User {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        val defaults = defaultUser()
+        val defaults = UserFactory.createUser(Difficulty.EASY)
         val activePlayTimerSerialized = prefs.getString(
             KEY_ACTIVE_PLAY_TIMER_SERIALIZED,
             defaults.activePlayTimerSerialized
@@ -115,29 +115,6 @@ object UserStorage {
         }
         editor.apply()
         notifyUserUpdated(user)
-    }
-
-    private fun defaultUser(): User {
-        val pausedTimer = Counter(null)
-        pausedTimer.resume()
-        val activePlayTimer = Counter(null)
-        activePlayTimer.pause()
-        val reviewTimerSerialized = Counter(null)
-        reviewTimerSerialized.pause()
-        val difficulty = Difficulty.EASY
-        return User(
-            pausedTimerSerialized = Optional.of(pausedTimer.serialize()),
-            activePlayTimerSerialized = activePlayTimer.serialize(),
-            lastRewardAtActivePlayTime = 0L,
-            reviewTimerSerialized = reviewTimerSerialized.serialize(),
-            nextAlertType = AlertType.Reminder,
-            timerForegroundEnabled = false,
-            sleepEnabled = false,
-            sleepStartMinutes = 23 * 60,
-            sleepEndMinutes = 7 * 60,
-            difficulty = difficulty,
-            localStorageSnapshot = Optional.empty()
-        )
     }
 
     private fun difficultyFromId(id: String?): Difficulty? {

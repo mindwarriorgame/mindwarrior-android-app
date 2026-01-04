@@ -25,11 +25,12 @@ class Counter(dataSerialized: String?) {
         return """{"is_active":$isActive,"total_seconds_intermediate":$totalSecondsIntermediate,"last_updated_epoch_seconds":$lastUpdatedEpochSeconds}"""
     }
 
-    fun reset() {
+    fun reset(): Counter {
         isActive = false
         totalSecondsIntermediate = 0L
         lastUpdatedEpochSeconds = nowSeconds()
         refresh()
+        return this
     }
 
     fun getTotalSeconds(): Long {

@@ -15,6 +15,7 @@ import android.view.View
 import androidx.lifecycle.ViewModelProvider
 import com.mindwarrior.app.viewmodel.MainViewModel
 import com.mindwarrior.app.engine.Counter
+import com.mindwarrior.app.engine.GameManager
 import com.mindwarrior.app.notifications.OneOffAlertController
 import com.mindwarrior.app.notifications.StickyAlertController
 import java.util.Optional
@@ -239,12 +240,11 @@ class MainActivity : AppCompatActivity() {
 
     private fun updateUserPausedState(paused: Boolean) {
         val user = UserStorage.getUser(this)
-        val pausedTimerSerialized = if (paused) {
-            Optional.of(Counter(null).serialize())
+        if (paused) {
+            UserStorage.upsertUser(this, GameManager.onPaused(user))
         } else {
-            Optional.empty()
+            UserStorage.upsertUser(this, GameManager.onResume(user))
         }
-        UserStorage.upsertUser(this, user.copy(pausedTimerSerialized = pausedTimerSerialized))
     }
 
 

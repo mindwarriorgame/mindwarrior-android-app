@@ -4,6 +4,8 @@ import android.app.TimePickerDialog
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.mindwarrior.app.databinding.ActivitySleepSchedulerBinding
+import com.mindwarrior.app.engine.GameManager
+import com.mindwarrior.app.engine.User
 import java.util.Locale
 
 class SleepSchedulerActivity : AppCompatActivity() {
@@ -45,12 +47,12 @@ class SleepSchedulerActivity : AppCompatActivity() {
         }
 
         binding.sleepDoneButton.setOnClickListener {
-            val updated = UserStorage.getUser(this).copy(
-                sleepEnabled = draftEnabled,
-                sleepStartMinutes = draftStartMinutes,
-                sleepEndMinutes = draftEndMinutes
-            )
-            UserStorage.upsertUser(this, updated)
+            UserStorage.upsertUser(this, GameManager.onSleepScheduleChanged(
+                UserStorage.getUser(this),
+                draftEnabled,
+                draftStartMinutes,
+                draftEndMinutes
+            ))
             finish()
         }
 

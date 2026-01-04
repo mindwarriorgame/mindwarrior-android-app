@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.mindwarrior.app.databinding.ActivityDifficultyBinding
 import com.mindwarrior.app.notifications.OneOffAlertController
 import com.mindwarrior.app.engine.Difficulty
+import com.mindwarrior.app.engine.GameManager
 
 class DifficultyActivity : AppCompatActivity() {
     private lateinit var binding: ActivityDifficultyBinding
@@ -35,7 +36,7 @@ class DifficultyActivity : AppCompatActivity() {
             }
             if (selected != current) {
                 val user = UserStorage.getUser(this)
-                UserStorage.upsertUser(this, user.copy(difficulty = selected))
+                UserStorage.upsertUser(this, GameManager.onDifficultyChanged(user, selected))
                 OneOffAlertController.restart(this)
                 current = selected
             }
