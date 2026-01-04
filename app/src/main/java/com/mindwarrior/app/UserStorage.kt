@@ -26,11 +26,11 @@ object UserStorage {
     fun getUser(context: Context): User {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val defaults = defaultUser()
-        val activePlayTimer = prefs.getString(
+        val activePlayTimerSerialized = prefs.getString(
             KEY_ACTIVE_PLAY_TIMER_SERIALIZED,
             defaults.activePlayTimerSerialized
         ) ?: defaults.activePlayTimerSerialized
-        val reviewTimer = prefs.getString(
+        val reviewTimerSerialized = prefs.getString(
             KEY_REVIEW_TIMER_SERIALIZED,
             defaults.reviewTimerSerialized
         ) ?: defaults.reviewTimerSerialized
@@ -46,10 +46,14 @@ object UserStorage {
             defaults.nextAlertType
         }
         val pausedTimerSerialized = prefs.getString(KEY_PAUSED_TIMER_SERIALIZED, null)
-        val pausedTimerOptional = if (pausedTimerSerialized == null) {
-            Optional.empty()
+        val maybePausedTimerSerialized = if (pausedTimerSerialized == null) {
+            defaults.pausedTimerSerialized
         } else {
-            Optional.of(pausedTimerSerialized)
+            if (pausedTimerSerialized == "empty") {
+                Optional.empty()
+            } else {
+                Optional.of(pausedTimerSerialized)
+            }
         }
         val timerForegroundEnabled = prefs.getBoolean(
             KEY_TIMER_FOREGROUND_ENABLED,
@@ -62,15 +66,15 @@ object UserStorage {
         val difficulty = difficultyFromId(difficultyId) ?: defaults.difficulty
         val localStorageSnapshot = prefs.getString(KEY_LOCAL_STORAGE, null)
         val localStorageOptional = if (localStorageSnapshot == null) {
-            Optional.empty()
+            defaults.localStorageSnapshot
         } else {
             Optional.of(localStorageSnapshot)
         }
         return User(
-            pausedTimerSerialized = pausedTimerOptional,
-            activePlayTimerSerialized = activePlayTimer,
+            pausedTimerSerialized = maybePausedTimerSerialized,
+            activePlayTimerSerialized = activePlayTimerSerialized,
             lastRewardAtActivePlayTime = lastRewardAtActivePlayTime,
-            reviewTimerSerialized = reviewTimer,
+            reviewTimerSerialized = reviewTimerSerialized,
             nextAlertType = nextAlertType,
             timerForegroundEnabled = timerForegroundEnabled,
             sleepEnabled = sleepEnabled,
@@ -107,7 +111,7 @@ object UserStorage {
         if (user.pausedTimerSerialized.isPresent) {
             editor.putString(KEY_PAUSED_TIMER_SERIALIZED, user.pausedTimerSerialized.get())
         } else {
-            editor.remove(KEY_PAUSED_TIMER_SERIALIZED)
+            editor.putString(KEY_PAUSED_TIMER_SERIALIZED, "empty")
         }
         editor.apply()
         notifyUserUpdated(user)

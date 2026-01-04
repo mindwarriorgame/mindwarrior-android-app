@@ -84,6 +84,7 @@ class UserStorageTest {
 
         assertTrue(loaded.activePlayTimerSerialized.isNotBlank())
         assertTrue(loaded.reviewTimerSerialized.isNotBlank())
+        assertTrue(Counter(loaded.pausedTimerSerialized.get()).isActive())
         assertFalse(Counter(loaded.activePlayTimerSerialized).isActive())
         assertFalse(Counter(loaded.reviewTimerSerialized).isActive())
         assertEquals(0L, loaded.lastRewardAtActivePlayTime)
