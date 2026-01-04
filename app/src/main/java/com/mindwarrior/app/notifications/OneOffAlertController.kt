@@ -17,6 +17,7 @@ import com.mindwarrior.app.engine.Difficulty
 import com.mindwarrior.app.MainActivity
 import com.mindwarrior.app.R
 import com.mindwarrior.app.UserStorage
+import com.mindwarrior.app.engine.DifficultyHelper
 import kotlin.math.max
 
 object OneOffAlertController {
@@ -37,7 +38,7 @@ object OneOffAlertController {
         val now = System.currentTimeMillis()
         val current = prefs.getLong(KEY_NEXT_TRIGGER, 0L)
         val next = if (current == 0L || current <= now) {
-            now + getIntervalMillis(UserStorage.getUser(context).difficulty)
+            now + DifficultyHelper.getReviewFrequencyMillis(UserStorage.getUser(context).difficulty)
         } else {
             current
         }
@@ -48,7 +49,7 @@ object OneOffAlertController {
 
     fun restart(context: Context) {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        val next = System.currentTimeMillis() + getIntervalMillis(UserStorage.getUser(context).difficulty)
+        val next = System.currentTimeMillis() + DifficultyHelper.getReviewFrequencyMillis(UserStorage.getUser(context).difficulty)
         prefs.edit()
             .putLong(KEY_NEXT_TRIGGER, next)
             .remove(KEY_PAUSED_REMAINING)
@@ -96,20 +97,9 @@ object OneOffAlertController {
 
         showNotification(context)
 
-        val next = System.currentTimeMillis() + getIntervalMillis(UserStorage.getUser(context).difficulty)
+        val next = System.currentTimeMillis() + DifficultyHelper.getReviewFrequencyMillis(UserStorage.getUser(context).difficulty)
         prefs.edit().putLong(KEY_NEXT_TRIGGER, next).apply()
         scheduleAlarm(context, next)
-    }
-
-    private fun getIntervalMillis(difficulty: Difficulty): Long {
-        val minutes = when (difficulty) {
-            Difficulty.BEGINNER -> 6 * 60
-            Difficulty.EASY -> 3 * 60
-            Difficulty.MEDIUM -> 90
-            Difficulty.HARD -> 60
-            Difficulty.EXPORT -> 45
-        }
-        return minutes * 60_000L
     }
 
     private fun scheduleAlarm(context: Context, triggerAtMillis: Long) {
