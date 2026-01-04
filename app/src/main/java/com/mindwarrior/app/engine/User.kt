@@ -20,7 +20,8 @@ data class User(
     var sleepStartMinutes: Int,
     var sleepEndMinutes: Int,
     var difficulty: Difficulty,
-    var localStorageSnapshot: Optional<String>
+    var localStorageSnapshot: Optional<String>,
+    var nextNotificationMillis: Long
 )
 
 object UserFactory {
@@ -42,7 +43,8 @@ object UserFactory {
             sleepStartMinutes = 23 * 60,
             sleepEndMinutes = 7 * 60,
             difficulty = difficulty,
-            localStorageSnapshot = Optional.empty()
+            localStorageSnapshot = Optional.empty(),
+            nextNotificationMillis = System.currentTimeMillis() + DifficultyHelper.getReviewFrequencyMillis(difficulty)
         )
     }
 }

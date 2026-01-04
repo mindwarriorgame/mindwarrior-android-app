@@ -21,6 +21,7 @@ object UserStorage {
     private const val KEY_SLEEP_END_MINUTES = "sleep_end_minutes"
     private const val KEY_DIFFICULTY = "difficulty"
     private const val KEY_LOCAL_STORAGE = "local_storage_snapshot"
+    private const val KEY_NEXT_NOTIFICATION_MILLIS = "next_notification_millis"
     private val userUpdateListeners = mutableListOf<WeakReference<UserUpdateListener>>()
 
     fun getUser(context: Context): User {
@@ -70,6 +71,11 @@ object UserStorage {
         } else {
             Optional.of(localStorageSnapshot)
         }
+        val nextNotificationMillis = if (prefs.contains(KEY_NEXT_NOTIFICATION_MILLIS)) {
+            prefs.getLong(KEY_NEXT_NOTIFICATION_MILLIS, defaults.nextNotificationMillis)
+        } else {
+            defaults.nextNotificationMillis
+        }
         return User(
             pausedTimerSerialized = maybePausedTimerSerialized,
             activePlayTimerSerialized = activePlayTimerSerialized,
@@ -81,7 +87,8 @@ object UserStorage {
             sleepStartMinutes = sleepStartMinutes,
             sleepEndMinutes = sleepEndMinutes,
             difficulty = difficulty,
-            localStorageSnapshot = localStorageOptional
+            localStorageSnapshot = localStorageOptional,
+            nextNotificationMillis = nextNotificationMillis
         )
     }
 
@@ -103,6 +110,7 @@ object UserStorage {
         editor.putInt(KEY_SLEEP_START_MINUTES, user.sleepStartMinutes)
         editor.putInt(KEY_SLEEP_END_MINUTES, user.sleepEndMinutes)
         editor.putString(KEY_DIFFICULTY, user.difficulty.id)
+        editor.putLong(KEY_NEXT_NOTIFICATION_MILLIS, user.nextNotificationMillis)
         if (user.localStorageSnapshot.isPresent) {
             editor.putString(KEY_LOCAL_STORAGE, user.localStorageSnapshot.get())
         } else {
