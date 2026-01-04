@@ -6,9 +6,11 @@ import android.os.Looper
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.mindwarrior.app.notifications.OneOffAlertController
+import com.mindwarrior.app.R
 import com.mindwarrior.app.LogItem
 import com.mindwarrior.app.UserStorage
+import com.mindwarrior.app.engine.GameManager
+import com.mindwarrior.app.notifications.OneOffAlertController
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -45,6 +47,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _reviewEnabled = MutableLiveData<Boolean>()
     val reviewEnabled: LiveData<Boolean> = _reviewEnabled
 
+    private val _difficultyLabel = MutableLiveData<String>()
+    val difficultyLabel: LiveData<String> = _difficultyLabel
+
     private val _snowflakeVisible = MutableLiveData<Boolean>(true)
     val snowflakeVisible: LiveData<Boolean> = _snowflakeVisible
 
@@ -58,6 +63,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         override fun onUserUpdated(user: com.mindwarrior.app.engine.User) {
             _isPaused.value = user.pausedTimerSerialized.isPresent
             _reviewEnabled.value = user.localStorageSnapshot.isPresent
+            _difficultyLabel.value = formatDifficultyLabel(user.difficulty)
         }
     }
 
@@ -115,7 +121,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         val user = UserStorage.getUser(getApplication())
         _isPaused.value = user.pausedTimerSerialized.isPresent
         _reviewEnabled.value = user.localStorageSnapshot.isPresent
+        _difficultyLabel.value = formatDifficultyLabel(user.difficulty)
         UserStorage.observeUserChanges(getApplication(), userListener)
+    }
+
+    private fun formatDifficultyLabel(difficulty: com.mindwarrior.app.engine.Difficulty): String {
+        val label = getApplication<Application>().getString(difficulty.labelRes)
+        return getApplication<Application>().getString(R.string.menu_difficulty, label)
     }
 
     fun startTickers() {
@@ -148,7 +160,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun refreshTimerDisplay() {
-        val remainingMillis = OneOffAlertController.getRemainingMillis(getApplication())
+        val user = UserStorage.getUser(this.getApplication())
+        val remainingMillis = Math.max(GameManager.calculateNextDeadlineAtMillis(user) / 1000 - System.currentTimeMillis() / 1000, 0) * 1000
         _timerText.value = formatRemaining(remainingMillis)
         _timerWarning.value = remainingMillis in 1..WARNING_THRESHOLD_MILLIS
     }

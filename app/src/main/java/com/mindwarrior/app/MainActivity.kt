@@ -48,7 +48,6 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        updateDifficultyLabel()
         viewModel.startTickers()
         viewModel.refreshTimerDisplay()
         viewModel.startTimerFlagChecker()
@@ -97,7 +96,6 @@ class MainActivity : AppCompatActivity() {
             binding.menuPanel.visibility = android.view.View.GONE
             startActivity(android.content.Intent(this, SleepSchedulerActivity::class.java))
         }
-        updateDifficultyLabel()
         binding.menuPanel.setOnClickListener { }
         binding.menuPanel.setOnTouchListener { _, event ->
             if (event.action != android.view.MotionEvent.ACTION_UP) {
@@ -236,6 +234,9 @@ class MainActivity : AppCompatActivity() {
             binding.reviewButton.isEnabled = enabled
             binding.reviewButton.alpha = if (enabled) 1f else 0.5f
         }
+        viewModel.difficultyLabel.observe(this) { label ->
+            binding.menuDifficulty.text = label
+        }
     }
 
     private fun updateUserPausedState(paused: Boolean) {
@@ -247,12 +248,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-
-    private fun updateDifficultyLabel() {
-        val difficulty = UserStorage.getUser(this).difficulty
-        binding.menuDifficulty.text =
-            getString(R.string.menu_difficulty, getString(difficulty.labelRes))
-    }
 
     private fun showTimerFlagDialog() {
         if (timerFlagDialogShowing) return
