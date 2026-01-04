@@ -88,6 +88,7 @@ object UserStorage {
     fun observeUserChanges(context: Context, listener: UserUpdateListener) {
         userUpdateListeners.add(WeakReference(listener))
         pruneListeners()
+        removeDuplicates()
         listener.onUserUpdated(getUser(context))
     }
 
@@ -138,6 +139,19 @@ object UserStorage {
         val iterator = userUpdateListeners.iterator()
         while (iterator.hasNext()) {
             if (iterator.next().get() == null) {
+                iterator.remove()
+            }
+        }
+    }
+
+    private fun removeDuplicates() {
+        val seen = mutableSetOf<UserUpdateListener>()
+        val iterator = userUpdateListeners.iterator()
+        while (iterator.hasNext()) {
+            val listener = iterator.next().get()
+            if (listener == null) {
+                iterator.remove()
+            } else if (!seen.add(listener)) {
                 iterator.remove()
             }
         }
