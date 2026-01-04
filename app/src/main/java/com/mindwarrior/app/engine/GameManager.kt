@@ -2,6 +2,7 @@ package com.mindwarrior.app.engine
 
 import java.util.Optional
 import org.json.JSONObject
+import kotlin.jvm.optionals.getOrNull
 
 object GameManager {
 
@@ -74,6 +75,11 @@ object GameManager {
             reviewTimerSerialized = Counter(user.reviewTimerSerialized).resume().serialize(),
             activePlayTimerSerialized = Counter(user.activePlayTimerSerialized).resume().serialize()
         )
+    }
+
+    fun calculateNextDeadlineAtMillis(user: User): Long {
+        return System.currentTimeMillis() + DifficultyHelper.getReviewFrequencyMillis(user.difficulty) -
+                Counter(user.reviewTimerSerialized).getTotalSeconds() * 1000
     }
 
     private fun hasFormula(localStorageJson: String): Boolean {
