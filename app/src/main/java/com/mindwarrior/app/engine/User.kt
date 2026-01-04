@@ -21,6 +21,10 @@ data class User(
     var sleepEndMinutes: Int,
     var difficulty: Difficulty,
     var localStorageSnapshot: Optional<String>,
+
+    // Do not access directly as the value might be misleading when paused
+    // (correct value is nextReviewDeadlineAtMillis + pausedTimer.elapsedSecs() * whatever)
+    // Use GameManager instead
     var nextReviewDeadlineAtMillis: Long
 )
 
