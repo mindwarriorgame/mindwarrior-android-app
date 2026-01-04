@@ -85,7 +85,7 @@ class UserStorageTest {
         assertTrue(loaded.activePlayTimerSerialized.isNotBlank())
         assertTrue(loaded.reviewTimerSerialized.isNotBlank())
         assertTrue(Counter(loaded.pausedTimerSerialized.get()).isActive())
-        assertFalse(Counter(loaded.activePlayTimerSerialized).isActive())
+        assertTrue(Counter(loaded.activePlayTimerSerialized).isActive())
         assertFalse(Counter(loaded.reviewTimerSerialized).isActive())
         assertEquals(0L, loaded.lastRewardAtActivePlayTime)
         assertEquals(AlertType.Reminder, loaded.nextAlertType)
@@ -98,8 +98,60 @@ class UserStorageTest {
         assertTrue(!loaded.localStorageSnapshot.isPresent)
     }
 
+    @Test
+    fun pausedTimerDefaultsWhenPreferenceMissing() {
+        val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+
+        val loaded = UserStorage.getUser(context)
+
+        assertTrue(loaded.pausedTimerSerialized.isPresent)
+        assertTrue(Counter(loaded.pausedTimerSerialized.get()).isActive())
+    }
+
+    @Test
+    fun pausedTimerEmptyWhenPreferenceIsEmptyString() {
+        val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        val prefs = context.getSharedPreferences(PREFS_NAME, android.content.Context.MODE_PRIVATE)
+        prefs.edit()
+            .putString(KEY_PAUSED_TIMER_SERIALIZED, "empty")
+            .apply()
+
+        val loaded = UserStorage.getUser(context)
+
+        assertFalse(loaded.pausedTimerSerialized.isPresent)
+    }
+
+    @Test
+    fun pausedTimerRestoresWhenPreferenceHasValue() {
+        val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        val paused = Counter(null).apply { resume() }.serialize()
+        val prefs = context.getSharedPreferences(PREFS_NAME, android.content.Context.MODE_PRIVATE)
+        prefs.edit()
+            .putString(KEY_PAUSED_TIMER_SERIALIZED, paused)
+            .apply()
+
+        val loaded = UserStorage.getUser(context)
+
+        assertTrue(loaded.pausedTimerSerialized.isPresent)
+        assertTrue(Counter(loaded.pausedTimerSerialized.get()).isActive())
+    }
+
+    @Test
+    fun pausedTimerEmptyRoundTripStoresEmptyMarker() {
+        val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        val user = UserStorage.getUser(context).copy(pausedTimerSerialized = Optional.empty())
+
+        UserStorage.upsertUser(context, user)
+
+        val prefs = context.getSharedPreferences(PREFS_NAME, android.content.Context.MODE_PRIVATE)
+        assertEquals("empty", prefs.getString(KEY_PAUSED_TIMER_SERIALIZED, null))
+        val loaded = UserStorage.getUser(context)
+        assertFalse(loaded.pausedTimerSerialized.isPresent)
+    }
+
     companion object {
         private const val PREFS_NAME = "mindwarrior_user"
         private const val KEY_ACTIVE_PLAY_TIMER_SERIALIZED = "active_play_timer_serialized"
+        private const val KEY_PAUSED_TIMER_SERIALIZED = "paused_timer_serialized"
     }
 }
