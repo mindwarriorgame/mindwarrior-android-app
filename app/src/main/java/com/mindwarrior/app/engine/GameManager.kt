@@ -1,6 +1,7 @@
 package com.mindwarrior.app.engine
 
 import java.util.Optional
+import org.json.JSONObject
 
 object GameManager {
 
@@ -54,12 +55,35 @@ object GameManager {
     }
 
     fun onLocalStorageUpdated(user: User, localStorate: Optional<String>): User {
-
-        // TODO: is paused & activePlayTime is near 0 & localStorage contains non-empty "formula" JSON key then
-        // start the game (remove paused, unpause other serialized timers)
-        return user.copy(
-            localStorate
+        val updatedUser = user.copy(localStorageSnapshot = localStorate)
+        if (!localStorate.isPresent) {
+            return updatedUser
+        }
+        if (!user.pausedTimerSerialized.isPresent) {
+            return updatedUser
+        }
+        val activePlaySeconds = Counter(user.activePlayTimerSerialized).getTotalSeconds()
+        if (activePlaySeconds > ACTIVE_PLAY_NEAR_ZERO_SECONDS) {
+            return updatedUser
+        }
+        if (!hasFormula(localStorate.get())) {
+            return updatedUser
+        }
+        return updatedUser.copy(
+            pausedTimerSerialized = Optional.empty(),
+            reviewTimerSerialized = Counter(user.reviewTimerSerialized).resume().serialize(),
+            activePlayTimerSerialized = Counter(user.activePlayTimerSerialized).resume().serialize()
         )
     }
 
+    private fun hasFormula(localStorageJson: String): Boolean {
+        return try {
+            val value = JSONObject(localStorageJson).optString("formula", "")
+            value.isNotBlank()
+        } catch (_: Exception) {
+            false
+        }
+    }
+
+    private const val ACTIVE_PLAY_NEAR_ZERO_SECONDS = 10L
 }
