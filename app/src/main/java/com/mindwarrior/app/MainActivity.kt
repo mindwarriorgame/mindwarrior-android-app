@@ -27,6 +27,7 @@ class MainActivity : AppCompatActivity() {
 
     private var timerFlagDialogShowing = false
     private var lastTimerFlagEvent = 0L
+    private var unseenLogDialogShowing = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -227,6 +228,10 @@ class MainActivity : AppCompatActivity() {
             lastTimerFlagEvent = timestamp
             showTimerFlagDialog()
         }
+        viewModel.unseenLogsEvent.observe(this) { logs ->
+            if (logs.isEmpty() || unseenLogDialogShowing) return@observe
+            showUnseenLogDialog(logs)
+        }
         viewModel.isPaused.observe(this) { paused ->
             updatePauseUi(paused)
         }
@@ -267,6 +272,22 @@ class MainActivity : AppCompatActivity() {
 
     private fun addTimerLog() {
         viewModel.addLog(getString(R.string.timer_flag_log))
+    }
+
+    private fun showUnseenLogDialog(logs: List<Pair<String, Long>>) {
+        if (unseenLogDialogShowing) return
+        unseenLogDialogShowing = true
+        val message = logs.joinToString("\n") { it.first }
+        AlertDialog.Builder(this)
+            .setTitle("New events")
+            .setMessage(message)
+            .setPositiveButton(android.R.string.ok) { _, _ ->
+                viewModel.markUnseenLogsObserved()
+                unseenLogDialogShowing = false
+            }
+            .setOnDismissListener { unseenLogDialogShowing = false }
+            .setCancelable(false)
+            .show()
     }
 
     private fun requestNotificationPermission() {

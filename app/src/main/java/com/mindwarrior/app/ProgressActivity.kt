@@ -14,7 +14,7 @@ class ProgressActivity : AppCompatActivity() {
         binding = ActivityProgressBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val now = System.currentTimeMillis()
+        val now = TimeHelperObject.currentTimeMillis()
         val weekMillis = 7L * 24 * 60 * 60 * 1000
         val start = now - weekMillis
 
