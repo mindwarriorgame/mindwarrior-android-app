@@ -6,7 +6,9 @@ import org.json.JSONObject
 object GameManager {
 
     fun onDifficultyChanged(user: User, newDifficulty: Difficulty): User {
-        val newUser = UserFactory.createUser(newDifficulty)
+        val newUser = UserFactory.createUser(newDifficulty).copy(
+            localStorageSnapshot = user.localStorageSnapshot
+        )
         return if (user.pausedTimerSerialized.isPresent) {
             newUser.copy(
                 pausedTimerSerialized = Optional.of(Counter(null).resume().serialize()),
@@ -44,7 +46,7 @@ object GameManager {
     }
 
     fun onResume(user: User): User {
-        if (user.pausedTimerSerialized.isEmpty) {
+        if (!user.pausedTimerSerialized.isPresent) {
             return user
         }
         return user.copy(

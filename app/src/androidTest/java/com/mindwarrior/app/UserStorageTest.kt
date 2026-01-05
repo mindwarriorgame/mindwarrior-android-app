@@ -41,7 +41,8 @@ class UserStorageTest {
             sleepStartMinutes = 22 * 60,
             sleepEndMinutes = 6 * 60,
             difficulty = Difficulty.HARD,
-            localStorageSnapshot = Optional.of("{\"a\":\"b\"}")
+            localStorageSnapshot = Optional.of("{\"a\":\"b\"}"),
+            eventsLastProcessedInclusiveEpochSecs = 1712345678L
         )
 
         UserStorage.upsertUser(context, user)
@@ -64,7 +65,8 @@ class UserStorageTest {
             sleepStartMinutes = 23 * 60,
             sleepEndMinutes = 7 * 60,
             difficulty = Difficulty.BEGINNER,
-            localStorageSnapshot = Optional.empty()
+            localStorageSnapshot = Optional.empty(),
+            eventsLastProcessedInclusiveEpochSecs = 1712000000L
         )
 
         UserStorage.upsertUser(context, user)
@@ -97,6 +99,7 @@ class UserStorageTest {
         assertEquals(7 * 60, loaded.sleepEndMinutes)
         assertEquals(Difficulty.EASY, loaded.difficulty)
         assertTrue(!loaded.localStorageSnapshot.isPresent)
+        assertEquals(0L, loaded.eventsLastProcessedInclusiveEpochSecs)
     }
 
     @Test

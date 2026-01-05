@@ -21,6 +21,8 @@ object UserStorage {
     private const val KEY_SLEEP_END_MINUTES = "sleep_end_minutes"
     private const val KEY_DIFFICULTY = "difficulty"
     private const val KEY_LOCAL_STORAGE = "local_storage_snapshot"
+    private const val KEY_EVENTS_LAST_PROCESSED_INCLUSIVE_EPOCH_SECS =
+        "events_last_processed_inclusive_epoch_secs"
     private val userUpdateListeners = mutableListOf<WeakReference<UserUpdateListener>>()
 
     fun getUser(context: Context): User {
@@ -70,6 +72,16 @@ object UserStorage {
         } else {
             Optional.of(localStorageSnapshot)
         }
+        val eventsLastProcessedInclusiveEpochSecs = if (
+            prefs.contains(KEY_EVENTS_LAST_PROCESSED_INCLUSIVE_EPOCH_SECS)
+        ) {
+            prefs.getLong(
+                KEY_EVENTS_LAST_PROCESSED_INCLUSIVE_EPOCH_SECS,
+                defaults.eventsLastProcessedInclusiveEpochSecs
+            )
+        } else {
+            defaults.eventsLastProcessedInclusiveEpochSecs
+        }
         return User(
             pausedTimerSerialized = maybePausedTimerSerialized,
             activePlayTimerSerialized = activePlayTimerSerialized,
@@ -81,7 +93,8 @@ object UserStorage {
             sleepStartMinutes = sleepStartMinutes,
             sleepEndMinutes = sleepEndMinutes,
             difficulty = difficulty,
-            localStorageSnapshot = localStorageOptional
+            localStorageSnapshot = localStorageOptional,
+            eventsLastProcessedInclusiveEpochSecs = eventsLastProcessedInclusiveEpochSecs
         )
     }
 
@@ -109,6 +122,10 @@ object UserStorage {
         } else {
             editor.remove(KEY_LOCAL_STORAGE)
         }
+        editor.putLong(
+            KEY_EVENTS_LAST_PROCESSED_INCLUSIVE_EPOCH_SECS,
+            user.eventsLastProcessedInclusiveEpochSecs
+        )
         if (user.pausedTimerSerialized.isPresent) {
             editor.putString(KEY_PAUSED_TIMER_SERIALIZED, user.pausedTimerSerialized.get())
         } else {
