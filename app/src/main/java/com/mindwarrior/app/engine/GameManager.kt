@@ -1,6 +1,5 @@
 package com.mindwarrior.app.engine
 
-import com.mindwarrior.app.TimeHelperObject
 import java.util.Optional
 import org.json.JSONObject
 
@@ -81,7 +80,7 @@ object GameManager {
             unseenLogsNewestFirst = listOf(
                 Pair(
                     "The game has started! Don't forget to review your Formula before the time runs out!",
-                    TimeHelperObject.currentTimeMillis()
+                    System.currentTimeMillis()
                 )
             ) + user.unseenLogsNewestFirst
         )
@@ -100,7 +99,7 @@ object GameManager {
     }
 
     fun calculateNextDeadlineAtMillis(user: User): Long {
-        return TimeHelperObject.currentTimeMillis() +
+        return System.currentTimeMillis() +
             DifficultyHelper.getReviewFrequencyMillis(user.difficulty) -
                 Counter(user.nextPenaltyTimerSerialized).getTotalSeconds() * 1000
     }

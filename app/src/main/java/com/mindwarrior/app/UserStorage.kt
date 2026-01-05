@@ -1,7 +1,6 @@
 package com.mindwarrior.app
 
 import android.content.Context
-import com.mindwarrior.app.TimeHelperObject
 import com.mindwarrior.app.engine.AlertType
 import com.mindwarrior.app.engine.Difficulty
 import com.mindwarrior.app.engine.User
@@ -123,7 +122,7 @@ object UserStorage {
             pendingNotificationLogsNewestFirst = pendingNotificationLogsNewestFirst,
             unseenLogsNewestFirst = unseenLogsNewestFirst,
             oldLogsNewestFirst = if (isNewUser) {
-                listOf(Pair(WELCOME_MESSAGE, TimeHelperObject.currentTimeMillis()))
+                listOf(Pair(WELCOME_MESSAGE, System.currentTimeMillis()))
             } else {
                 oldLogsNewestFirst
             }

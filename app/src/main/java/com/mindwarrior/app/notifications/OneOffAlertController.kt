@@ -16,7 +16,6 @@ import androidx.appcompat.content.res.AppCompatResources
 import com.mindwarrior.app.engine.Difficulty
 import com.mindwarrior.app.MainActivity
 import com.mindwarrior.app.R
-import com.mindwarrior.app.TimeHelperObject
 import com.mindwarrior.app.UserStorage
 import com.mindwarrior.app.engine.DifficultyHelper
 import kotlin.math.max
@@ -35,7 +34,7 @@ object OneOffAlertController {
             return
         }
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        val now = TimeHelperObject.currentTimeMillis()
+        val now = System.currentTimeMillis()
         val current = prefs.getLong(KEY_NEXT_TRIGGER, 0L)
         val next = if (current == 0L || current <= now) {
             now + DifficultyHelper.getReviewFrequencyMillis(UserStorage.getUser(context).difficulty)
@@ -49,7 +48,7 @@ object OneOffAlertController {
 
     fun restart(context: Context) {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        val next = TimeHelperObject.currentTimeMillis() +
+        val next = System.currentTimeMillis() +
             DifficultyHelper.getReviewFrequencyMillis(UserStorage.getUser(context).difficulty)
         prefs.edit()
             .putLong(KEY_NEXT_TRIGGER, next)
@@ -66,7 +65,7 @@ object OneOffAlertController {
         }
         val next = prefs.getLong(KEY_NEXT_TRIGGER, 0L)
         if (next == 0L) return 0L
-        return max(0L, next - TimeHelperObject.currentTimeMillis())
+        return max(0L, next - System.currentTimeMillis())
     }
 
     fun pauseTimer(context: Context) {
@@ -82,7 +81,7 @@ object OneOffAlertController {
     fun resumeTimer(context: Context) {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val remaining = prefs.getLong(KEY_PAUSED_REMAINING, 0L)
-        val next = TimeHelperObject.currentTimeMillis() + remaining
+        val next = System.currentTimeMillis() + remaining
         prefs.edit()
             .putLong(KEY_NEXT_TRIGGER, next)
             .remove(KEY_PAUSED_REMAINING)
@@ -95,7 +94,7 @@ object OneOffAlertController {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         showNotification(context)
 
-        val next = TimeHelperObject.currentTimeMillis() +
+        val next = System.currentTimeMillis() +
             DifficultyHelper.getReviewFrequencyMillis(UserStorage.getUser(context).difficulty)
         prefs.edit().putLong(KEY_NEXT_TRIGGER, next).apply()
         scheduleAlarm(context, next)

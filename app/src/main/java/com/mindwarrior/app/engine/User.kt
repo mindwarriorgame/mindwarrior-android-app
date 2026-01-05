@@ -1,6 +1,5 @@
 package com.mindwarrior.app.engine
 
-import com.mindwarrior.app.TimeHelperObject
 import java.util.Optional
 
 enum class AlertType {
@@ -49,7 +48,7 @@ object UserFactory {
             sleepEndMinutes = 7 * 60,
             difficulty = difficulty,
             localStorageSnapshot = Optional.empty(),
-            eventsLastProcessedInclusiveEpochSecs = TimeHelperObject.currentTimeMillis() / 1000L,
+            eventsLastProcessedInclusiveEpochSecs = System.currentTimeMillis() / 1000L,
             pendingNotificationLogsNewestFirst = emptyList(),
             unseenLogsNewestFirst = emptyList(),
             oldLogsNewestFirst = emptyList()

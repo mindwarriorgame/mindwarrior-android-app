@@ -1,6 +1,5 @@
 package com.mindwarrior.app.engine
 
-import com.mindwarrior.app.TimeHelperObject
 import java.util.regex.Pattern
 
 class Counter(dataSerialized: String?) {
@@ -69,7 +68,7 @@ class Counter(dataSerialized: String?) {
         lastUpdatedEpochSeconds -= nMinutes * 60L
     }
 
-    private fun nowSeconds(): Long = TimeHelperObject.currentTimeMillis() / 1000L
+    private fun nowSeconds(): Long = System.currentTimeMillis() / 1000L
 
     // --- Minimal JSON field extractors (flat object only) ---
 

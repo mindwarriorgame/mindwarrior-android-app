@@ -8,7 +8,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.mindwarrior.app.R
 import com.mindwarrior.app.LogItem
-import com.mindwarrior.app.TimeHelperObject
 import com.mindwarrior.app.UserStorage
 import com.mindwarrior.app.engine.GameManager
 import java.text.SimpleDateFormat
@@ -21,7 +20,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val logItems = mutableListOf<LogItem>()
     private var tickersRunning = false
     private var timerFlagNotified = false
-    private var logIdSeed = TimeHelperObject.currentTimeMillis()
+    private var logIdSeed = System.currentTimeMillis()
     private var lastLogLabelUpdateMillis = 0L
     private var lastOldLogsSnapshot: List<Pair<String, Long>> = emptyList()
     private var lastUnseenLogsSnapshot: List<Pair<String, Long>> = emptyList()
@@ -75,7 +74,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val timerTicker = object : Runnable {
         override fun run() {
             refreshTimerDisplay()
-            val now = TimeHelperObject.currentTimeMillis()
+            val now = System.currentTimeMillis()
             if (now - lastLogLabelUpdateMillis >= LOG_LABEL_UPDATE_INTERVAL_MS) {
                 lastLogLabelUpdateMillis = now
                 refreshLogLabels()
@@ -136,7 +135,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         val user = UserStorage.getUser(this.getApplication())
         val remainingMillis = Math.max(
             GameManager.calculateNextDeadlineAtMillis(user) / 1000 -
-                TimeHelperObject.currentTimeMillis() / 1000,
+                System.currentTimeMillis() / 1000,
             0
         ) * 1000
         _timerText.value = formatRemaining(remainingMillis)
@@ -144,7 +143,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun addLog(message: String) {
-        val now = TimeHelperObject.currentTimeMillis()
+        val now = System.currentTimeMillis()
         logItems.add(0, LogItem(newLogId(), now, formatTimeLabel(now), message))
         logItems.sortByDescending { it.timestampMillis }
         if (logItems.size > MAX_LOG_ITEMS) {
@@ -163,7 +162,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
         if (timerFlagNotified) return
         timerFlagNotified = true
-        _timerFlagEvent.value = TimeHelperObject.currentTimeMillis()
+        _timerFlagEvent.value = System.currentTimeMillis()
     }
 
     fun clearTimerFlag() {
@@ -235,7 +234,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun formatTimeLabel(timeMillis: Long): String {
-        val now = TimeHelperObject.currentTimeMillis()
+        val now = System.currentTimeMillis()
         val diff = now - timeMillis
         return if (diff < DAY_MILLIS) {
             val relative = when {
