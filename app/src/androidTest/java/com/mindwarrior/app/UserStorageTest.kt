@@ -42,7 +42,6 @@ class UserStorageTest {
             sleepEndMinutes = 6 * 60,
             difficulty = Difficulty.HARD,
             localStorageSnapshot = Optional.of("{\"a\":\"b\"}"),
-            eventsLastProcessedInclusiveEpochSecs = 1712345678L,
             pendingNotificationLogsNewestFirst = listOf(
                 Pair("{\"log\":\"pending1\"}", 1712300000L),
                 Pair("{\"log\":\"pending2\"}", 1712300001L)
@@ -70,14 +69,13 @@ class UserStorageTest {
             activePlayTimerSerialized = "{\"is_active\":true}",
             lastRewardAtActivePlayTime = 42L,
             nextPenaltyTimerSerialized = "{\"is_active\":false}",
-            nextAlertType = AlertType.WakeUp,
+            nextAlertType = AlertType.Penalty,
             timerForegroundEnabled = false,
             sleepEnabled = false,
             sleepStartMinutes = 23 * 60,
             sleepEndMinutes = 7 * 60,
             difficulty = Difficulty.BEGINNER,
             localStorageSnapshot = Optional.empty(),
-            eventsLastProcessedInclusiveEpochSecs = 1712000000L,
             pendingNotificationLogsNewestFirst = emptyList(),
             unseenLogsNewestFirst = emptyList(),
             oldLogsNewestFirst = emptyList()
@@ -113,7 +111,6 @@ class UserStorageTest {
         assertEquals(7 * 60, loaded.sleepEndMinutes)
         assertEquals(Difficulty.EASY, loaded.difficulty)
         assertTrue(!loaded.localStorageSnapshot.isPresent)
-        assertTrue(loaded.eventsLastProcessedInclusiveEpochSecs > 0L)
         assertEquals(emptyList<Pair<String, Long>>(), loaded.pendingNotificationLogsNewestFirst)
         assertEquals(emptyList<Pair<String, Long>>(), loaded.unseenLogsNewestFirst)
         assertEquals(emptyList<Pair<String, Long>>(), loaded.oldLogsNewestFirst)

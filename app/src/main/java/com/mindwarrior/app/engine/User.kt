@@ -4,8 +4,7 @@ import java.util.Optional
 
 enum class AlertType {
     Reminder,
-    Penalty,
-    WakeUp
+    Penalty
 }
 
 // Do not modify the fields directly! Use GameManager for that!
@@ -21,7 +20,6 @@ data class User(
     var sleepEndMinutes: Int,
     var difficulty: Difficulty,
     var localStorageSnapshot: Optional<String>,
-    var eventsLastProcessedInclusiveEpochSecs: Long,
 
     val pendingNotificationLogsNewestFirst: List<Pair<String, Long>>,
     val unseenLogsNewestFirst: List<Pair<String, Long>>,
@@ -48,7 +46,6 @@ object UserFactory {
             sleepEndMinutes = 7 * 60,
             difficulty = difficulty,
             localStorageSnapshot = Optional.empty(),
-            eventsLastProcessedInclusiveEpochSecs = System.currentTimeMillis() / 1000L,
             pendingNotificationLogsNewestFirst = emptyList(),
             unseenLogsNewestFirst = emptyList(),
             oldLogsNewestFirst = emptyList()

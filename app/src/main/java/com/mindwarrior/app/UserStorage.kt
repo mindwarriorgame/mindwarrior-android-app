@@ -24,8 +24,6 @@ object UserStorage {
     private const val KEY_SLEEP_END_MINUTES = "sleep_end_minutes"
     private const val KEY_DIFFICULTY = "difficulty"
     private const val KEY_LOCAL_STORAGE = "local_storage_snapshot"
-    private const val KEY_EVENTS_LAST_PROCESSED_INCLUSIVE_EPOCH_SECS =
-        "events_last_processed_inclusive_epoch_secs"
     private const val KEY_PENDING_NOTIFICATION_LOGS_NEWEST_FIRST =
         "pending_notification_logs_newest_first"
     private const val KEY_UNSEEN_LOGS_NEWEST_FIRST = "unseen_logs_newest_first"
@@ -96,16 +94,6 @@ object UserStorage {
             prefs.getString(KEY_OLD_LOGS_NEWEST_FIRST, null),
             defaults.oldLogsNewestFirst
         )
-        val eventsLastProcessedInclusiveEpochSecs = if (
-            prefs.contains(KEY_EVENTS_LAST_PROCESSED_INCLUSIVE_EPOCH_SECS)
-        ) {
-            prefs.getLong(
-                KEY_EVENTS_LAST_PROCESSED_INCLUSIVE_EPOCH_SECS,
-                defaults.eventsLastProcessedInclusiveEpochSecs
-            )
-        } else {
-            defaults.eventsLastProcessedInclusiveEpochSecs
-        }
         return User(
             pausedTimerSerialized = maybePausedTimerSerialized,
             activePlayTimerSerialized = activePlayTimerSerialized,
@@ -118,7 +106,6 @@ object UserStorage {
             sleepEndMinutes = sleepEndMinutes,
             difficulty = difficulty,
             localStorageSnapshot = localStorageOptional,
-            eventsLastProcessedInclusiveEpochSecs = eventsLastProcessedInclusiveEpochSecs,
             pendingNotificationLogsNewestFirst = pendingNotificationLogsNewestFirst,
             unseenLogsNewestFirst = unseenLogsNewestFirst,
             oldLogsNewestFirst = if (isNewUser) {
@@ -153,10 +140,6 @@ object UserStorage {
         } else {
             editor.remove(KEY_LOCAL_STORAGE)
         }
-        editor.putLong(
-            KEY_EVENTS_LAST_PROCESSED_INCLUSIVE_EPOCH_SECS,
-            user.eventsLastProcessedInclusiveEpochSecs
-        )
         editor.putString(
             KEY_PENDING_NOTIFICATION_LOGS_NEWEST_FIRST,
             serializeLogList(user.pendingNotificationLogsNewestFirst)
