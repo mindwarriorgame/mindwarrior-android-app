@@ -10,7 +10,6 @@ import com.mindwarrior.app.R
 import com.mindwarrior.app.LogItem
 import com.mindwarrior.app.UserStorage
 import com.mindwarrior.app.engine.GameManager
-import com.mindwarrior.app.notifications.OneOffAlertController
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -18,22 +17,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val handler = Handler(Looper.getMainLooper())
     private val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
     private val dayFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
-    private val sampleMessages = listOf(
-        "⚔️ Clash triggered: Warden +25% focus boost",
-        "🧠 Formula locked\n- Focus 8m\n- Recall 4m\n- Break 2m",
-        "💥 Combo x3 landed. Stamina drops to 62%",
-        "🧭 New waypoint unlocked: Quiet Zone",
-        "🧪 Potion brewed: Calm Serum (1 use)",
-        "🏆 Level check: 55% 😾",
-        "🛡️ Shield restored by ally protocol",
-        "📜 Journal sync complete\nMindMap updated"
-    )
     private val logItems = mutableListOf<LogItem>()
-    private var tickCount = 0
     private var tickersRunning = false
     private var timerFlagNotified = false
     private var logIdSeed = System.currentTimeMillis()
     private var lastLogLabelUpdateMillis = 0L
+    private var lastOldLogsSnapshot: List<Pair<String, Long>> = emptyList()
 
     private val _timerText = MutableLiveData<String>()
     val timerText: LiveData<String> = _timerText
@@ -64,6 +53,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             _isPaused.value = user.pausedTimerSerialized.isPresent
             _reviewEnabled.value = user.localStorageSnapshot.isPresent
             _difficultyLabel.value = formatDifficultyLabel(user.difficulty)
+            updateLogsFromUser(user)
         }
     }
 
@@ -73,26 +63,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             visible = !visible
             _snowflakeVisible.value = visible
             handler.postDelayed(this, 1000L)
-        }
-    }
-
-    private val logTicker = object : Runnable {
-        override fun run() {
-            tickCount += 1
-            val now = System.currentTimeMillis()
-            val newLogs = mutableListOf<LogItem>()
-            newLogs.add(buildLogItem(now))
-            if (tickCount % 2 == 0) {
-                newLogs.add(buildLogItem(now))
-                newLogs.add(buildLogItem(now))
-            }
-            logItems.addAll(0, newLogs)
-            logItems.sortByDescending { it.timestampMillis }
-            if (logItems.size > MAX_LOG_ITEMS) {
-                logItems.subList(MAX_LOG_ITEMS, logItems.size).clear()
-            }
-            _logs.value = logItems.toList()
-            handler.postDelayed(this, 15_000L)
         }
     }
 
@@ -116,12 +86,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     init {
-        seedInitialLogs()
         refreshTimerDisplay()
         val user = UserStorage.getUser(getApplication())
         _isPaused.value = user.pausedTimerSerialized.isPresent
         _reviewEnabled.value = user.localStorageSnapshot.isPresent
         _difficultyLabel.value = formatDifficultyLabel(user.difficulty)
+        updateLogsFromUser(user)
         UserStorage.observeUserChanges(getApplication(), userListener)
     }
 
@@ -134,10 +104,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         if (tickersRunning) return
         tickersRunning = true
         handler.removeCallbacks(snowflakeBlink)
-        handler.removeCallbacks(logTicker)
         handler.removeCallbacks(timerTicker)
         handler.post(snowflakeBlink)
-        handler.postDelayed(logTicker, 15_000L)
         handler.post(timerTicker)
     }
 
@@ -145,7 +113,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         if (!tickersRunning) return
         tickersRunning = false
         handler.removeCallbacks(snowflakeBlink)
-        handler.removeCallbacks(logTicker)
         handler.removeCallbacks(timerTicker)
     }
 
@@ -201,28 +168,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         handler.removeCallbacksAndMessages(null)
     }
 
-    private fun seedInitialLogs() {
-        val now = System.currentTimeMillis()
-        val seeds = listOf(
-            LogSeed(now - 2 * 60 * 1000L, sampleMessages[0]),
-            LogSeed(now - 12 * 60 * 1000L, sampleMessages[1]),
-            LogSeed(now - 42 * 60 * 1000L, sampleMessages[2]),
-            LogSeed(now - 3 * 60 * 60 * 1000L, sampleMessages[3]),
-            LogSeed(now - 28 * 60 * 60 * 1000L, sampleMessages[4])
-        )
-        logItems.clear()
-        logItems.addAll(seeds.map { seed ->
-            LogItem(newLogId(), seed.timestamp, formatTimeLabel(seed.timestamp), seed.message)
-        })
-        logItems.sortByDescending { it.timestampMillis }
-        _logs.value = logItems.toList()
-    }
-
-    private fun buildLogItem(timestampMillis: Long): LogItem {
-        val message = sampleMessages.random()
-        return LogItem(newLogId(), timestampMillis, formatTimeLabel(timestampMillis), message)
-    }
-
     private fun newLogId(): Long {
         logIdSeed += 1
         return logIdSeed
@@ -236,6 +181,30 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         logItems.clear()
         logItems.addAll(updated)
         _logs.value = logItems.toList()
+    }
+
+    private fun updateLogsFromUser(user: com.mindwarrior.app.engine.User) {
+        val newLogs = user.oldLogsNewestFirst
+        if (newLogs == lastOldLogsSnapshot) return
+        lastOldLogsSnapshot = newLogs.toList()
+        val items = newLogs.map { (message, timestampMillis) ->
+            LogItem(
+                id = generateLogId(message, timestampMillis),
+                timestampMillis = timestampMillis,
+                timeLabel = formatTimeLabel(timestampMillis),
+                message = message
+            )
+        }.sortedByDescending { it.timestampMillis }
+        logItems.clear()
+        logItems.addAll(items)
+        if (logItems.size > MAX_LOG_ITEMS) {
+            logItems.subList(MAX_LOG_ITEMS, logItems.size).clear()
+        }
+        _logs.value = logItems.toList()
+    }
+
+    private fun generateLogId(message: String, timestampMillis: Long): Long {
+        return (timestampMillis xor message.hashCode().toLong())
     }
 
     private fun formatTimeLabel(timeMillis: Long): String {
@@ -262,8 +231,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         val seconds = totalSeconds % 60
         return String.format(Locale.getDefault(), "%02d:%02d:%02d", hours, minutes, seconds)
     }
-
-    data class LogSeed(val timestamp: Long, val message: String)
 
     companion object {
         private const val MAX_LOG_ITEMS = 20

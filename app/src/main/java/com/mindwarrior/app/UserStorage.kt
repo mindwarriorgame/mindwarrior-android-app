@@ -7,6 +7,9 @@ import com.mindwarrior.app.engine.User
 import com.mindwarrior.app.engine.UserFactory
 import java.util.Optional
 import java.lang.ref.WeakReference
+import org.json.JSONArray
+import org.json.JSONException
+import org.json.JSONObject
 
 object UserStorage {
     private const val PREFS_NAME = "mindwarrior_user"
@@ -23,15 +26,24 @@ object UserStorage {
     private const val KEY_LOCAL_STORAGE = "local_storage_snapshot"
     private const val KEY_EVENTS_LAST_PROCESSED_INCLUSIVE_EPOCH_SECS =
         "events_last_processed_inclusive_epoch_secs"
+    private const val KEY_PENDING_NOTIFICATION_LOGS_NEWEST_FIRST =
+        "pending_notification_logs_newest_first"
+    private const val KEY_UNSEEN_LOGS_NEWEST_FIRST = "unseen_logs_newest_first"
+    private const val KEY_OLD_LOGS_NEWEST_FIRST = "old_logs_newest_first"
     private val userUpdateListeners = mutableListOf<WeakReference<UserUpdateListener>>()
 
     fun getUser(context: Context): User {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val defaults = UserFactory.createUser(Difficulty.EASY)
+
+        val isNewUser = (prefs.getString(KEY_ACTIVE_PLAY_TIMER_SERIALIZED, "notfound") == "notfound")
+
         val activePlayTimerSerialized = prefs.getString(
             KEY_ACTIVE_PLAY_TIMER_SERIALIZED,
             defaults.activePlayTimerSerialized
         ) ?: defaults.activePlayTimerSerialized
+
+
         val reviewTimerSerialized = prefs.getString(
             KEY_REVIEW_TIMER_SERIALIZED,
             defaults.nextPenaltyTimerSerialized
@@ -72,6 +84,18 @@ object UserStorage {
         } else {
             Optional.of(localStorageSnapshot)
         }
+        val pendingNotificationLogsNewestFirst = deserializeLogList(
+            prefs.getString(KEY_PENDING_NOTIFICATION_LOGS_NEWEST_FIRST, null),
+            defaults.pendingNotificationLogsNewestFirst
+        )
+        val unseenLogsNewestFirst = deserializeLogList(
+            prefs.getString(KEY_UNSEEN_LOGS_NEWEST_FIRST, null),
+            defaults.unseenLogsNewestFirst
+        )
+        val oldLogsNewestFirst = deserializeLogList(
+            prefs.getString(KEY_OLD_LOGS_NEWEST_FIRST, null),
+            defaults.oldLogsNewestFirst
+        )
         val eventsLastProcessedInclusiveEpochSecs = if (
             prefs.contains(KEY_EVENTS_LAST_PROCESSED_INCLUSIVE_EPOCH_SECS)
         ) {
@@ -94,7 +118,14 @@ object UserStorage {
             sleepEndMinutes = sleepEndMinutes,
             difficulty = difficulty,
             localStorageSnapshot = localStorageOptional,
-            eventsLastProcessedInclusiveEpochSecs = eventsLastProcessedInclusiveEpochSecs
+            eventsLastProcessedInclusiveEpochSecs = eventsLastProcessedInclusiveEpochSecs,
+            pendingNotificationLogsNewestFirst = pendingNotificationLogsNewestFirst,
+            unseenLogsNewestFirst = unseenLogsNewestFirst,
+            oldLogsNewestFirst = if (isNewUser) {
+                listOf(Pair(WELCOME_MESSAGE, System.currentTimeMillis()))
+            } else {
+                oldLogsNewestFirst
+            }
         )
     }
 
@@ -125,6 +156,18 @@ object UserStorage {
         editor.putLong(
             KEY_EVENTS_LAST_PROCESSED_INCLUSIVE_EPOCH_SECS,
             user.eventsLastProcessedInclusiveEpochSecs
+        )
+        editor.putString(
+            KEY_PENDING_NOTIFICATION_LOGS_NEWEST_FIRST,
+            serializeLogList(user.pendingNotificationLogsNewestFirst)
+        )
+        editor.putString(
+            KEY_UNSEEN_LOGS_NEWEST_FIRST,
+            serializeLogList(user.unseenLogsNewestFirst)
+        )
+        editor.putString(
+            KEY_OLD_LOGS_NEWEST_FIRST,
+            serializeLogList(user.oldLogsNewestFirst)
         )
         if (user.pausedTimerSerialized.isPresent) {
             editor.putString(KEY_PAUSED_TIMER_SERIALIZED, user.pausedTimerSerialized.get())
@@ -174,8 +217,44 @@ object UserStorage {
         }
     }
 
+    private fun serializeLogList(logs: List<Pair<String, Long>>): String {
+        val array = JSONArray()
+        for (log in logs) {
+            val item = JSONObject()
+            item.put("text", log.first)
+            item.put("epochSecs", log.second)
+            array.put(item)
+        }
+        return array.toString()
+    }
+
+    private fun deserializeLogList(
+        raw: String?,
+        fallback: List<Pair<String, Long>>
+    ): List<Pair<String, Long>> {
+        if (raw.isNullOrBlank()) {
+            return fallback
+        }
+        return try {
+            val array = JSONArray(raw)
+            val logs = ArrayList<Pair<String, Long>>(array.length())
+            for (index in 0 until array.length()) {
+                val item = array.optJSONObject(index) ?: continue
+                val text = item.optString("text", "")
+                val epochSecs = item.optLong("epochSecs", 0L)
+                logs.add(Pair(text, epochSecs))
+            }
+            logs
+        } catch (ex: JSONException) {
+            fallback
+        }
+    }
+
     interface UserUpdateListener {
         fun onUserUpdated(user: User)
     }
+
+    private const val WELCOME_MESSAGE =
+        "👋 Welcome to MindWarrior game! 🥷 Tap 🧪 to enter your Formula of Firm Resolution and start playing!"
 
 }

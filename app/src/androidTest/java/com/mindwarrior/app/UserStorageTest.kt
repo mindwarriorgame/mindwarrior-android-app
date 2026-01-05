@@ -42,7 +42,18 @@ class UserStorageTest {
             sleepEndMinutes = 6 * 60,
             difficulty = Difficulty.HARD,
             localStorageSnapshot = Optional.of("{\"a\":\"b\"}"),
-            eventsLastProcessedInclusiveEpochSecs = 1712345678L
+            eventsLastProcessedInclusiveEpochSecs = 1712345678L,
+            pendingNotificationLogsNewestFirst = listOf(
+                Pair("{\"log\":\"pending1\"}", 1712300000L),
+                Pair("{\"log\":\"pending2\"}", 1712300001L)
+            ),
+            unseenLogsNewestFirst = listOf(
+                Pair("{\"log\":\"unseen\"}", 1712311111L)
+            ),
+            oldLogsNewestFirst = listOf(
+                Pair("{\"log\":\"old1\"}", 1712322222L),
+                Pair("{\"log\":\"old2\"}", 1712323333L)
+            )
         )
 
         UserStorage.upsertUser(context, user)
@@ -66,7 +77,10 @@ class UserStorageTest {
             sleepEndMinutes = 7 * 60,
             difficulty = Difficulty.BEGINNER,
             localStorageSnapshot = Optional.empty(),
-            eventsLastProcessedInclusiveEpochSecs = 1712000000L
+            eventsLastProcessedInclusiveEpochSecs = 1712000000L,
+            pendingNotificationLogsNewestFirst = emptyList(),
+            unseenLogsNewestFirst = emptyList(),
+            oldLogsNewestFirst = emptyList()
         )
 
         UserStorage.upsertUser(context, user)
@@ -99,7 +113,10 @@ class UserStorageTest {
         assertEquals(7 * 60, loaded.sleepEndMinutes)
         assertEquals(Difficulty.EASY, loaded.difficulty)
         assertTrue(!loaded.localStorageSnapshot.isPresent)
-        assertEquals(0L, loaded.eventsLastProcessedInclusiveEpochSecs)
+        assertTrue(loaded.eventsLastProcessedInclusiveEpochSecs > 0L)
+        assertEquals(emptyList<Pair<String, Long>>(), loaded.pendingNotificationLogsNewestFirst)
+        assertEquals(emptyList<Pair<String, Long>>(), loaded.unseenLogsNewestFirst)
+        assertEquals(emptyList<Pair<String, Long>>(), loaded.oldLogsNewestFirst)
     }
 
     @Test

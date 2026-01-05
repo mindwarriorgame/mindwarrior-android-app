@@ -21,7 +21,11 @@ data class User(
     var sleepEndMinutes: Int,
     var difficulty: Difficulty,
     var localStorageSnapshot: Optional<String>,
-    var eventsLastProcessedInclusiveEpochSecs: Long
+    var eventsLastProcessedInclusiveEpochSecs: Long,
+
+    val pendingNotificationLogsNewestFirst: List<Pair<String, Long>>,
+    val unseenLogsNewestFirst: List<Pair<String, Long>>,
+    val oldLogsNewestFirst: List<Pair<String, Long>>
 )
 
 object UserFactory {
@@ -44,7 +48,10 @@ object UserFactory {
             sleepEndMinutes = 7 * 60,
             difficulty = difficulty,
             localStorageSnapshot = Optional.empty(),
-            eventsLastProcessedInclusiveEpochSecs = System.currentTimeMillis() / 1000L
+            eventsLastProcessedInclusiveEpochSecs = System.currentTimeMillis() / 1000L,
+            pendingNotificationLogsNewestFirst = emptyList(),
+            unseenLogsNewestFirst = emptyList(),
+            oldLogsNewestFirst = emptyList()
         )
     }
 }
