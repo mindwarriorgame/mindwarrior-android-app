@@ -24,7 +24,6 @@ import kotlin.math.max
 object OneOffAlertController {
     private const val PREFS_NAME = "mindwarrior_prefs"
     private const val KEY_NEXT_TRIGGER = "battle_next_trigger"
-    private const val KEY_NOTIFICATION_COUNT = "battle_notification_count"
     private const val KEY_PAUSED_REMAINING = "battle_timer_remaining"
 
     const val CHANNEL_ID = "battle_timer_channel"
@@ -94,9 +93,6 @@ object OneOffAlertController {
 
     fun handleAlarm(context: Context) {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        val count = prefs.getInt(KEY_NOTIFICATION_COUNT, 0) + 1
-        prefs.edit().putInt(KEY_NOTIFICATION_COUNT, count).apply()
-
         showNotification(context)
 
         val next = TimeHelperObject.currentTimeMillis() +
