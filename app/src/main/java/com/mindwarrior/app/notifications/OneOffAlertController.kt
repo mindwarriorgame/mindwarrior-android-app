@@ -169,9 +169,6 @@ object OneOffAlertController {
 
         notificationManager.notify(NOTIFICATION_ID, notification)
 
-        val uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
-        val ringtone = RingtoneManager.getRingtone(context, uri)
-        ringtone.play()
     }
 
     private fun createAlarmPendingIntent(context: Context): PendingIntent {
