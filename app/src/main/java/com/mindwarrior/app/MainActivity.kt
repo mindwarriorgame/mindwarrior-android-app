@@ -148,11 +148,6 @@ class MainActivity : AppCompatActivity() {
     private fun setupControls() {
         binding.pauseButton.setOnClickListener {
             val paused = viewModel.isPaused.value == true
-            if (paused) {
-                OneOffAlertController.resumeTimer(this)
-            } else {
-                OneOffAlertController.pauseTimer(this)
-            }
             updateUserPausedState(!paused)
         }
 

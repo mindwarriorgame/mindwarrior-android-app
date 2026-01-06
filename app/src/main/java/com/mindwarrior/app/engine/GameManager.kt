@@ -158,7 +158,10 @@ object GameManager {
     fun calculateNextAlertMillis(user: User): Long {
         var candidates: List<Long> = listOf()
         if (user.pausedTimerSerialized.isPresent) {
-            candidates = candidates + SleepUtils.calculateNextSleepEventMillisAt(System.currentTimeMillis(), user.sleepStartMinutes, user.sleepEndMinutes)
+            if (!user.nextSleepEventAtMillis.isPresent) {
+                return System.currentTimeMillis() + 5 * 365 * 24 * 3600 * 1000L;
+            }
+            candidates = candidates + user.nextSleepEventAtMillis.get()
         }
         val penaltyThreshold = DifficultyHelper.getReviewFrequencyMillis(user.difficulty)
         val penaltyTimerStartedAtMillis = System.currentTimeMillis() - Counter(user.nextPenaltyTimerSerialized).getTotalSeconds() * 1000
