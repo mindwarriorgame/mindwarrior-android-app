@@ -29,15 +29,6 @@ object SleepUtils {
         }
     }
 
-    fun calculateNextSleepEventMillis(sleepStartMinutes: Int,
-                                      sleepEndMinutes: Int): Long {
-        return calculateNextSleepEventMillisAt(
-            java.util.Calendar.getInstance().timeInMillis,
-            sleepStartMinutes,
-            sleepEndMinutes
-        )
-    }
-
     fun calculateNextSleepEventMillisAt(
         nowMillis: Long,
         sleepStartMinutes: Int,

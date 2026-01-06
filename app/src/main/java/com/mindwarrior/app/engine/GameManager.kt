@@ -110,7 +110,88 @@ object GameManager {
     }
 
     fun evaluateAlerts(user: User): User {
-        throw RuntimeException("TODO")
+        if (user.nextSleepEventAtMillis.isPresent && user.nextSleepEventAtMillis.get() < System.currentTimeMillis()) {
+            return handleAutoSleepEvent(user)
+        }
+
+        if (user.pausedTimerSerialized.isPresent) {
+            return user
+        }
+
+        val penaltyThreshold = DifficultyHelper.getReviewFrequencyMillis(user.difficulty)
+        val penaltyTimerStartedAtMillis = System.currentTimeMillis() - Counter(user.nextPenaltyTimerSerialized).getTotalSeconds() * 1000
+
+        if (user.nextAlertType == AlertType.Reminder) {
+            val nudgeThreshold = penaltyThreshold - 15 * 60 * 1000
+
+            val nudgeThesholdAtMsecs = penaltyTimerStartedAtMillis + nudgeThreshold
+
+            if (nudgeThesholdAtMsecs < System.currentTimeMillis()) {
+                return user.copy(
+                    nextAlertType = AlertType.Penalty,
+                    pendingNotificationLogsNewestFirst = listOf(
+                        Pair("⏰ Don't forget to review your formula!", System.currentTimeMillis())
+                    ) + user.pendingNotificationLogsNewestFirst
+                )
+            }
+        }
+
+        if (user.nextAlertType == AlertType.Penalty
+            && (penaltyTimerStartedAtMillis + penaltyThreshold) < System.currentTimeMillis()
+        ) {
+            return user.copy(
+                nextAlertType = if (DifficultyHelper.hasNudge(user.difficulty)) {
+                    AlertType.Reminder
+                } else {
+                    AlertType.Penalty
+                },
+                nextPenaltyTimerSerialized = Counter(null).serialize(),
+                pendingNotificationLogsNewestFirst = listOf(
+                    Pair("🟥 have missed the review!", System.currentTimeMillis())
+                ) + user.pendingNotificationLogsNewestFirst
+            )
+        }
+
+        return user
+    }
+
+    private fun handleAutoSleepEvent(user: User): User {
+        val nextSleepEventAtMillis = Optional.of(
+            SleepUtils.calculateNextSleepEventMillisAt(
+                System.currentTimeMillis(),
+                user.sleepStartMinutes,
+                user.sleepEndMinutes
+            )
+        )
+        if (SleepUtils.isNowInsideSleepInterval(user.sleepStartMinutes, user.sleepEndMinutes)
+            && !user.pausedTimerSerialized.isPresent
+        ) {
+            return user.copy(
+                pausedTimerSerialized = Optional.of(Counter(null).resume().serialize()),
+                activePlayTimerSerialized = Counter(user.activePlayTimerSerialized).pause().serialize(),
+                nextPenaltyTimerSerialized = Counter(user.nextPenaltyTimerSerialized).pause().serialize(),
+                nextSleepEventAtMillis = nextSleepEventAtMillis,
+                pendingNotificationLogsNewestFirst = listOf(
+                    Pair("💤 Time to sleep. The game is automatically paused ⏸️", System.currentTimeMillis())
+                ) + user.pendingNotificationLogsNewestFirst
+            )
+        }
+        if (!SleepUtils.isNowInsideSleepInterval(user.sleepStartMinutes, user.sleepEndMinutes)
+            && user.pausedTimerSerialized.isPresent
+        ) {
+            return user.copy(
+                pausedTimerSerialized = Optional.empty(),
+                activePlayTimerSerialized = Counter(user.activePlayTimerSerialized).resume().serialize(),
+                nextPenaltyTimerSerialized = Counter(user.nextPenaltyTimerSerialized).resume().serialize(),
+                nextSleepEventAtMillis = nextSleepEventAtMillis,
+                pendingNotificationLogsNewestFirst = listOf(
+                    Pair("☀️ Good morning! The game is resumed ▶️", System.currentTimeMillis())
+                ) + user.pendingNotificationLogsNewestFirst
+            )
+        }
+        return user.copy(
+            nextSleepEventAtMillis = nextSleepEventAtMillis
+        )
     }
 
     fun calculateNextDeadlineAtMillis(user: User): Long {

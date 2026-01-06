@@ -39,7 +39,11 @@ object UserFactory {
             activePlayTimerSerialized = activePlayTimer.serialize(),
             lastRewardAtActivePlayTime = 0L,
             nextPenaltyTimerSerialized = reviewTimerSerialized.serialize(),
-            nextAlertType = AlertType.Reminder,
+            nextAlertType = if (DifficultyHelper.hasNudge(difficulty)) {
+                AlertType.Reminder
+            } else {
+                AlertType.Penalty
+            },
             timerForegroundEnabled = false,
             nextSleepEventAtMillis = Optional.empty(),
             sleepStartMinutes = 23 * 60,
