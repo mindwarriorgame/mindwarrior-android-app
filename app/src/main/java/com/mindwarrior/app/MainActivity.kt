@@ -8,6 +8,9 @@ import com.mindwarrior.app.databinding.ActivityMainBinding
 import android.graphics.Rect
 import android.Manifest
 import android.content.pm.PackageManager
+import android.text.InputType
+import android.widget.EditText
+import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.appcompat.app.AlertDialog
@@ -93,6 +96,10 @@ class MainActivity : AppCompatActivity() {
             binding.menuPanel.visibility = android.view.View.GONE
             startActivity(android.content.Intent(this, SettingsActivity::class.java))
         }
+        binding.menuDebug.setOnClickListener {
+            binding.menuPanel.visibility = android.view.View.GONE
+            showTimeTravelDialog()
+        }
         binding.menuSleep.setOnClickListener {
             binding.menuPanel.visibility = android.view.View.GONE
             startActivity(android.content.Intent(this, SleepSchedulerActivity::class.java))
@@ -106,7 +113,8 @@ class MainActivity : AppCompatActivity() {
                 binding.menuSleep,
                 binding.menuProgress,
                 binding.menuDifficulty,
-                binding.menuSettings
+                binding.menuSettings,
+                binding.menuDebug
             )
             val panelLocation = IntArray(2)
             binding.menuPanel.getLocationOnScreen(panelLocation)
@@ -184,6 +192,33 @@ class MainActivity : AppCompatActivity() {
             )
             startActivity(intent)
         }
+    }
+
+    private fun showTimeTravelDialog() {
+        val input = EditText(this)
+        input.hint = getString(R.string.debug_time_travel_hint)
+        input.inputType = InputType.TYPE_CLASS_NUMBER
+        AlertDialog.Builder(this)
+            .setTitle(R.string.debug_time_travel_title)
+            .setView(input)
+            .setPositiveButton(R.string.debug_time_travel_button) { _, _ ->
+                val minutes = input.text.toString().trim().toLongOrNull()
+                if (minutes == null || minutes <= 0L) {
+                    Toast.makeText(this, R.string.debug_time_travel_invalid, Toast.LENGTH_SHORT).show()
+                    return@setPositiveButton
+                }
+                NowProvider.moveTimeForwardMins(minutes)
+                val user = UserStorage.getUser(this)
+                OneOffAlertController.scheduleNextAlert(this, user)
+                viewModel.refreshTimerDisplay()
+                Toast.makeText(
+                    this,
+                    "Time moved forward by $minutes minutes",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
     }
 
     private fun updatePauseUi(paused: Boolean) {

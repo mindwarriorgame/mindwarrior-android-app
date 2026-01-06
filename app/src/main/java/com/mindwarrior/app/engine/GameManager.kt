@@ -1,5 +1,6 @@
 package com.mindwarrior.app.engine
 
+import com.mindwarrior.app.NowProvider
 import java.util.Optional
 import org.json.JSONObject
 
@@ -29,7 +30,7 @@ object GameManager {
         val nextSleepEventAtMillis = if (draftEnabled) {
             Optional.of(
                 SleepUtils.calculateNextSleepEventMillisAt(
-                    System.currentTimeMillis(),
+                    NowProvider.nowMillis(),
                     draftStartMinutes,
                     draftEndMinutes
                 )
@@ -91,7 +92,7 @@ object GameManager {
             unseenLogsNewestFirst = listOf(
                 Pair(
                     "The game has started! Don't forget to review your Formula before the time runs out!",
-                    System.currentTimeMillis()
+                    NowProvider.nowMillis()
                 )
             ) + user.unseenLogsNewestFirst
         )
@@ -110,7 +111,9 @@ object GameManager {
     }
 
     fun evaluateAlerts(user: User): User {
-        if (user.nextSleepEventAtMillis.isPresent && user.nextSleepEventAtMillis.get() < System.currentTimeMillis()) {
+        if (user.nextSleepEventAtMillis.isPresent &&
+            user.nextSleepEventAtMillis.get() < NowProvider.nowMillis()
+        ) {
             return handleAutoSleepEvent(user)
         }
 
@@ -119,25 +122,26 @@ object GameManager {
         }
 
         val penaltyThreshold = DifficultyHelper.getReviewFrequencyMillis(user.difficulty)
-        val penaltyTimerStartedAtMillis = System.currentTimeMillis() - Counter(user.nextPenaltyTimerSerialized).getTotalSeconds() * 1000
+        val penaltyTimerStartedAtMillis =
+            NowProvider.nowMillis() - Counter(user.nextPenaltyTimerSerialized).getTotalSeconds() * 1000
 
         if (user.nextAlertType == AlertType.Reminder) {
             val nudgeThreshold = penaltyThreshold - 15 * 60 * 1000
 
             val nudgeThesholdAtMsecs = penaltyTimerStartedAtMillis + nudgeThreshold
 
-            if (nudgeThesholdAtMsecs < System.currentTimeMillis()) {
+            if (nudgeThesholdAtMsecs < NowProvider.nowMillis()) {
                 return user.copy(
                     nextAlertType = AlertType.Penalty,
                     pendingNotificationLogsNewestFirst = listOf(
-                        Pair("⏰ Don't forget to review your formula!", System.currentTimeMillis())
+                        Pair("⏰ Don't forget to review your formula!", NowProvider.nowMillis())
                     ) + user.pendingNotificationLogsNewestFirst
                 )
             }
         }
 
         if (user.nextAlertType == AlertType.Penalty
-            && (penaltyTimerStartedAtMillis + penaltyThreshold) < System.currentTimeMillis()
+            && (penaltyTimerStartedAtMillis + penaltyThreshold) < NowProvider.nowMillis()
         ) {
             return user.copy(
                 nextAlertType = if (DifficultyHelper.hasNudge(user.difficulty)) {
@@ -145,9 +149,9 @@ object GameManager {
                 } else {
                     AlertType.Penalty
                 },
-                nextPenaltyTimerSerialized = Counter(null).serialize(),
+                nextPenaltyTimerSerialized = Counter(null).resume().serialize(),
                 pendingNotificationLogsNewestFirst = listOf(
-                    Pair("🟥 have missed the review!", System.currentTimeMillis())
+                    Pair("🟥 have missed the review!", NowProvider.nowMillis())
                 ) + user.pendingNotificationLogsNewestFirst
             )
         }
@@ -159,12 +163,13 @@ object GameManager {
         var candidates: List<Long> = listOf()
         if (user.pausedTimerSerialized.isPresent) {
             if (!user.nextSleepEventAtMillis.isPresent) {
-                return System.currentTimeMillis() + 5 * 365 * 24 * 3600 * 1000L;
+                return NowProvider.nowMillis() + 5 * 365 * 24 * 3600 * 1000L
             }
             candidates = candidates + user.nextSleepEventAtMillis.get()
         }
         val penaltyThreshold = DifficultyHelper.getReviewFrequencyMillis(user.difficulty)
-        val penaltyTimerStartedAtMillis = System.currentTimeMillis() - Counter(user.nextPenaltyTimerSerialized).getTotalSeconds() * 1000
+        val penaltyTimerStartedAtMillis =
+            NowProvider.nowMillis() - Counter(user.nextPenaltyTimerSerialized).getTotalSeconds() * 1000
 
         if (user.nextAlertType == AlertType.Reminder) {
             val nudgeThreshold = penaltyThreshold - 15 * 60 * 1000
@@ -180,7 +185,7 @@ object GameManager {
     private fun handleAutoSleepEvent(user: User): User {
         val nextSleepEventAtMillis = Optional.of(
             SleepUtils.calculateNextSleepEventMillisAt(
-                System.currentTimeMillis(),
+                NowProvider.nowMillis(),
                 user.sleepStartMinutes,
                 user.sleepEndMinutes
             )
@@ -194,7 +199,7 @@ object GameManager {
                 nextPenaltyTimerSerialized = Counter(user.nextPenaltyTimerSerialized).pause().serialize(),
                 nextSleepEventAtMillis = nextSleepEventAtMillis,
                 pendingNotificationLogsNewestFirst = listOf(
-                    Pair("💤 Time to sleep. The game is automatically paused ⏸️", System.currentTimeMillis())
+                    Pair("💤 Time to sleep. The game is automatically paused ⏸️", NowProvider.nowMillis())
                 ) + user.pendingNotificationLogsNewestFirst
             )
         }
@@ -207,7 +212,7 @@ object GameManager {
                 nextPenaltyTimerSerialized = Counter(user.nextPenaltyTimerSerialized).resume().serialize(),
                 nextSleepEventAtMillis = nextSleepEventAtMillis,
                 pendingNotificationLogsNewestFirst = listOf(
-                    Pair("☀️ Good morning! The game is resumed ▶️", System.currentTimeMillis())
+                    Pair("☀️ Good morning! The game is resumed ▶️", NowProvider.nowMillis())
                 ) + user.pendingNotificationLogsNewestFirst
             )
         }
@@ -217,7 +222,7 @@ object GameManager {
     }
 
     fun calculateNextDeadlineAtMillis(user: User): Long {
-        return System.currentTimeMillis() +
+        return NowProvider.nowMillis() +
             DifficultyHelper.getReviewFrequencyMillis(user.difficulty) -
                 Counter(user.nextPenaltyTimerSerialized).getTotalSeconds() * 1000
     }

@@ -1,10 +1,14 @@
 package com.mindwarrior.app.engine
 
+import com.mindwarrior.app.NowProvider
+
 object SleepUtils {
 
     fun isNowInsideSleepInterval(sleepStartMinutes: Int, sleepEndMinutes: Int): Boolean {
         val minutesInDay = 24 * 60
-        val calendar = java.util.Calendar.getInstance()
+        val calendar = java.util.Calendar.getInstance().apply {
+            timeInMillis = NowProvider.nowMillis()
+        }
         val nowMinutes = calendar.get(java.util.Calendar.HOUR_OF_DAY) * 60 +
             calendar.get(java.util.Calendar.MINUTE)
         return isInsideSleepInterval(nowMinutes, sleepStartMinutes, sleepEndMinutes)

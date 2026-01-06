@@ -9,6 +9,11 @@
     <string name="menu_progress">📈 View Progress</string>
     <string name="menu_difficulty">💪 Difficulty: %1$s</string>
     <string name="menu_settings">⚙️ Settings</string>
+    <string name="menu_debug">⏩ Debug time travel</string>
+    <string name="debug_time_travel_title">Move time forward (minutes)</string>
+    <string name="debug_time_travel_hint">Minutes</string>
+    <string name="debug_time_travel_button">Move</string>
+    <string name="debug_time_travel_invalid">Enter a positive number of minutes</string>
     <string name="timer_text">02:14:36</string>
     <string name="pause_button_pause">⏸</string>
     <string name="pause_button_resume">▶️</string>

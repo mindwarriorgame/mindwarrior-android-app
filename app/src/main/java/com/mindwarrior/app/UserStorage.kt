@@ -116,7 +116,7 @@ object UserStorage {
             pendingNotificationLogsNewestFirst = pendingNotificationLogsNewestFirst,
             unseenLogsNewestFirst = unseenLogsNewestFirst,
             oldLogsNewestFirst = if (isNewUser) {
-                listOf(Pair(WELCOME_MESSAGE, System.currentTimeMillis()))
+                listOf(Pair(WELCOME_MESSAGE, NowProvider.nowMillis()))
             } else {
                 oldLogsNewestFirst
             }

@@ -13,23 +13,26 @@ import com.mindwarrior.app.notifications.OneOffAlertController
 
 class MindWarriorApplication : Application() {
 
+    val updater = object : UserStorage.UserUpdateListener {
+        override fun onUserUpdated(user: User) {
+            if (user.pendingNotificationLogsNewestFirst.isNotEmpty()) {
+                val pending = user.pendingNotificationLogsNewestFirst
+                showNotification(pending.first().first)
+                val updated = user.copy(
+                    pendingNotificationLogsNewestFirst = emptyList(),
+                    unseenLogsNewestFirst = pending + user.unseenLogsNewestFirst
+                )
+                UserStorage.upsertUser(applicationContext, updated)
+                return
+            }
+            OneOffAlertController.scheduleNextAlert(applicationContext, user)
+        }
+    }
+
     override fun onCreate() {
         super.onCreate()
-        UserStorage.observeUserChanges(this, object : UserStorage.UserUpdateListener {
-            override fun onUserUpdated(user: User) {
-                if (user.pendingNotificationLogsNewestFirst.isNotEmpty()) {
-                    val pending = user.pendingNotificationLogsNewestFirst
-                    showNotification(pending.first().first)
-                    val updated = user.copy(
-                        pendingNotificationLogsNewestFirst = emptyList(),
-                        unseenLogsNewestFirst = pending + user.unseenLogsNewestFirst
-                    )
-                    UserStorage.upsertUser(applicationContext, updated)
-                    return
-                }
-                OneOffAlertController.scheduleNextAlert(applicationContext, user)
-            }
-        })
+        NowProvider.init(this)
+        UserStorage.observeUserChanges(this, updater)
     }
 
     private fun showNotification(message: String) {
