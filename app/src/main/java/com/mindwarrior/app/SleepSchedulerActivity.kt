@@ -20,7 +20,7 @@ class SleepSchedulerActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         val user = UserStorage.getUser(this)
-        draftEnabled = user.sleepEnabled
+        draftEnabled = user.nextSleepEventAtMillis.isPresent
         draftStartMinutes = user.sleepStartMinutes
         draftEndMinutes = user.sleepEndMinutes
 

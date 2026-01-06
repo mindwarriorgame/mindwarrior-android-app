@@ -123,7 +123,7 @@ class GameManagerTest {
 
         val updated = GameManager.onSleepScheduleChanged(user, true, 22 * 60, 6 * 60)
 
-        assertTrue(updated.sleepEnabled)
+        assertTrue(updated.nextSleepEventAtMillis.isPresent)
         assertEquals(22 * 60, updated.sleepStartMinutes)
         assertEquals(6 * 60, updated.sleepEndMinutes)
     }

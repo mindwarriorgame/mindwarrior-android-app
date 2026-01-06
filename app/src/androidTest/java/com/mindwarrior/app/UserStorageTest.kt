@@ -37,7 +37,7 @@ class UserStorageTest {
             nextPenaltyTimerSerialized = "{\"is_active\":false}",
             nextAlertType = AlertType.Reminder,
             timerForegroundEnabled = true,
-            sleepEnabled = true,
+            nextSleepEventAtMillis = Optional.of(123456789L),
             sleepStartMinutes = 22 * 60,
             sleepEndMinutes = 6 * 60,
             difficulty = Difficulty.HARD,
@@ -71,7 +71,7 @@ class UserStorageTest {
             nextPenaltyTimerSerialized = "{\"is_active\":false}",
             nextAlertType = AlertType.Penalty,
             timerForegroundEnabled = false,
-            sleepEnabled = false,
+            nextSleepEventAtMillis = Optional.empty(),
             sleepStartMinutes = 23 * 60,
             sleepEndMinutes = 7 * 60,
             difficulty = Difficulty.BEGINNER,
@@ -106,7 +106,7 @@ class UserStorageTest {
         assertEquals(AlertType.Reminder, loaded.nextAlertType)
         assertTrue(loaded.pausedTimerSerialized.isPresent)
         assertTrue(!loaded.timerForegroundEnabled)
-        assertTrue(!loaded.sleepEnabled)
+        assertTrue(!loaded.nextSleepEventAtMillis.isPresent)
         assertEquals(23 * 60, loaded.sleepStartMinutes)
         assertEquals(7 * 60, loaded.sleepEndMinutes)
         assertEquals(Difficulty.EASY, loaded.difficulty)

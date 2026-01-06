@@ -26,8 +26,19 @@ object GameManager {
         draftStartMinutes: Int,
         draftEndMinutes: Int
     ): User {
+        val nextSleepEventAtMillis = if (draftEnabled) {
+            Optional.of(
+                SleepUtils.calculateNextSleepEventMillisAt(
+                    System.currentTimeMillis(),
+                    draftStartMinutes,
+                    draftEndMinutes
+                )
+            )
+        } else {
+            Optional.empty()
+        }
         return user.copy(
-            sleepEnabled = draftEnabled,
+            nextSleepEventAtMillis = nextSleepEventAtMillis,
             sleepStartMinutes = draftStartMinutes,
             sleepEndMinutes = draftEndMinutes
         )
@@ -96,6 +107,10 @@ object GameManager {
             unseenLogsNewestFirst = emptyList(),
             oldLogsNewestFirst = mergedLogs
         )
+    }
+
+    fun evaluateAlerts(user: User): User {
+        throw RuntimeException("TODO")
     }
 
     fun calculateNextDeadlineAtMillis(user: User): Long {

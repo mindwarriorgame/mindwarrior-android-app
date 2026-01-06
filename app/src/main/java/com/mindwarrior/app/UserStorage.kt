@@ -19,7 +19,7 @@ object UserStorage {
     private const val KEY_REVIEW_TIMER_SERIALIZED = "review_timer_serialized"
     private const val KEY_NEXT_ALERT_TYPE = "next_alert_type"
     private const val KEY_TIMER_FOREGROUND_ENABLED = "timer_foreground_enabled"
-    private const val KEY_SLEEP_ENABLED = "sleep_enabled"
+    private const val KEY_NEXT_SLEEP_EVENT_AT_MILLIS = "next_sleep_event_at_millis"
     private const val KEY_SLEEP_START_MINUTES = "sleep_start_minutes"
     private const val KEY_SLEEP_END_MINUTES = "sleep_end_minutes"
     private const val KEY_DIFFICULTY = "difficulty"
@@ -71,7 +71,11 @@ object UserStorage {
             KEY_TIMER_FOREGROUND_ENABLED,
             defaults.timerForegroundEnabled
         )
-        val sleepEnabled = prefs.getBoolean(KEY_SLEEP_ENABLED, defaults.sleepEnabled)
+        val nextSleepEventAtMillis = if (prefs.contains(KEY_NEXT_SLEEP_EVENT_AT_MILLIS)) {
+            Optional.of(prefs.getLong(KEY_NEXT_SLEEP_EVENT_AT_MILLIS, 0L))
+        } else {
+            Optional.empty()
+        }
         val sleepStartMinutes = prefs.getInt(KEY_SLEEP_START_MINUTES, defaults.sleepStartMinutes)
         val sleepEndMinutes = prefs.getInt(KEY_SLEEP_END_MINUTES, defaults.sleepEndMinutes)
         val difficultyId = prefs.getString(KEY_DIFFICULTY, defaults.difficulty.id)
@@ -101,7 +105,7 @@ object UserStorage {
             nextPenaltyTimerSerialized = reviewTimerSerialized,
             nextAlertType = nextAlertType,
             timerForegroundEnabled = timerForegroundEnabled,
-            sleepEnabled = sleepEnabled,
+            nextSleepEventAtMillis = nextSleepEventAtMillis,
             sleepStartMinutes = sleepStartMinutes,
             sleepEndMinutes = sleepEndMinutes,
             difficulty = difficulty,
@@ -131,7 +135,11 @@ object UserStorage {
         editor.putLong(KEY_LAST_REWARD_AT_ACTIVE_PLAY_TIME, user.lastRewardAtActivePlayTime)
         editor.putString(KEY_NEXT_ALERT_TYPE, user.nextAlertType.name)
         editor.putBoolean(KEY_TIMER_FOREGROUND_ENABLED, user.timerForegroundEnabled)
-        editor.putBoolean(KEY_SLEEP_ENABLED, user.sleepEnabled)
+        if (user.nextSleepEventAtMillis.isPresent) {
+            editor.putLong(KEY_NEXT_SLEEP_EVENT_AT_MILLIS, user.nextSleepEventAtMillis.get())
+        } else {
+            editor.remove(KEY_NEXT_SLEEP_EVENT_AT_MILLIS)
+        }
         editor.putInt(KEY_SLEEP_START_MINUTES, user.sleepStartMinutes)
         editor.putInt(KEY_SLEEP_END_MINUTES, user.sleepEndMinutes)
         editor.putString(KEY_DIFFICULTY, user.difficulty.id)
