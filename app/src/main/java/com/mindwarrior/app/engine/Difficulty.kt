@@ -22,4 +22,14 @@ object DifficultyHelper {
         }
         return minutes * 60_000L
     }
+
+    fun hasNudge(difficulty: Difficulty): Boolean {
+        return when (difficulty) {
+            Difficulty.BEGINNER -> true
+            Difficulty.EASY -> true
+            Difficulty.MEDIUM -> true
+            Difficulty.HARD -> false
+            Difficulty.EXPORT -> false
+        }
+    }
 }
