@@ -7,6 +7,7 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.util.Calendar
 
 @RunWith(AndroidJUnit4::class)
 class GameManagerTest {
@@ -126,5 +127,140 @@ class GameManagerTest {
         assertTrue(updated.nextSleepEventAtMillis.isPresent)
         assertEquals(22 * 60, updated.sleepStartMinutes)
         assertEquals(6 * 60, updated.sleepEndMinutes)
+    }
+
+    @Test
+    fun evaluateAlertsReturnsUnchangedWhenPaused() {
+        val user = userWithElapsedMinutes(
+            elapsedMinutes = 200,
+            difficulty = Difficulty.EASY,
+            nextAlertType = AlertType.Reminder,
+            paused = true
+        )
+
+        val updated = GameManager.evaluateAlerts(user)
+
+        assertEquals(user, updated)
+    }
+
+    @Test
+    fun evaluateAlertsAddsNudgeWhenThresholdReached() {
+        val user = userWithElapsedMinutes(
+            elapsedMinutes = 170,
+            difficulty = Difficulty.EASY,
+            nextAlertType = AlertType.Reminder,
+            paused = false
+        )
+
+        val updated = GameManager.evaluateAlerts(user)
+
+        assertEquals(AlertType.Penalty, updated.nextAlertType)
+        assertTrue(updated.pendingNotificationLogsNewestFirst.isNotEmpty())
+    }
+
+    @Test
+    fun evaluateAlertsAddsPenaltyWhenOverdue() {
+        val user = userWithElapsedMinutes(
+            elapsedMinutes = 190,
+            difficulty = Difficulty.EASY,
+            nextAlertType = AlertType.Penalty,
+            paused = false
+        )
+
+        val updated = GameManager.evaluateAlerts(user)
+
+        assertEquals(AlertType.Reminder, updated.nextAlertType)
+        assertTrue(updated.pendingNotificationLogsNewestFirst.isNotEmpty())
+        assertFalse(user.nextPenaltyTimerSerialized == updated.nextPenaltyTimerSerialized)
+    }
+
+    @Test
+    fun evaluateAlertsSkipsNudgeWhenNotSupported() {
+        val user = userWithElapsedMinutes(
+            elapsedMinutes = 70,
+            difficulty = Difficulty.HARD,
+            nextAlertType = AlertType.Penalty,
+            paused = false
+        )
+
+        val updated = GameManager.evaluateAlerts(user)
+
+        assertEquals(updated.pendingNotificationLogsNewestFirst[0].first, "\uD83D\uDFE5 have missed the review!")
+        assertEquals(updated.nextAlertType, AlertType.Penalty)
+    }
+
+    @Test
+    fun evaluateAlertsHandlesSleepEventWhenInsideInterval() {
+        val nowMinutes = currentMinutesOfDay()
+        val start = normalizeMinutes(nowMinutes - 10)
+        val end = normalizeMinutes(nowMinutes + 10)
+        val user = userWithElapsedMinutes(
+            elapsedMinutes = 1,
+            difficulty = Difficulty.EASY,
+            nextAlertType = AlertType.Reminder,
+            paused = false
+        ).copy(
+            sleepStartMinutes = start,
+            sleepEndMinutes = end,
+            nextSleepEventAtMillis = Optional.of(System.currentTimeMillis() - 1)
+        )
+
+        val updated = GameManager.evaluateAlerts(user)
+
+        assertTrue(updated.pausedTimerSerialized.isPresent)
+        assertTrue(updated.nextSleepEventAtMillis.isPresent)
+        assertTrue(updated.pendingNotificationLogsNewestFirst.isNotEmpty())
+    }
+
+    @Test
+    fun evaluateAlertsHandlesSleepEventWhenOutsideInterval() {
+        val nowMinutes = currentMinutesOfDay()
+        val start = normalizeMinutes(nowMinutes + 10)
+        val end = normalizeMinutes(nowMinutes + 20)
+        val user = userWithElapsedMinutes(
+            elapsedMinutes = 1,
+            difficulty = Difficulty.EASY,
+            nextAlertType = AlertType.Reminder,
+            paused = true
+        ).copy(
+            sleepStartMinutes = start,
+            sleepEndMinutes = end,
+            nextSleepEventAtMillis = Optional.of(System.currentTimeMillis() - 1)
+        )
+
+        val updated = GameManager.evaluateAlerts(user)
+
+        assertFalse(updated.pausedTimerSerialized.isPresent)
+        assertTrue(updated.nextSleepEventAtMillis.isPresent)
+        assertTrue(updated.pendingNotificationLogsNewestFirst.isNotEmpty())
+    }
+
+    private fun userWithElapsedMinutes(
+        elapsedMinutes: Int,
+        difficulty: Difficulty,
+        nextAlertType: AlertType,
+        paused: Boolean
+    ): User {
+        val timer = Counter(null).resume().apply {
+            moveTimeBack(elapsedMinutes.toLong())
+            getTotalSeconds()
+        }.serialize()
+        val pausedTimer = if (paused) Optional.of(Counter(null).resume().serialize()) else Optional.empty()
+        return UserFactory.createUser(difficulty).copy(
+            pausedTimerSerialized = pausedTimer,
+            nextPenaltyTimerSerialized = timer,
+            nextAlertType = nextAlertType,
+            nextSleepEventAtMillis = Optional.empty()
+        )
+    }
+
+    private fun currentMinutesOfDay(): Int {
+        val calendar = Calendar.getInstance()
+        return calendar.get(Calendar.HOUR_OF_DAY) * 60 + calendar.get(Calendar.MINUTE)
+    }
+
+    private fun normalizeMinutes(minutes: Int): Int {
+        val minutesInDay = 24 * 60
+        return ((minutes % minutesInDay) + minutesInDay) % minutesInDay
     }
 }
