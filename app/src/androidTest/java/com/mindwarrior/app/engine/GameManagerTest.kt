@@ -235,6 +235,71 @@ class GameManagerTest {
         assertTrue(updated.pendingNotificationLogsNewestFirst.isNotEmpty())
     }
 
+    @Test
+    fun calculateNextAlertMillisReturnsNudgeForReminder() {
+        val nowMillis = System.currentTimeMillis()
+        val user = userWithElapsedMinutes(
+            elapsedMinutes = 10,
+            difficulty = Difficulty.EASY,
+            nextAlertType = AlertType.Reminder,
+            paused = false
+        )
+        val penaltyThreshold = DifficultyHelper.getReviewFrequencyMillis(user.difficulty)
+        val nudgeThreshold = penaltyThreshold - 15 * 60 * 1000
+        val penaltyTimerStartedAtMillis =
+            nowMillis - Counter(user.nextPenaltyTimerSerialized).getTotalSeconds() * 1000
+        val expected = penaltyTimerStartedAtMillis + nudgeThreshold
+
+        val actual = GameManager.calculateNextAlertMillis(user)
+
+        assertMillisClose(expected, actual)
+    }
+
+    @Test
+    fun calculateNextAlertMillisReturnsPenaltyForPenaltyAlertType() {
+        val nowMillis = System.currentTimeMillis()
+        val user = userWithElapsedMinutes(
+            elapsedMinutes = 10,
+            difficulty = Difficulty.EASY,
+            nextAlertType = AlertType.Penalty,
+            paused = false
+        )
+        val penaltyThreshold = DifficultyHelper.getReviewFrequencyMillis(user.difficulty)
+        val penaltyTimerStartedAtMillis =
+            nowMillis - Counter(user.nextPenaltyTimerSerialized).getTotalSeconds() * 1000
+        val expected = penaltyTimerStartedAtMillis + penaltyThreshold
+
+        val actual = GameManager.calculateNextAlertMillis(user)
+
+        assertMillisClose(expected, actual)
+    }
+
+    @Test
+    fun calculateNextAlertMillisPrefersSleepEventWhenPaused() {
+        val nowMillis = System.currentTimeMillis()
+        val nowMinutes = currentMinutesOfDay()
+        val start = normalizeMinutes(nowMinutes + 1)
+        val end = normalizeMinutes(nowMinutes + 2)
+        val user = userWithElapsedMinutes(
+            elapsedMinutes = 10,
+            difficulty = Difficulty.EASY,
+            nextAlertType = AlertType.Reminder,
+            paused = true
+        ).copy(
+            sleepStartMinutes = start,
+            sleepEndMinutes = end
+        )
+        val expected = SleepUtils.calculateNextSleepEventMillisAt(
+            nowMillis,
+            start,
+            end
+        )
+
+        val actual = GameManager.calculateNextAlertMillis(user)
+
+        assertMillisClose(expected, actual)
+    }
+
     private fun userWithElapsedMinutes(
         elapsedMinutes: Int,
         difficulty: Difficulty,
@@ -262,5 +327,11 @@ class GameManagerTest {
     private fun normalizeMinutes(minutes: Int): Int {
         val minutesInDay = 24 * 60
         return ((minutes % minutesInDay) + minutesInDay) % minutesInDay
+    }
+
+    private fun assertMillisClose(expected: Long, actual: Long) {
+        val toleranceMillis = 2_000L
+        val delta = kotlin.math.abs(expected - actual)
+        assertTrue("Expected $expected but was $actual", delta <= toleranceMillis)
     }
 }

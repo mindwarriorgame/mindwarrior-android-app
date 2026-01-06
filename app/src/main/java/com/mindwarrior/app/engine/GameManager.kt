@@ -155,6 +155,25 @@ object GameManager {
         return user
     }
 
+    fun calculateNextAlertMillis(user: User): Long {
+        var candidates: List<Long> = listOf()
+        if (user.pausedTimerSerialized.isPresent) {
+            candidates = candidates + SleepUtils.calculateNextSleepEventMillisAt(System.currentTimeMillis(), user.sleepStartMinutes, user.sleepEndMinutes)
+        }
+        val penaltyThreshold = DifficultyHelper.getReviewFrequencyMillis(user.difficulty)
+        val penaltyTimerStartedAtMillis = System.currentTimeMillis() - Counter(user.nextPenaltyTimerSerialized).getTotalSeconds() * 1000
+
+        if (user.nextAlertType == AlertType.Reminder) {
+            val nudgeThreshold = penaltyThreshold - 15 * 60 * 1000
+
+            candidates = candidates + (penaltyTimerStartedAtMillis + nudgeThreshold)
+        } else {
+            candidates = candidates + (penaltyTimerStartedAtMillis + penaltyThreshold)
+        }
+
+        return candidates.sorted().get(0)
+    }
+
     private fun handleAutoSleepEvent(user: User): User {
         val nextSleepEventAtMillis = Optional.of(
             SleepUtils.calculateNextSleepEventMillisAt(
