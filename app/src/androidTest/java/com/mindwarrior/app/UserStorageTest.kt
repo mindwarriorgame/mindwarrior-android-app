@@ -2,10 +2,14 @@ package com.mindwarrior.app
 
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
+import android.os.SystemClock
 import com.mindwarrior.app.engine.AlertType
 import com.mindwarrior.app.engine.Counter
 import com.mindwarrior.app.engine.Difficulty
+import com.mindwarrior.app.engine.GameManager
 import com.mindwarrior.app.engine.User
+import com.mindwarrior.app.engine.UserFactory
 import java.util.Optional
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -167,9 +171,56 @@ class UserStorageTest {
         assertFalse(loaded.pausedTimerSerialized.isPresent)
     }
 
+    @Test
+    fun getUserPersistsEvaluatedAlertsWhenChanged() {
+        val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        val elapsedMinutes = 1700
+        val timerSerialized = Counter(null).resume().apply {
+            moveTimeBack(elapsedMinutes.toLong())
+            getTotalSeconds()
+        }.serialize()
+        val user = UserFactory.createUser(Difficulty.EASY).copy(
+            pausedTimerSerialized = Optional.empty(),
+            nextPenaltyTimerSerialized = timerSerialized,
+            nextAlertType = AlertType.Reminder,
+            difficulty = Difficulty.EASY,
+            pendingNotificationLogsNewestFirst = emptyList(),
+            nextSleepEventAtMillis = Optional.empty()
+        )
+        UserStorage.upsertUser(context, user)
+
+        val updated = UserStorage.getUser(context)
+
+        assertTrue(updated.pendingNotificationLogsNewestFirst.isNotEmpty())
+        val prefs = context.getSharedPreferences(PREFS_NAME, android.content.Context.MODE_PRIVATE)
+        val updatedPersisted = waitForAlertType(prefs, AlertType.Penalty.name)
+        assertTrue(updatedPersisted)
+        assertTrue(prefs.getString(KEY_PENDING_NOTIFICATION_LOGS_NEWEST_FIRST, "[]") != "[]")
+    }
+
     companion object {
         private const val PREFS_NAME = "mindwarrior_user"
         private const val KEY_ACTIVE_PLAY_TIMER_SERIALIZED = "active_play_timer_serialized"
         private const val KEY_PAUSED_TIMER_SERIALIZED = "paused_timer_serialized"
+        private const val KEY_NEXT_ALERT_TYPE = "next_alert_type"
+        private const val KEY_PENDING_NOTIFICATION_LOGS_NEWEST_FIRST =
+            "pending_notification_logs_newest_first"
+    }
+
+    private fun waitForAlertType(
+        prefs: android.content.SharedPreferences,
+        expected: String
+    ): Boolean {
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        val deadline = SystemClock.uptimeMillis() + 2_000L
+        while (SystemClock.uptimeMillis() < deadline) {
+            instrumentation.waitForIdleSync()
+            val current = prefs.getString(KEY_NEXT_ALERT_TYPE, null)
+            if (current == expected) {
+                return true
+            }
+            SystemClock.sleep(25)
+        }
+        return false
     }
 }

@@ -3,9 +3,12 @@ package com.mindwarrior.app
 import android.content.Context
 import com.mindwarrior.app.engine.AlertType
 import com.mindwarrior.app.engine.Difficulty
+import com.mindwarrior.app.engine.GameManager
 import com.mindwarrior.app.engine.User
 import com.mindwarrior.app.engine.UserFactory
 import java.util.Optional
+import android.os.Handler
+import android.os.Looper
 import java.lang.ref.WeakReference
 import org.json.JSONArray
 import org.json.JSONException
@@ -98,7 +101,7 @@ object UserStorage {
             prefs.getString(KEY_OLD_LOGS_NEWEST_FIRST, null),
             defaults.oldLogsNewestFirst
         )
-        return User(
+        val user = User(
             pausedTimerSerialized = maybePausedTimerSerialized,
             activePlayTimerSerialized = activePlayTimerSerialized,
             lastRewardAtActivePlayTime = lastRewardAtActivePlayTime,
@@ -118,6 +121,16 @@ object UserStorage {
                 oldLogsNewestFirst
             }
         )
+
+        val updatedUser = GameManager.evaluateAlerts(user)
+        if (updatedUser == user) {
+            return user;
+        }
+        val appContext = context.applicationContext
+        Handler(Looper.getMainLooper()).post {
+            upsertUser(appContext, updatedUser)
+        }
+        return updatedUser
     }
 
     fun observeUserChanges(context: Context, listener: UserUpdateListener) {
