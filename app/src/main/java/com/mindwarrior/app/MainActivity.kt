@@ -21,6 +21,7 @@ import com.mindwarrior.app.engine.Counter
 import com.mindwarrior.app.engine.GameManager
 import com.mindwarrior.app.notifications.OneOffAlertController
 import com.mindwarrior.app.notifications.StickyAlertController
+import com.mindwarrior.app.notifications.StickyAlertForegroundService
 import java.util.Optional
 
 class MainActivity : AppCompatActivity() {
@@ -41,7 +42,7 @@ class MainActivity : AppCompatActivity() {
         setupMenu()
         setupLogs()
         setupControls()
-        OneOffAlertController.ensureScheduled(this)
+        OneOffAlertController.restart(this)
         requestNotificationPermission()
         if (UserStorage.getUser(this).timerForegroundEnabled) {
             StickyAlertController.start(this)
@@ -281,6 +282,7 @@ class MainActivity : AppCompatActivity() {
         } else {
             UserStorage.upsertUser(this, GameManager.onResume(user))
         }
+        OneOffAlertController.restart(this)
     }
 
 

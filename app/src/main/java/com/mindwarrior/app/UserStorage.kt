@@ -124,12 +124,9 @@ object UserStorage {
 
         val updatedUser = GameManager.evaluateAlerts(user)
         if (updatedUser == user) {
-            return user;
+            return user
         }
-        val appContext = context.applicationContext
-        Handler(Looper.getMainLooper()).post {
-            upsertUser(appContext, updatedUser)
-        }
+        upsertUser(context.applicationContext, updatedUser)
         return updatedUser
     }
 
@@ -179,7 +176,9 @@ object UserStorage {
             editor.putString(KEY_PAUSED_TIMER_SERIALIZED, "empty")
         }
         editor.apply()
-        notifyUserUpdated(user)
+        Handler(Looper.getMainLooper()).post {
+            notifyUserUpdated(user)
+        }
     }
 
     private fun difficultyFromId(id: String?): Difficulty? {

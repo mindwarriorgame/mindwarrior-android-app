@@ -9,6 +9,7 @@ import android.content.Intent
 import android.media.AudioAttributes
 import android.media.RingtoneManager
 import android.os.Build
+import com.mindwarrior.app.NowProvider
 import com.mindwarrior.app.UserStorage
 import com.mindwarrior.app.engine.GameManager
 import com.mindwarrior.app.engine.User
@@ -16,10 +17,6 @@ import com.mindwarrior.app.engine.User
 object OneOffAlertController {
     const val CHANNEL_ID = "battle_timer_channel"
     private const val CHANNEL_NAME = "Battle Timer"
-
-    fun ensureScheduled(context: Context) {
-        scheduleNextAlert(context, UserStorage.getUser(context))
-    }
 
     fun restart(context: Context) {
         scheduleNextAlert(context, UserStorage.getUser(context))
@@ -33,24 +30,25 @@ object OneOffAlertController {
     private fun scheduleAlarm(context: Context, triggerAtMillis: Long) {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val pendingIntent = createAlarmPendingIntent(context)
+        val systemTriggerAtMillis = NowProvider.toSystemMillis(triggerAtMillis)
         if (Build.VERSION.SDK_INT >= 31) {
             if (alarmManager.canScheduleExactAlarms()) {
                 alarmManager.setExactAndAllowWhileIdle(
                     AlarmManager.RTC_WAKEUP,
-                    triggerAtMillis,
+                    systemTriggerAtMillis,
                     pendingIntent
                 )
             } else {
                 alarmManager.setAndAllowWhileIdle(
                     AlarmManager.RTC_WAKEUP,
-                    triggerAtMillis,
+                    systemTriggerAtMillis,
                     pendingIntent
                 )
             }
         } else {
             alarmManager.setExactAndAllowWhileIdle(
                 AlarmManager.RTC_WAKEUP,
-                triggerAtMillis,
+                systemTriggerAtMillis,
                 pendingIntent
             )
         }

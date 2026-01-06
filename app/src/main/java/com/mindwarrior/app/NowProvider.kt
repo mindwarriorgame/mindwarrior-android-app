@@ -23,6 +23,11 @@ object NowProvider {
         return System.currentTimeMillis() + offset
     }
 
+    fun toSystemMillis(logicalMillis: Long): Long {
+        val offset = if (initialized) offsetMillis else 0L
+        return logicalMillis - offset
+    }
+
     fun moveTimeForwardMins(minutes: Long) {
         if (minutes <= 0L) {
             return
