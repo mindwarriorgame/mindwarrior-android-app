@@ -13,6 +13,7 @@ import android.app.PendingIntent
 import com.mindwarrior.app.MainActivity
 import com.mindwarrior.app.R
 import com.mindwarrior.app.UserStorage
+import com.mindwarrior.app.engine.GameManager
 
 class StickyAlertForegroundService : Service() {
     private val handler = Handler(Looper.getMainLooper())
@@ -59,11 +60,12 @@ class StickyAlertForegroundService : Service() {
     }
 
     private fun updateNotification() {
-        val paused = UserStorage.getUser(this).pausedTimerSerialized.isPresent
+        val user = UserStorage.getUser(this)
+        val paused = user.pausedTimerSerialized.isPresent
         val contentText = if (paused) {
             getString(R.string.timer_notification_paused)
         } else {
-            val remaining = OneOffAlertController.getRemainingMillis(this)
+            val remaining = GameManager.calculateNextDeadlineAtMillis(user)
             getString(R.string.timer_notification_running, formatRemaining(remaining))
         }
 
