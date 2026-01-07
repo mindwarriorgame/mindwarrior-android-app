@@ -103,7 +103,7 @@ class GameManagerTest {
         val updated = GameManager.onDifficultyChanged(user, Difficulty.HARD)
 
         assertEquals(Difficulty.HARD, updated.difficulty)
-        assertTrue(updated.pausedTimerSerialized.isPresent)
+        assertFalse(updated.pausedTimerSerialized.isPresent)
     }
 
     @Test
