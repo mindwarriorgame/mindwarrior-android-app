@@ -20,6 +20,8 @@ data class User(
     var sleepEndMinutes: Int,
     var difficulty: Difficulty,
     var localStorageSnapshot: Optional<String>,
+    var diamonds: Int,
+    var diamondsSpent: Int,
 
     val pendingNotificationLogsNewestFirst: List<Pair<String, Long>>,
     val unseenLogsNewestFirst: List<Pair<String, Long>>,
@@ -50,6 +52,8 @@ object UserFactory {
             sleepEndMinutes = 7 * 60,
             difficulty = difficulty,
             localStorageSnapshot = Optional.empty(),
+            diamonds = 0,
+            diamondsSpent = 0,
             pendingNotificationLogsNewestFirst = emptyList(),
             unseenLogsNewestFirst = emptyList(),
             oldLogsNewestFirst = emptyList()

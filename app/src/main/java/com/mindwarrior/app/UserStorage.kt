@@ -27,6 +27,8 @@ object UserStorage {
     private const val KEY_SLEEP_END_MINUTES = "sleep_end_minutes"
     private const val KEY_DIFFICULTY = "difficulty"
     private const val KEY_LOCAL_STORAGE = "local_storage_snapshot"
+    private const val KEY_DIAMONDS = "diamonds"
+    private const val KEY_DIAMONDS_SPENT = "diamonds_spent"
     private const val KEY_PENDING_NOTIFICATION_LOGS_NEWEST_FIRST =
         "pending_notification_logs_newest_first"
     private const val KEY_UNSEEN_LOGS_NEWEST_FIRST = "unseen_logs_newest_first"
@@ -92,6 +94,8 @@ object UserStorage {
         } else {
             Optional.of(localStorageSnapshot)
         }
+        val diamonds = prefs.getInt(KEY_DIAMONDS, defaults.diamonds)
+        val diamondsSpent = prefs.getInt(KEY_DIAMONDS_SPENT, defaults.diamondsSpent)
         val pendingNotificationLogsNewestFirst = deserializeLogList(
             prefs.getString(KEY_PENDING_NOTIFICATION_LOGS_NEWEST_FIRST, null),
             defaults.pendingNotificationLogsNewestFirst
@@ -116,6 +120,8 @@ object UserStorage {
             sleepEndMinutes = sleepEndMinutes,
             difficulty = difficulty,
             localStorageSnapshot = localStorageOptional,
+            diamonds = diamonds,
+            diamondsSpent = diamondsSpent,
             pendingNotificationLogsNewestFirst = pendingNotificationLogsNewestFirst,
             unseenLogsNewestFirst = unseenLogsNewestFirst,
             oldLogsNewestFirst = if (isNewUser) {
@@ -172,6 +178,8 @@ object UserStorage {
         } else {
             editor.remove(KEY_LOCAL_STORAGE)
         }
+        editor.putInt(KEY_DIAMONDS, user.diamonds)
+        editor.putInt(KEY_DIAMONDS_SPENT, user.diamondsSpent)
         editor.putString(
             KEY_PENDING_NOTIFICATION_LOGS_NEWEST_FIRST,
             serializeLogList(user.pendingNotificationLogsNewestFirst)
