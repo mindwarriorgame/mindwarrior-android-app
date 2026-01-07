@@ -37,7 +37,7 @@ object UserFactory {
         return User(
             pausedTimerSerialized = Optional.of(pausedTimer.serialize()),
             activePlayTimerSerialized = activePlayTimer.serialize(),
-            lastRewardAtActivePlayTime = 0L,
+            lastRewardAtActivePlayTime = -100_000L,
             nextPenaltyTimerSerialized = reviewTimerSerialized.serialize(),
             nextAlertType = if (DifficultyHelper.hasNudge(difficulty)) {
                 AlertType.Reminder

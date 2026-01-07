@@ -106,7 +106,7 @@ class UserStorageTest {
         assertTrue(Counter(loaded.pausedTimerSerialized.get()).isActive())
         assertTrue(Counter(loaded.activePlayTimerSerialized).isActive())
         assertFalse(Counter(loaded.nextPenaltyTimerSerialized).isActive())
-        assertEquals(0L, loaded.lastRewardAtActivePlayTime)
+        assertEquals(-100_000L, loaded.lastRewardAtActivePlayTime)
         assertEquals(AlertType.Reminder, loaded.nextAlertType)
         assertTrue(loaded.pausedTimerSerialized.isPresent)
         assertTrue(!loaded.timerForegroundEnabled)
