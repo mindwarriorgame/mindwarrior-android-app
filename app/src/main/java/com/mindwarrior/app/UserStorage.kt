@@ -37,7 +37,10 @@ object UserStorage {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val defaults = UserFactory.createUser(Difficulty.EASY)
 
-        val isNewUser = (prefs.getString(KEY_ACTIVE_PLAY_TIMER_SERIALIZED, "notfound") == "notfound")
+        val hasAnyLogs = prefs.contains(KEY_OLD_LOGS_NEWEST_FIRST) ||
+            prefs.contains(KEY_UNSEEN_LOGS_NEWEST_FIRST) ||
+            prefs.contains(KEY_PENDING_NOTIFICATION_LOGS_NEWEST_FIRST)
+        val isNewUser = !hasAnyLogs
 
         val activePlayTimerSerialized = prefs.getString(
             KEY_ACTIVE_PLAY_TIMER_SERIALIZED,
@@ -123,10 +126,14 @@ object UserStorage {
         )
 
         val updatedUser = GameManager.evaluateAlerts(user)
-        if (updatedUser == user) {
+        if (updatedUser == user && !isNewUser) {
             return user
         }
-        upsertUser(context.applicationContext, updatedUser)
+        if (isNewUser) {
+            upsertUserInternal(context.applicationContext, updatedUser, false)
+        } else {
+            upsertUser(context.applicationContext, updatedUser)
+        }
         return updatedUser
     }
 
@@ -137,6 +144,14 @@ object UserStorage {
     }
 
     fun upsertUser(context: Context, user: User) {
+        upsertUserInternal(context, user, true)
+    }
+
+    private fun upsertUserInternal(
+        context: Context,
+        user: User,
+        shouldTriggerObservers: Boolean
+    ) {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val editor = prefs.edit()
         editor.putString(KEY_ACTIVE_PLAY_TIMER_SERIALIZED, user.activePlayTimerSerialized)
@@ -175,8 +190,10 @@ object UserStorage {
             editor.putString(KEY_PAUSED_TIMER_SERIALIZED, "empty")
         }
         editor.apply()
-        Handler(Looper.getMainLooper()).post {
-            notifyUserUpdated(user)
+        if (shouldTriggerObservers) {
+            Handler(Looper.getMainLooper()).post {
+                notifyUserUpdated(user)
+            }
         }
     }
 

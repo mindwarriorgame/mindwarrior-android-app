@@ -116,7 +116,8 @@ class UserStorageTest {
         assertTrue(!loaded.localStorageSnapshot.isPresent)
         assertEquals(emptyList<Pair<String, Long>>(), loaded.pendingNotificationLogsNewestFirst)
         assertEquals(emptyList<Pair<String, Long>>(), loaded.unseenLogsNewestFirst)
-        assertEquals(emptyList<Pair<String, Long>>(), loaded.oldLogsNewestFirst)
+        assertEquals(1, loaded.oldLogsNewestFirst.size)
+        assertEquals(WELCOME_MESSAGE, loaded.oldLogsNewestFirst.first().first)
     }
 
     @Test
@@ -204,6 +205,8 @@ class UserStorageTest {
         private const val KEY_NEXT_ALERT_TYPE = "next_alert_type"
         private const val KEY_PENDING_NOTIFICATION_LOGS_NEWEST_FIRST =
             "pending_notification_logs_newest_first"
+        private const val WELCOME_MESSAGE =
+            "👋 Welcome to MindWarrior game! 🥷 Tap 🧪 to enter your Formula of Firm Resolution and start playing!"
     }
 
     private fun waitForAlertType(
