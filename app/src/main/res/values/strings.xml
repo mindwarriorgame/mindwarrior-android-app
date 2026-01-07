@@ -83,4 +83,6 @@
     <string name="log_review_completed">&#x1F389; You\'ve successfully reviewed the Formula! Next review in %1$d h %2$d m.</string>
     <string name="log_review_reward">&#x1F48E; You\'ve got a diamond!</string>
     <string name="log_review_no_reward">&#x2744;&#xFE0F; Early reviews are not rewarded.</string>
+    <string name="log_game_paused">&#x23F8;&#xFE0F; The game was paused.</string>
+    <string name="log_game_resumed">&#x25B6;&#xFE0F; The game is resumed.</string>
 </resources>

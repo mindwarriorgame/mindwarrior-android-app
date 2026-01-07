@@ -17,7 +17,7 @@ class GameManagerTest {
     fun onPausedKeepsPausedUserUnchanged() {
         val user = UserFactory.createUser(Difficulty.EASY)
 
-        val updated = GameManager.onPaused(user)
+        val updated = GameManager.onPaused(user, "test")
 
         assertEquals(user, updated)
         assertTrue(updated.pausedTimerSerialized.isPresent)
@@ -33,7 +33,7 @@ class GameManagerTest {
             nextPenaltyTimerSerialized = review
         )
 
-        val updated = GameManager.onPaused(user)
+        val updated = GameManager.onPaused(user, "test")
 
         assertTrue(updated.pausedTimerSerialized.isPresent)
         assertFalse(Counter(updated.activePlayTimerSerialized).isActive())
@@ -44,7 +44,7 @@ class GameManagerTest {
     fun onResumeUnpausesWhenPaused() {
         val user = UserFactory.createUser(Difficulty.EASY)
 
-        val updated = GameManager.onResume(user)
+        val updated = GameManager.onResume(user, "test")
 
         assertFalse(updated.pausedTimerSerialized.isPresent)
         assertTrue(Counter(updated.activePlayTimerSerialized).isActive())

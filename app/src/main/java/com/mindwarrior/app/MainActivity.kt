@@ -334,9 +334,11 @@ class MainActivity : AppCompatActivity() {
     private fun updateUserPausedState(paused: Boolean) {
         val user = UserStorage.getUser(this)
         if (paused) {
-            UserStorage.upsertUser(this, GameManager.onPaused(user))
+            val message = getString(R.string.log_game_paused)
+            UserStorage.upsertUser(this, GameManager.onPaused(user, message))
         } else {
-            UserStorage.upsertUser(this, GameManager.onResume(user))
+            val message = getString(R.string.log_game_resumed)
+            UserStorage.upsertUser(this, GameManager.onResume(user, message))
         }
         OneOffAlertController.restart(this)
     }

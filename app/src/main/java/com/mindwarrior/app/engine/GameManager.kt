@@ -55,25 +55,29 @@ object GameManager {
 
     }
 
-    fun onPaused(user: User): User {
+    fun onPaused(user: User, logMessage: String): User {
         if (user.pausedTimerSerialized.isPresent) {
             return user;
         }
+        val nowMillis = NowProvider.nowMillis()
         return user.copy(
             pausedTimerSerialized = Optional.of(Counter(null).resume().serialize()),
             nextPenaltyTimerSerialized = Counter(user.nextPenaltyTimerSerialized).pause().serialize(),
-            activePlayTimerSerialized = Counter(user.activePlayTimerSerialized).pause().serialize()
+            activePlayTimerSerialized = Counter(user.activePlayTimerSerialized).pause().serialize(),
+            unseenLogsNewestFirst = listOf(Pair(logMessage, nowMillis)) + user.unseenLogsNewestFirst
         )
     }
 
-    fun onResume(user: User): User {
+    fun onResume(user: User, logMessage: String): User {
         if (!user.pausedTimerSerialized.isPresent) {
             return user
         }
+        val nowMillis = NowProvider.nowMillis()
         return user.copy(
             pausedTimerSerialized = Optional.empty(),
             nextPenaltyTimerSerialized = Counter(user.nextPenaltyTimerSerialized).resume().serialize(),
-            activePlayTimerSerialized = Counter(user.activePlayTimerSerialized).resume().serialize()
+            activePlayTimerSerialized = Counter(user.activePlayTimerSerialized).resume().serialize(),
+            unseenLogsNewestFirst = listOf(Pair(logMessage, nowMillis)) + user.unseenLogsNewestFirst
         )
     }
 
