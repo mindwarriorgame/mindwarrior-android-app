@@ -12,6 +12,7 @@ import androidx.core.content.ContextCompat
 import android.app.PendingIntent
 import com.mindwarrior.app.MainActivity
 import com.mindwarrior.app.R
+import com.mindwarrior.app.NowProvider
 import com.mindwarrior.app.UserStorage
 import com.mindwarrior.app.engine.GameManager
 
@@ -65,7 +66,8 @@ class StickyAlertForegroundService : Service() {
         val contentText = if (paused) {
             getString(R.string.timer_notification_paused)
         } else {
-            val remaining = GameManager.calculateNextDeadlineAtMillis(user)
+            val remaining = (GameManager.calculateNextDeadlineAtMillis(user) - NowProvider.nowMillis())
+                .coerceAtLeast(0L)
             getString(R.string.timer_notification_running, formatRemaining(remaining))
         }
 
