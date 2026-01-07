@@ -1,6 +1,7 @@
 package com.mindwarrior.app.notifications
 
 import android.app.Notification
+import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.Service
 import android.content.Intent
@@ -44,8 +45,8 @@ class StickyAlertForegroundService : Service() {
     }
 
     private fun buildNotification(): Notification {
-        val channelId = OneOffAlertController.CHANNEL_ID
-        OneOffAlertController.ensureNotificationChannel(this)
+        val channelId = STICKY_CHANNEL_ID
+        ensureStickyNotificationChannel()
 
         return NotificationCompat.Builder(this, channelId)
             .setSmallIcon(R.drawable.ic_notification)
@@ -54,9 +55,12 @@ class StickyAlertForegroundService : Service() {
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setOnlyAlertOnce(true)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-            .setCategory(NotificationCompat.CATEGORY_ALARM)
+            .setCategory(NotificationCompat.CATEGORY_SERVICE)
             .setContentTitle(getString(R.string.timer_notification_title))
             .setContentText(getString(R.string.timer_notification_loading))
+            .setSound(null)
+            .setVibrate(null)
+            .setDefaults(0)
             .build()
     }
 
@@ -71,16 +75,19 @@ class StickyAlertForegroundService : Service() {
             getString(R.string.timer_notification_running, formatRemaining(remaining))
         }
 
-        val notification = NotificationCompat.Builder(this, OneOffAlertController.CHANNEL_ID)
+        val notification = NotificationCompat.Builder(this, STICKY_CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_notification)
             .setOngoing(true)
             .setContentIntent(createContentIntent())
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setOnlyAlertOnce(true)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-            .setCategory(NotificationCompat.CATEGORY_ALARM)
+            .setCategory(NotificationCompat.CATEGORY_SERVICE)
             .setContentTitle(getString(R.string.timer_notification_title))
             .setContentText(contentText)
+            .setSound(null)
+            .setVibrate(null)
+            .setDefaults(0)
             .build()
 
         ContextCompat.getSystemService(this, NotificationManager::class.java)
@@ -108,5 +115,24 @@ class StickyAlertForegroundService : Service() {
 
     companion object {
         private const val NOTIFICATION_ID = 2002
+        private const val STICKY_CHANNEL_ID = "battle_timer_sticky"
+        private const val STICKY_CHANNEL_NAME = "Battle Timer (Persistent)"
+    }
+
+    private fun ensureStickyNotificationChannel() {
+        val notificationManager =
+            getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+        val existing = notificationManager.getNotificationChannel(STICKY_CHANNEL_ID)
+        if (existing != null) return
+
+        val channel = NotificationChannel(
+            STICKY_CHANNEL_ID,
+            STICKY_CHANNEL_NAME,
+            NotificationManager.IMPORTANCE_DEFAULT
+        )
+        channel.setSound(null, null)
+        channel.enableVibration(false)
+        channel.enableLights(false)
+        notificationManager.createNotificationChannel(channel)
     }
 }
