@@ -123,7 +123,7 @@ class GameManagerTest {
     fun onSleepScheduleChangedUpdatesFields() {
         val user = UserFactory.createUser(Difficulty.EASY)
 
-        val updated = GameManager.onSleepScheduleChanged(user, true, 22 * 60, 6 * 60)
+        val updated = GameManager.onSleepScheduleChanged(user, true, 22 * 60, 6 * 60, "")
 
         assertTrue(updated.nextSleepEventAtMillis.isPresent)
         assertEquals(22 * 60, updated.sleepStartMinutes)
