@@ -17,7 +17,11 @@ object GameManager {
                 nextPenaltyTimerSerialized = Counter(newUser.nextPenaltyTimerSerialized).pause().serialize()
             )
         } else {
-            newUser
+            newUser.copy(
+                pausedTimerSerialized = Optional.empty(),
+                activePlayTimerSerialized = Counter(newUser.activePlayTimerSerialized).resume().serialize(),
+                nextPenaltyTimerSerialized = Counter(newUser.nextPenaltyTimerSerialized).resume().serialize()
+            )
         }
     }
 
