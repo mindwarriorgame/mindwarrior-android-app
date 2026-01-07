@@ -63,7 +63,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val userListener = object : UserStorage.UserUpdateListener {
         override fun onUserUpdated(user: com.mindwarrior.app.engine.User) {
             _isPaused.value = user.pausedTimerSerialized.isPresent
-            _reviewEnabled.value = user.localStorageSnapshot.isPresent
+            _reviewEnabled.value = true
             _difficultyLabel.value = formatDifficultyLabel(user.difficulty)
             updateLogsFromUser(user)
             updateUnseenLogsFromUser(user)
@@ -93,7 +93,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         refreshTimerDisplay()
         val user = UserStorage.getUser(getApplication())
         _isPaused.value = user.pausedTimerSerialized.isPresent
-        _reviewEnabled.value = user.localStorageSnapshot.isPresent
+        _reviewEnabled.value = true
         _difficultyLabel.value = formatDifficultyLabel(user.difficulty)
         updateLogsFromUser(user)
         updateUnseenLogsFromUser(user)

@@ -78,6 +78,9 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupMenu() {
         binding.menuButton.setOnClickListener {
+            if (!ensureFormulaAvailable()) {
+                return@setOnClickListener
+            }
             binding.menuPanel.visibility =
                 if (binding.menuPanel.visibility == android.view.View.VISIBLE) {
                     android.view.View.GONE
@@ -87,22 +90,37 @@ class MainActivity : AppCompatActivity() {
         }
         binding.menuDifficulty.setOnClickListener {
             binding.menuPanel.visibility = android.view.View.GONE
+            if (!ensureFormulaAvailable()) {
+                return@setOnClickListener
+            }
             startActivity(android.content.Intent(this, DifficultyActivity::class.java))
         }
         binding.menuProgress.setOnClickListener {
             binding.menuPanel.visibility = android.view.View.GONE
+            if (!ensureFormulaAvailable()) {
+                return@setOnClickListener
+            }
             startActivity(android.content.Intent(this, ProgressActivity::class.java))
         }
         binding.menuSettings.setOnClickListener {
             binding.menuPanel.visibility = android.view.View.GONE
+            if (!ensureFormulaAvailable()) {
+                return@setOnClickListener
+            }
             startActivity(android.content.Intent(this, SettingsActivity::class.java))
         }
         binding.menuDebug.setOnClickListener {
             binding.menuPanel.visibility = android.view.View.GONE
+            if (!ensureFormulaAvailable()) {
+                return@setOnClickListener
+            }
             showTimeTravelDialog()
         }
         binding.menuSleep.setOnClickListener {
             binding.menuPanel.visibility = android.view.View.GONE
+            if (!ensureFormulaAvailable()) {
+                return@setOnClickListener
+            }
             startActivity(android.content.Intent(this, SleepSchedulerActivity::class.java))
         }
         binding.menuPanel.setOnClickListener { }
@@ -156,15 +174,24 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupControls() {
         binding.pauseButton.setOnClickListener {
+            if (!ensureFormulaAvailable()) {
+                return@setOnClickListener
+            }
             val paused = viewModel.isPaused.value == true
             updateUserPausedState(!paused)
         }
 
         binding.diamondsButton.setOnClickListener {
+            if (!ensureFormulaAvailable()) {
+                return@setOnClickListener
+            }
             startActivity(android.content.Intent(this, ShopActivity::class.java))
         }
 
         binding.progressButton.setOnClickListener {
+            if (!ensureFormulaAvailable()) {
+                return@setOnClickListener
+            }
             startActivity(android.content.Intent(this, WebViewActivity::class.java))
         }
 
@@ -182,6 +209,9 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.reviewButton.setOnClickListener {
+            if (!ensureFormulaAvailable()) {
+                return@setOnClickListener
+            }
             val intent = android.content.Intent(this, WebViewActivity::class.java)
             intent.putExtra(
                 WebViewActivity.EXTRA_BASE_URL,
@@ -234,6 +264,22 @@ class MainActivity : AppCompatActivity() {
         } else {
             binding.pauseIndicator.visibility = View.GONE
         }
+    }
+
+    private fun ensureFormulaAvailable(): Boolean {
+        val user = UserStorage.getUser(this)
+        if (user.localStorageSnapshot.isPresent) {
+            return true
+        }
+        showFormulaRequiredDialog()
+        return false
+    }
+
+    private fun showFormulaRequiredDialog() {
+        AlertDialog.Builder(this)
+            .setMessage("To start the game, 🧪 button to enter your Formula first")
+            .setPositiveButton(android.R.string.ok, null)
+            .show()
     }
 
     private fun bindViewModel() {
