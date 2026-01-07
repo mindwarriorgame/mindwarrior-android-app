@@ -10,6 +10,7 @@ import com.mindwarrior.app.R
 import com.mindwarrior.app.LogItem
 import com.mindwarrior.app.NowProvider
 import com.mindwarrior.app.UserStorage
+import com.mindwarrior.app.badges.BadgesManager
 import com.mindwarrior.app.engine.Counter
 import com.mindwarrior.app.engine.GameManager
 import java.text.SimpleDateFormat
@@ -42,6 +43,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _diamonds = MutableLiveData<Int>()
     val diamonds: LiveData<Int> = _diamonds
 
+    private val _progressLevel = MutableLiveData<Int>()
+    val progressLevel: LiveData<Int> = _progressLevel
+
     private val _difficultyLabel = MutableLiveData<String>()
     val difficultyLabel: LiveData<String> = _difficultyLabel
 
@@ -68,6 +72,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             _isPaused.value = user.pausedTimerSerialized.isPresent
             _reviewEnabled.value = true
             _diamonds.value = user.diamonds
+            _progressLevel.value = parseBadgeLevel(user)
             _difficultyLabel.value = formatDifficultyLabel(user.difficulty)
             updateLogsFromUser(user)
             updateUnseenLogsFromUser(user)
@@ -99,6 +104,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _isPaused.value = user.pausedTimerSerialized.isPresent
         _reviewEnabled.value = true
         _diamonds.value = user.diamonds
+        _progressLevel.value = parseBadgeLevel(user)
         _difficultyLabel.value = formatDifficultyLabel(user.difficulty)
         updateLogsFromUser(user)
         updateUnseenLogsFromUser(user)
@@ -273,6 +279,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         } else {
             _freezeTimerText.value = ""
         }
+    }
+
+    private fun parseBadgeLevel(user: com.mindwarrior.app.engine.User): Int {
+        val manager = BadgesManager(user.difficulty.ordinal, user.badgesSerialized)
+        return manager.getLevel().coerceAtLeast(0)
     }
 
     companion object {

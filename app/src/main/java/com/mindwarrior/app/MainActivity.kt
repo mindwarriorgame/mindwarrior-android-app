@@ -326,6 +326,9 @@ class MainActivity : AppCompatActivity() {
         viewModel.diamonds.observe(this) { count ->
             binding.diamondsButton.text = getString(R.string.diamonds_button, count)
         }
+        viewModel.progressLevel.observe(this) { level ->
+            binding.progressButton.text = getString(R.string.progress_button, level + 1)
+        }
         viewModel.difficultyLabel.observe(this) { label ->
             binding.menuDifficulty.text = label
         }

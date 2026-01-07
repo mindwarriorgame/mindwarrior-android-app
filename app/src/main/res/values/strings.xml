@@ -2,7 +2,7 @@
     <string name="app_name">MindWarrior</string>
     <string name="part_a_background">Battle scene background</string>
     <string name="diamonds_button">💎 %1$d</string>
-    <string name="progress_button">🏆 Lv 12 · 55% 😾</string>
+    <string name="progress_button">&#x1F3C6; Lv %1$d</string>
     <string name="lab_button">🧪</string>
     <string name="menu_button">Open menu</string>
     <string name="menu_sleep">💤 Sleep scheduler</string>
