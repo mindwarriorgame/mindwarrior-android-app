@@ -66,7 +66,8 @@ class WebViewActivity : AppCompatActivity() {
                     Optional.of(result),
                     isFormulaMode,
                     getString(R.string.log_new_badge),
-                    getString(R.string.log_game_started)
+                    getString(R.string.log_game_started),
+                    getString(R.string.log_formula_updated)
                 )
             }
             if (isReviewMode) {

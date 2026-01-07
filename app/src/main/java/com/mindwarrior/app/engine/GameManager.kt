@@ -95,30 +95,44 @@ object GameManager {
         localStorate: Optional<String>,
         triggeredByFormulaEditor: Boolean,
         newBadgeLogMessage: String = "",
-        gameStartedLogMessage: String = ""
+        gameStartedLogMessage: String = "",
+        formulaUpdatedLogMessage: String = ""
     ): User {
         val userOldLocalStorage = user.localStorageSnapshot
         var updatedUser = user.copy(localStorageSnapshot = localStorate)
         if (!localStorate.isPresent) {
             return updatedUser
         }
+        val hasFormula = hasFormula(localStorate.get())
         val isGameStarted = (!userOldLocalStorage.isPresent && triggeredByFormulaEditor)
+        val isFormulaUpdate = triggeredByFormulaEditor && userOldLocalStorage.isPresent
         if (!isGameStarted) {
-            return updatedUser
+            if (!isFormulaUpdate || !hasFormula) {
+                return updatedUser
+            }
         }
         val activePlaySeconds = Counter(updatedUser.activePlayTimerSerialized).getTotalSeconds()
         val manager = BadgesManager(updatedUser.difficulty.ordinal, updatedUser.badgesSerialized)
-        val newBadge = manager.onGameStarted(activePlaySeconds)
+        val newBadge = if (isGameStarted) {
+            manager.onGameStarted(activePlaySeconds)
+        } else {
+            manager.onFormulaUpdated(activePlaySeconds)
+        }
         updatedUser = updatedUser.copy(badgesSerialized = manager.serialize())
         val nowMillis = NowProvider.nowMillis()
+        val baseLogMessage = if (isGameStarted) {
+            gameStartedLogMessage
+        } else {
+            formulaUpdatedLogMessage
+        }
         val mergedLog = if (newBadge != null && newBadgeLogMessage.isNotBlank()) {
-            if (gameStartedLogMessage.isNotBlank()) {
-                listOf(Pair("$newBadgeLogMessage\n\n$gameStartedLogMessage", nowMillis))
+            if (baseLogMessage.isNotBlank()) {
+                listOf(Pair("$newBadgeLogMessage\n\n$baseLogMessage", nowMillis))
             } else {
                 listOf(Pair(newBadgeLogMessage, nowMillis))
             }
-        } else if (gameStartedLogMessage.isNotBlank()) {
-            listOf(Pair(gameStartedLogMessage, nowMillis))
+        } else if (baseLogMessage.isNotBlank()) {
+            listOf(Pair(baseLogMessage, nowMillis))
         } else {
             emptyList()
         }
