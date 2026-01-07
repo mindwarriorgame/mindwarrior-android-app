@@ -47,6 +47,7 @@ class UserStorageTest {
             localStorageSnapshot = Optional.of("{\"a\":\"b\"}"),
             diamonds = 12,
             diamondsSpent = 3,
+            badgesSerialized = "{\"board\":[]}",
             pendingNotificationLogsNewestFirst = listOf(
                 Pair("{\"log\":\"pending1\"}", 1712300000L),
                 Pair("{\"log\":\"pending2\"}", 1712300001L)
@@ -83,6 +84,7 @@ class UserStorageTest {
             localStorageSnapshot = Optional.empty(),
             diamonds = 0,
             diamondsSpent = 0,
+            badgesSerialized = "",
             pendingNotificationLogsNewestFirst = emptyList(),
             unseenLogsNewestFirst = emptyList(),
             oldLogsNewestFirst = emptyList()
@@ -120,6 +122,7 @@ class UserStorageTest {
         assertTrue(!loaded.localStorageSnapshot.isPresent)
         assertEquals(0, loaded.diamonds)
         assertEquals(0, loaded.diamondsSpent)
+        assertEquals("", loaded.badgesSerialized)
         assertEquals(emptyList<Pair<String, Long>>(), loaded.pendingNotificationLogsNewestFirst)
         assertEquals(emptyList<Pair<String, Long>>(), loaded.unseenLogsNewestFirst)
         assertEquals(1, loaded.oldLogsNewestFirst.size)

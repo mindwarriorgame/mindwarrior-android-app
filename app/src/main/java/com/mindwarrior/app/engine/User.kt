@@ -22,6 +22,7 @@ data class User(
     var localStorageSnapshot: Optional<String>,
     var diamonds: Int,
     var diamondsSpent: Int,
+    var badgesSerialized: String,
 
     val pendingNotificationLogsNewestFirst: List<Pair<String, Long>>,
     val unseenLogsNewestFirst: List<Pair<String, Long>>,
@@ -54,6 +55,7 @@ object UserFactory {
             localStorageSnapshot = Optional.empty(),
             diamonds = 0,
             diamondsSpent = 0,
+            badgesSerialized = "",
             pendingNotificationLogsNewestFirst = emptyList(),
             unseenLogsNewestFirst = emptyList(),
             oldLogsNewestFirst = emptyList()
