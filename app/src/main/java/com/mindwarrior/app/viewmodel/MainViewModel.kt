@@ -46,6 +46,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _progressLevel = MutableLiveData<Int>()
     val progressLevel: LiveData<Int> = _progressLevel
 
+    private val _progressHasGrumpyCat = MutableLiveData<Boolean>()
+    val progressHasGrumpyCat: LiveData<Boolean> = _progressHasGrumpyCat
+
     private val _difficultyLabel = MutableLiveData<String>()
     val difficultyLabel: LiveData<String> = _difficultyLabel
 
@@ -72,7 +75,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             _isPaused.value = user.pausedTimerSerialized.isPresent
             _reviewEnabled.value = true
             _diamonds.value = user.diamonds
-            _progressLevel.value = parseBadgeLevel(user)
+            updateProgressState(user)
             _difficultyLabel.value = formatDifficultyLabel(user.difficulty)
             updateLogsFromUser(user)
             updateUnseenLogsFromUser(user)
@@ -104,7 +107,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _isPaused.value = user.pausedTimerSerialized.isPresent
         _reviewEnabled.value = true
         _diamonds.value = user.diamonds
-        _progressLevel.value = parseBadgeLevel(user)
+        updateProgressState(user)
         _difficultyLabel.value = formatDifficultyLabel(user.difficulty)
         updateLogsFromUser(user)
         updateUnseenLogsFromUser(user)
@@ -281,9 +284,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    private fun parseBadgeLevel(user: com.mindwarrior.app.engine.User): Int {
+    private fun updateProgressState(user: com.mindwarrior.app.engine.User) {
         val manager = BadgesManager(user.difficulty.ordinal, user.badgesSerialized)
-        return manager.getLevel().coerceAtLeast(0)
+        _progressLevel.value = manager.getLevel().coerceAtLeast(0)
+        _progressHasGrumpyCat.value = manager.countActiveGrumpyCatsOnBoard() > 0
     }
 
     companion object {

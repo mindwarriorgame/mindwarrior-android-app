@@ -32,6 +32,8 @@ class MainActivity : AppCompatActivity() {
     private var timerFlagDialogShowing = false
     private var lastTimerFlagEvent = 0L
     private var unseenLogDialogShowing = false
+    private var lastProgressLevel = 0
+    private var lastProgressHasGrumpyCat = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -327,7 +329,12 @@ class MainActivity : AppCompatActivity() {
             binding.diamondsButton.text = getString(R.string.diamonds_button, count)
         }
         viewModel.progressLevel.observe(this) { level ->
-            binding.progressButton.text = getString(R.string.progress_button, level + 1)
+            lastProgressLevel = level
+            updateProgressButtonText()
+        }
+        viewModel.progressHasGrumpyCat.observe(this) { hasGrumpyCat ->
+            lastProgressHasGrumpyCat = hasGrumpyCat
+            updateProgressButtonText()
         }
         viewModel.difficultyLabel.observe(this) { label ->
             binding.menuDifficulty.text = label
@@ -365,6 +372,16 @@ class MainActivity : AppCompatActivity() {
 
     private fun addTimerLog() {
         viewModel.addLog(getString(R.string.timer_flag_log))
+    }
+
+    private fun updateProgressButtonText() {
+        val levelText = getString(R.string.progress_button, lastProgressLevel + 1)
+        val suffix = if (lastProgressHasGrumpyCat) {
+            " " + getString(R.string.grumpy_cat)
+        } else {
+            ""
+        }
+        binding.progressButton.text = levelText + suffix
     }
 
     private fun showUnseenLogDialog(logs: List<Pair<String, Long>>) {
