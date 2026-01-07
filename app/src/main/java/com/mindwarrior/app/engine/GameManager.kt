@@ -13,6 +13,10 @@ object GameManager {
     ): User {
         val newUser = UserFactory.createUser(newDifficulty).copy(
             localStorageSnapshot = user.localStorageSnapshot,
+            timerForegroundEnabled = user.timerForegroundEnabled,
+            nextSleepEventAtMillis = user.nextSleepEventAtMillis,
+            sleepStartMinutes = user.sleepStartMinutes,
+            sleepEndMinutes = user.sleepEndMinutes,
             unseenLogsNewestFirst = listOf(Pair(logMessage, NowProvider.nowMillis()))
         )
         return if (user.pausedTimerSerialized.isPresent) {
