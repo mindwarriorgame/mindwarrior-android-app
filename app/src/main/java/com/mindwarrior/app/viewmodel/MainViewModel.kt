@@ -10,6 +10,7 @@ import com.mindwarrior.app.R
 import com.mindwarrior.app.LogItem
 import com.mindwarrior.app.NowProvider
 import com.mindwarrior.app.UserStorage
+import com.mindwarrior.app.engine.Counter
 import com.mindwarrior.app.engine.GameManager
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -44,6 +45,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _snowflakeVisible = MutableLiveData<Boolean>(true)
     val snowflakeVisible: LiveData<Boolean> = _snowflakeVisible
 
+    private val _freezeTimerText = MutableLiveData<String>()
+    val freezeTimerText: LiveData<String> = _freezeTimerText
+
+    private val _freezeTimerActive = MutableLiveData<Boolean>(false)
+    val freezeTimerActive: LiveData<Boolean> = _freezeTimerActive
+
     private val _logs = MutableLiveData<List<LogItem>>(emptyList())
     val logs: LiveData<List<LogItem>> = _logs
 
@@ -66,6 +73,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val snowflakeBlink = object : Runnable {
         private var visible = true
         override fun run() {
+            if (!freezeTimerEnabled) {
+                _snowflakeVisible.value = false
+                handler.postDelayed(this, 1000L)
+                return
+            }
             visible = !visible
             _snowflakeVisible.value = visible
             handler.postDelayed(this, 1000L)
@@ -142,6 +154,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         ) * 1000
         _timerText.value = formatRemaining(remainingMillis)
         _timerWarning.value = remainingMillis in 1..WARNING_THRESHOLD_MILLIS
+        refreshFreezeTimerDisplay(user)
     }
 
     fun addLog(message: String) {
@@ -260,6 +273,27 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         return String.format(Locale.getDefault(), "%02d:%02d:%02d", hours, minutes, seconds)
     }
 
+    private fun refreshFreezeTimerDisplay(user: com.mindwarrior.app.engine.User) {
+        val activePlaySeconds = Counter(user.activePlayTimerSerialized).getTotalSeconds()
+        val deltaSeconds = (activePlaySeconds - user.lastRewardAtActivePlayTime).coerceAtLeast(0L)
+        val remainingSeconds = FREEZE_WINDOW_SECONDS - deltaSeconds
+        val isActive = remainingSeconds > 0L
+        _freezeTimerActive.value = isActive
+        if (isActive) {
+            _freezeTimerText.value = formatRemaining(remainingSeconds * 1000)
+            if (!freezeTimerEnabled) {
+                freezeTimerEnabled = true
+                _snowflakeVisible.value = true
+            }
+        } else {
+            _freezeTimerText.value = ""
+            if (freezeTimerEnabled) {
+                freezeTimerEnabled = false
+                _snowflakeVisible.value = false
+            }
+        }
+    }
+
     companion object {
         private const val MAX_LOG_ITEMS = 20
         private const val DAY_MILLIS = 24 * 60 * 60 * 1000L
@@ -268,5 +302,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         private const val PREFS_NAME = "mindwarrior_prefs"
         private const val KEY_TIMER_FLAG = "timer_flag"
         private const val LOG_LABEL_UPDATE_INTERVAL_MS = 10_000L
+        private const val FREEZE_WINDOW_SECONDS = 5 * 60L
     }
+
+    private var freezeTimerEnabled = false
 }

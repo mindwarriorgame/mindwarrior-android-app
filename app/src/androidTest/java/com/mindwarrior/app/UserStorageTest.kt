@@ -41,7 +41,7 @@ class UserStorageTest {
             nextPenaltyTimerSerialized = "{\"is_active\":false}",
             nextAlertType = AlertType.Reminder,
             timerForegroundEnabled = true,
-            nextSleepEventAtMillis = Optional.of(123456789L),
+            nextSleepEventAtMillis = Optional.of(1234567899876543L),
             sleepStartMinutes = 22 * 60,
             sleepEndMinutes = 6 * 60,
             difficulty = Difficulty.HARD,

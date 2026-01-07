@@ -250,6 +250,12 @@ class MainActivity : AppCompatActivity() {
             binding.snowflake.visibility = visibility
             binding.snowflakeTimer.visibility = visibility
         }
+        viewModel.freezeTimerText.observe(this) { text ->
+            binding.snowflakeTimer.text = text
+        }
+        viewModel.freezeTimerActive.observe(this) { active ->
+            binding.snowflakeRow.visibility = if (active) View.VISIBLE else View.GONE
+        }
         viewModel.logs.observe(this) { logs ->
             logAdapter.submitList(logs) {
                 binding.logsRecycler.scrollToPosition(0)
