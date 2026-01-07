@@ -64,7 +64,9 @@ class WebViewActivity : AppCompatActivity() {
                 updated = GameManager.onLocalStorageUpdated(
                     updated,
                     Optional.of(result),
-                    isFormulaMode
+                    isFormulaMode,
+                    getString(R.string.log_new_badge),
+                    getString(R.string.log_game_started)
                 )
             }
             if (isReviewMode) {

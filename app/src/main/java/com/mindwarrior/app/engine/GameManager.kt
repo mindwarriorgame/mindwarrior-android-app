@@ -93,7 +93,9 @@ object GameManager {
     fun onLocalStorageUpdated(
         user: User,
         localStorate: Optional<String>,
-        triggeredByFormulaEditor: Boolean
+        triggeredByFormulaEditor: Boolean,
+        newBadgeLogMessage: String = "",
+        gameStartedLogMessage: String = ""
     ): User {
         val userOldLocalStorage = user.localStorageSnapshot
         var updatedUser = user.copy(localStorageSnapshot = localStorate)
@@ -106,18 +108,25 @@ object GameManager {
         }
         val activePlaySeconds = Counter(updatedUser.activePlayTimerSerialized).getTotalSeconds()
         val manager = BadgesManager(updatedUser.difficulty.ordinal, updatedUser.badgesSerialized)
-        manager.onGameStarted(activePlaySeconds)
+        val newBadge = manager.onGameStarted(activePlaySeconds)
         updatedUser = updatedUser.copy(badgesSerialized = manager.serialize())
+        val nowMillis = NowProvider.nowMillis()
+        val mergedLog = if (newBadge != null && newBadgeLogMessage.isNotBlank()) {
+            if (gameStartedLogMessage.isNotBlank()) {
+                listOf(Pair("$newBadgeLogMessage\n\n$gameStartedLogMessage", nowMillis))
+            } else {
+                listOf(Pair(newBadgeLogMessage, nowMillis))
+            }
+        } else if (gameStartedLogMessage.isNotBlank()) {
+            listOf(Pair(gameStartedLogMessage, nowMillis))
+        } else {
+            emptyList()
+        }
         return updatedUser.copy(
             pausedTimerSerialized = Optional.empty(),
             nextPenaltyTimerSerialized = Counter(user.nextPenaltyTimerSerialized).resume().serialize(),
             activePlayTimerSerialized = Counter(user.activePlayTimerSerialized).resume().serialize(),
-            unseenLogsNewestFirst = listOf(
-                Pair(
-                    "The game has started! Don't forget to review your Formula before the time runs out!",
-                    NowProvider.nowMillis()
-                )
-            ) + user.unseenLogsNewestFirst
+            unseenLogsNewestFirst = mergedLog + user.unseenLogsNewestFirst
         )
     }
 

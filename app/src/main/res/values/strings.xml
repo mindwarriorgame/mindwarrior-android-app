@@ -86,6 +86,8 @@
     <string name="log_review_no_reward">&#x2744;&#xFE0F; Early reviews are not rewarded.</string>
     <string name="log_game_paused">&#x23F8;&#xFE0F; The game was paused.</string>
     <string name="log_game_resumed">&#x25B6;&#xFE0F; The game is resumed.</string>
+    <string name="log_game_started">🏁 The game has started! Don\'t forget to review your Formula before the time runs out!</string>
     <string name="log_sleep_schedule_enabled">&#x1F4A4; Sleep schedule enabled: %1$s - %2$s.</string>
     <string name="log_sleep_schedule_disabled">&#x2600;&#xFE0F; Sleep schedule disabled.</string>
+    <string name="log_new_badge">🏆 You\'ve got a new achievement!</string>
 </resources>
