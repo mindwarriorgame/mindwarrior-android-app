@@ -187,6 +187,30 @@ object LevelGenerator {
         return level.count { it == "c0" }
     }
 
+    fun generateLevels(difficulty: Int): List<List<String>> {
+        val badges = listOf("f0", "s0", "s1", "s2", "t0", "c0", "c1", "c2")
+        val newLevels = mutableListOf<List<String>>()
+        for (levelNo in 5 until 50) {
+            val lenMin = listOf(5, 5, 7, 7, 9)
+            val lenMax = listOf(10, 10, 13, 13, 15)
+            val randomLength = Random.nextInt(lenMin[difficulty], lenMax[difficulty] + 1)
+            val level = mutableListOf<String>()
+            repeat(randomLength) {
+                level.add(badges.random())
+            }
+            newLevels.add(level)
+        }
+        return newLevels
+    }
+
+    fun generateOver50LevelPickIndices(): List<Int> {
+        val indices = mutableListOf<Int>()
+        repeat(100) {
+            indices.add(Random.nextInt(0, 1025))
+        }
+        return indices
+    }
+
     fun getLevel(difficulty: Int, levelStartingZero: Int): List<String> {
         if (levelStartingZero < FIRST_LEVELS_0_1.size) {
             return if (difficulty < 2) {
