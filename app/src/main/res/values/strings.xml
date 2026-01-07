@@ -91,4 +91,8 @@
     <string name="log_sleep_schedule_enabled">&#x1F4A4; Sleep schedule enabled: %1$s - %2$s.</string>
     <string name="log_sleep_schedule_disabled">&#x2600;&#xFE0F; Sleep schedule disabled.</string>
     <string name="log_new_badge">🏆 You\'ve got a new achievement!</string>
+    <string name="log_grumpy_removed">🧹 😾 The grumpy cat is gone!</string>
+    <string name="log_grumpy_remaining">Remaining 😾: %1$d.</string>
+    <string name="log_achievements_unblocked">🏆 The achievements are unblocked.</string>
+    <string name="log_grumpy_blocking">😾 Grumpy cat is blocking achievements.</string>
 </resources>

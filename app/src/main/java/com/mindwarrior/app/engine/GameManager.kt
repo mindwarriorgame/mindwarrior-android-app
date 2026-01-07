@@ -238,7 +238,12 @@ object GameManager {
         user: User,
         reviewMessage: String,
         rewardMessage: String,
-        noRewardMessage: String
+        noRewardMessage: String,
+        newBadgeLogMessage: String,
+        grumpyRemovedLogMessage: String,
+        grumpyRemainingLogMessage: String,
+        achievementsUnblockedLogMessage: String,
+        grumpyBlockingLogMessage: String
     ): User {
         val resetCounter = Counter(null)
         if (user.pausedTimerSerialized.isPresent) {
@@ -252,18 +257,45 @@ object GameManager {
             AlertType.Penalty
         }
         val activePlaySeconds = Counter(user.activePlayTimerSerialized).getTotalSeconds()
+        val badgesManager = BadgesManager(user.difficulty.ordinal, user.badgesSerialized)
+        val newBadge = badgesManager.onReview(activePlaySeconds)
+        val activeGrumpyCats = badgesManager.countActiveGrumpyCatsOnBoard()
         val deltaSeconds = (activePlaySeconds - user.lastRewardAtActivePlayTime).coerceAtLeast(0L)
-        val rewarded = deltaSeconds >= FREEZE_WINDOW_SECONDS
+        val rewarded = deltaSeconds >= FREEZE_WINDOW_SECONDS && activeGrumpyCats == 0
         val rewardLog = if (rewarded) rewardMessage else noRewardMessage
         val nowMillis = NowProvider.nowMillis()
-        val combinedMessage = "$reviewMessage\n\n$rewardLog"
+        val baseMessage = "$rewardLog\n\n$reviewMessage"
+        val prefixMessage = if (newBadge == "c0_removed") {
+            val tailMessage = if (activeGrumpyCats > 0) {
+                String.format(grumpyRemainingLogMessage, activeGrumpyCats)
+            } else {
+                achievementsUnblockedLogMessage
+            }
+            if (grumpyRemovedLogMessage.isNotBlank()) {
+                "$grumpyRemovedLogMessage $tailMessage"
+            } else {
+                tailMessage
+            }
+        } else if (activeGrumpyCats > 0 && grumpyBlockingLogMessage.isNotBlank()) {
+            grumpyBlockingLogMessage
+        } else if (newBadge != null && newBadgeLogMessage.isNotBlank()) {
+            newBadgeLogMessage
+        } else {
+            ""
+        }
+        val combinedMessage = if (prefixMessage.isNotBlank()) {
+            "$prefixMessage\n\n$baseMessage"
+        } else {
+            baseMessage
+        }
         val newLogs = listOf(Pair(combinedMessage, nowMillis)) + user.unseenLogsNewestFirst
         return user.copy(
             nextPenaltyTimerSerialized = resetCounter.serialize(),
             nextAlertType = nextAlertType,
             diamonds = if (rewarded) user.diamonds + 1 else user.diamonds,
             lastRewardAtActivePlayTime = if (rewarded) activePlaySeconds else user.lastRewardAtActivePlayTime,
-            unseenLogsNewestFirst = newLogs
+            unseenLogsNewestFirst = newLogs,
+            badgesSerialized = badgesManager.serialize()
         )
     }
 

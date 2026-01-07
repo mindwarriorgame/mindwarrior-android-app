@@ -9,6 +9,8 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.util.Calendar
+import org.json.JSONArray
+import org.json.JSONObject
 
 @RunWith(AndroidJUnit4::class)
 class GameManagerTest {
@@ -56,7 +58,11 @@ class GameManagerTest {
         val user = UserFactory.createUser(Difficulty.EASY)
         val storage = Optional.of("{\"formula\":\"hello\"}")
 
-        val updated = GameManager.onLocalStorageUpdated(user, storage)
+        val updated = GameManager.onLocalStorageUpdated(
+            user,
+            storage,
+            true
+        )
 
         assertTrue(updated.localStorageSnapshot.isPresent)
         assertTrue(updated.pausedTimerSerialized.isEmpty)
@@ -65,34 +71,160 @@ class GameManagerTest {
     }
 
     @Test
-    fun onLocalStorageUpdatedKeepsPausedWhenFormulaMissing() {
-        val user = UserFactory.createUser(Difficulty.EASY)
-        val storage = Optional.of("{\"formula\":\"\"}")
+    fun onReviewCompletedNoCatsNoNewAchievement() {
+        val badgesSerialized = buildBadgesSerialized(
+            board = listOf(Pair("s0", false)),
+            badgesState = mapOf("StarBadgeCounter" to "0,3")
+        )
+        val user = UserFactory.createUser(Difficulty.BEGINNER).copy(
+            badgesSerialized = badgesSerialized,
+            activePlayTimerSerialized = activeTimerSerialized(minutes = 10),
+            lastRewardAtActivePlayTime = 0L
+        )
 
-        val updated = GameManager.onLocalStorageUpdated(user, storage)
+        val updated = GameManager.onReviewCompleted(
+            user,
+            "REVIEW",
+            "REWARD",
+            "NO_REWARD",
+            "NEW_BADGE",
+            "GRUMPY_REMOVED",
+            "REMAINING %d",
+            "UNBLOCKED",
+            "GRUMPY_BLOCKING"
+        )
 
-        assertTrue(updated.localStorageSnapshot.isPresent)
-        assertTrue(updated.pausedTimerSerialized.isPresent)
-        assertFalse(Counter(updated.activePlayTimerSerialized).isActive())
-        assertFalse(Counter(updated.nextPenaltyTimerSerialized).isActive())
+        assertEquals(1, updated.diamonds)
+        assertEquals(
+            "REWARD\n\nREVIEW",
+            updated.unseenLogsNewestFirst.first().first
+        )
     }
 
     @Test
-    fun onLocalStorageUpdatedKeepsPausedWhenActivePlayNotNearZero() {
-        val active = Counter(null).apply {
-            resume()
-            moveTimeBack(1)
-            getTotalSeconds()
-            pause()
-        }.serialize()
-        val user = UserFactory.createUser(Difficulty.EASY).copy(
-            activePlayTimerSerialized = active
+    fun onReviewCompletedNoCatsWithNewAchievement() {
+        val badgesSerialized = buildBadgesSerialized(
+            board = listOf(Pair("s0", false)),
+            badgesState = mapOf("StarBadgeCounter" to "2,3")
+        )
+        val user = UserFactory.createUser(Difficulty.BEGINNER).copy(
+            badgesSerialized = badgesSerialized,
+            activePlayTimerSerialized = activeTimerSerialized(minutes = 10),
+            lastRewardAtActivePlayTime = 0L
         )
 
-        val updated = GameManager.onLocalStorageUpdated(user, Optional.of("{\"formula\":\"ok\"}"))
+        val updated = GameManager.onReviewCompleted(
+            user,
+            "REVIEW",
+            "REWARD",
+            "NO_REWARD",
+            "NEW_BADGE",
+            "GRUMPY_REMOVED",
+            "REMAINING %d",
+            "UNBLOCKED",
+            "GRUMPY_BLOCKING"
+        )
 
-        assertTrue(updated.pausedTimerSerialized.isPresent)
-        assertFalse(Counter(updated.activePlayTimerSerialized).isActive())
+        assertEquals(
+            "NEW_BADGE\n\nREWARD\n\nREVIEW",
+            updated.unseenLogsNewestFirst.first().first
+        )
+    }
+
+    @Test
+    fun onReviewCompletedBlockingCatNotExpelled() {
+        val badgesSerialized = buildBadgesSerialized(
+            board = listOf(Pair("c0", true)),
+            c0Hp = 5,
+            c0HpNextDelta = 3
+        )
+        val user = UserFactory.createUser(Difficulty.BEGINNER).copy(
+            badgesSerialized = badgesSerialized,
+            activePlayTimerSerialized = activeTimerSerialized(minutes = 10),
+            lastRewardAtActivePlayTime = 0L
+        )
+
+        val updated = GameManager.onReviewCompleted(
+            user,
+            "REVIEW",
+            "REWARD",
+            "NO_REWARD",
+            "NEW_BADGE",
+            "GRUMPY_REMOVED",
+            "REMAINING %d",
+            "UNBLOCKED",
+            "GRUMPY_BLOCKING"
+        )
+
+        assertEquals(0, updated.diamonds)
+        assertEquals(
+            "GRUMPY_BLOCKING\n\nNO_REWARD\n\nREVIEW",
+            updated.unseenLogsNewestFirst.first().first
+        )
+    }
+
+    @Test
+    fun onReviewCompletedTwoBlockingCatsOneExpelled() {
+        val badgesSerialized = buildBadgesSerialized(
+            board = listOf(Pair("c0", true), Pair("c0", true)),
+            c0Hp = 2,
+            c0HpNextDelta = 3
+        )
+        val user = UserFactory.createUser(Difficulty.BEGINNER).copy(
+            badgesSerialized = badgesSerialized,
+            activePlayTimerSerialized = activeTimerSerialized(minutes = 10),
+            lastRewardAtActivePlayTime = 0L
+        )
+
+        val updated = GameManager.onReviewCompleted(
+            user,
+            "REVIEW",
+            "REWARD",
+            "NO_REWARD",
+            "NEW_BADGE",
+            "GRUMPY_REMOVED",
+            "REMAINING %d",
+            "UNBLOCKED",
+            "GRUMPY_BLOCKING"
+        )
+
+        assertEquals(0, updated.diamonds)
+        assertEquals(
+            "GRUMPY_REMOVED REMAINING 1\n\nNO_REWARD\n\nREVIEW",
+            updated.unseenLogsNewestFirst.first().first
+        )
+    }
+
+    @Test
+    fun onReviewCompletedSingleBlockingCatExpelled() {
+        val badgesSerialized = buildBadgesSerialized(
+            board = listOf(Pair("c0", true)),
+            c0Hp = 2,
+            c0HpNextDelta = 3
+        )
+        val user = UserFactory.createUser(Difficulty.BEGINNER).copy(
+            badgesSerialized = badgesSerialized,
+            activePlayTimerSerialized = activeTimerSerialized(minutes = 10),
+            lastRewardAtActivePlayTime = 0L
+        )
+
+        val updated = GameManager.onReviewCompleted(
+            user,
+            "REVIEW",
+            "REWARD",
+            "NO_REWARD",
+            "NEW_BADGE",
+            "GRUMPY_REMOVED",
+            "REMAINING %d",
+            "UNBLOCKED",
+            "GRUMPY_BLOCKING"
+        )
+
+        assertEquals(1, updated.diamonds)
+        assertEquals(
+            "GRUMPY_REMOVED UNBLOCKED\n\nREWARD\n\nREVIEW",
+            updated.unseenLogsNewestFirst.first().first
+        )
     }
 
     @Test
@@ -349,5 +481,49 @@ class GameManagerTest {
             calendar.add(Calendar.DAY_OF_YEAR, 1)
         }
         return calendar.timeInMillis
+    }
+
+    private fun buildBadgesSerialized(
+        board: List<Pair<String, Boolean>>,
+        badgesState: Map<String, String?> = emptyMap(),
+        c0Hp: Int = 0,
+        c0HpNextDelta: Int = 3
+    ): String {
+        val root = JSONObject()
+        val badgesStateJson = JSONObject()
+        badgesState.forEach { (key, value) ->
+            if (value == null) {
+                badgesStateJson.put(key, JSONObject.NULL)
+            } else {
+                badgesStateJson.put(key, value)
+            }
+        }
+        root.put("badges_state", badgesStateJson)
+        root.put("last_badge", JSONObject.NULL)
+        root.put("last_badge_at", JSONObject.NULL)
+        root.put("level", 0)
+        root.put("c0_hp_next_delta", c0HpNextDelta)
+        root.put("c0_hp", c0Hp)
+        root.put("c0_lock_started_at", 0)
+        root.put("c0_active_time_penalty", 0)
+
+        val boardJson = JSONArray()
+        for ((badge, isActive) in board) {
+            val cell = JSONObject()
+            cell.put("badge", badge)
+            cell.put("is_active", isActive)
+            cell.put("is_last_modified", false)
+            boardJson.put(cell)
+        }
+        root.put("board", boardJson)
+        return root.toString()
+    }
+
+    private fun activeTimerSerialized(minutes: Long): String {
+        return Counter(null).resume().apply {
+            moveTimeBack(minutes)
+            getTotalSeconds()
+            pause()
+        }.serialize()
     }
 }

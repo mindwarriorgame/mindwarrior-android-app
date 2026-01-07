@@ -82,7 +82,12 @@ class WebViewActivity : AppCompatActivity() {
                     updated,
                     reviewMessage,
                     rewardMessage,
-                    noRewardMessage
+                    noRewardMessage,
+                    getString(R.string.log_new_badge),
+                    getString(R.string.log_grumpy_removed),
+                    getString(R.string.log_grumpy_remaining),
+                    getString(R.string.log_achievements_unblocked),
+                    getString(R.string.log_grumpy_blocking)
                 )
             }
             if (updated != user) {
