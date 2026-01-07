@@ -2,7 +2,6 @@ package com.mindwarrior.app
 
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.platform.app.InstrumentationRegistry
 import android.os.SystemClock
 import com.mindwarrior.app.engine.AlertType
 import com.mindwarrior.app.engine.Counter
@@ -195,7 +194,7 @@ class UserStorageTest {
         val prefs = context.getSharedPreferences(PREFS_NAME, android.content.Context.MODE_PRIVATE)
         val updatedPersisted = waitForAlertType(prefs, AlertType.Penalty.name)
         assertTrue(updatedPersisted)
-        assertTrue(prefs.getString(KEY_PENDING_NOTIFICATION_LOGS_NEWEST_FIRST, "[]") != "[]")
+        assertTrue(waitForPendingLogs(prefs))
     }
 
     companion object {
@@ -211,12 +210,21 @@ class UserStorageTest {
         prefs: android.content.SharedPreferences,
         expected: String
     ): Boolean {
-        val instrumentation = InstrumentationRegistry.getInstrumentation()
         val deadline = SystemClock.uptimeMillis() + 2_000L
         while (SystemClock.uptimeMillis() < deadline) {
-            instrumentation.waitForIdleSync()
             val current = prefs.getString(KEY_NEXT_ALERT_TYPE, null)
             if (current == expected) {
+                return true
+            }
+            SystemClock.sleep(25)
+        }
+        return false
+    }
+
+    private fun waitForPendingLogs(prefs: android.content.SharedPreferences): Boolean {
+        val deadline = SystemClock.uptimeMillis() + 2_000L
+        while (SystemClock.uptimeMillis() < deadline) {
+            if (prefs.getString(KEY_PENDING_NOTIFICATION_LOGS_NEWEST_FIRST, "[]") != "[]") {
                 return true
             }
             SystemClock.sleep(25)
