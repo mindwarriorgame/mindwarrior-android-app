@@ -70,20 +70,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    private val snowflakeBlink = object : Runnable {
-        private var visible = true
-        override fun run() {
-            if (!freezeTimerEnabled) {
-                _snowflakeVisible.value = false
-                handler.postDelayed(this, 1000L)
-                return
-            }
-            visible = !visible
-            _snowflakeVisible.value = visible
-            handler.postDelayed(this, 1000L)
-        }
-    }
-
     private val timerTicker = object : Runnable {
         override fun run() {
             refreshTimerDisplay()
@@ -122,16 +108,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun startTickers() {
         if (tickersRunning) return
         tickersRunning = true
-        handler.removeCallbacks(snowflakeBlink)
         handler.removeCallbacks(timerTicker)
-        handler.post(snowflakeBlink)
         handler.post(timerTicker)
     }
 
     fun stopTickers() {
         if (!tickersRunning) return
         tickersRunning = false
-        handler.removeCallbacks(snowflakeBlink)
         handler.removeCallbacks(timerTicker)
     }
 
@@ -279,18 +262,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         val remainingSeconds = FREEZE_WINDOW_SECONDS - deltaSeconds
         val isActive = remainingSeconds > 0L
         _freezeTimerActive.value = isActive
+        _snowflakeVisible.value = isActive
         if (isActive) {
             _freezeTimerText.value = formatRemaining(remainingSeconds * 1000)
-            if (!freezeTimerEnabled) {
-                freezeTimerEnabled = true
-                _snowflakeVisible.value = true
-            }
         } else {
             _freezeTimerText.value = ""
-            if (freezeTimerEnabled) {
-                freezeTimerEnabled = false
-                _snowflakeVisible.value = false
-            }
         }
     }
 
@@ -305,5 +281,4 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         private const val FREEZE_WINDOW_SECONDS = 5 * 60L
     }
 
-    private var freezeTimerEnabled = false
 }
