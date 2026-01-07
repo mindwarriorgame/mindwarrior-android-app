@@ -194,7 +194,17 @@ class MainActivity : AppCompatActivity() {
             if (!ensureFormulaAvailable()) {
                 return@setOnClickListener
             }
-            startActivity(android.content.Intent(this, WebViewActivity::class.java))
+            val user = UserStorage.getUser(this)
+            val baseUrl = GameManager.buildBoardWebViewUrl(
+                baseUrl = "file:///android_asset/miniapp-frontend/board.html",
+                user = user,
+                langCode = "en",
+                env = "prod"
+            )
+            val intent = android.content.Intent(this, WebViewActivity::class.java)
+            intent.putExtra(WebViewActivity.EXTRA_BASE_URL, baseUrl)
+            intent.putExtra(WebViewActivity.EXTRA_ASSET_PATH, "miniapp-frontend/board.html")
+            startActivity(intent)
         }
 
         binding.labButton.setOnClickListener {

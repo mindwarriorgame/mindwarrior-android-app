@@ -2,8 +2,10 @@ package com.mindwarrior.app.engine
 
 import com.mindwarrior.app.NowProvider
 import com.mindwarrior.app.badges.BadgesManager
+import com.mindwarrior.app.badges.BoardSerializer
 import java.util.Optional
 import org.json.JSONObject
+import java.net.URLEncoder
 
 object GameManager {
 
@@ -308,6 +310,44 @@ object GameManager {
         return NowProvider.nowMillis() +
             DifficultyHelper.getReviewFrequencyMillis(user.difficulty) -
                 Counter(user.nextPenaltyTimerSerialized).getTotalSeconds() * 1000
+    }
+
+    fun buildBoardWebViewUrl(
+        baseUrl: String,
+        user: User,
+        langCode: String,
+        env: String
+    ): String {
+        val activePlayTimeSecs = Counter(user.activePlayTimerSerialized).getTotalSeconds()
+        val badgesManager = BadgesManager(user.difficulty.ordinal, user.badgesSerialized)
+        val params = linkedMapOf(
+            "lang" to langCode,
+            "env" to env,
+            "level" to (badgesManager.getLevel() + 1).toString(),
+            "b1" to BoardSerializer.serializeBoard(badgesManager.getBoard()),
+            "bp1" to BoardSerializer.serializeProgress(badgesManager.progress(activePlayTimeSecs))
+        )
+
+        val lastBadge = badgesManager.getLastBadge()
+        if (lastBadge != null) {
+            params["new_badge"] = lastBadge
+        }
+
+        if (badgesManager.isLevelCompleted()) {
+            params["b2"] = BoardSerializer.serializeBoard(badgesManager.getNextLevelBoard())
+            params["bp2"] = BoardSerializer.serializeProgress(badgesManager.newLevelEmptyProgress())
+        }
+
+        val query = params.entries.joinToString("&") { (key, value) ->
+            val encoded = URLEncoder.encode(value, "UTF-8")
+            "$key=$encoded"
+        }
+
+        return if (baseUrl.contains("?")) {
+            "$baseUrl&$query"
+        } else {
+            "$baseUrl?$query"
+        }
     }
 
     private fun hasFormula(localStorageJson: String): Boolean {
