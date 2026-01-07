@@ -1,6 +1,7 @@
 package com.mindwarrior.app.engine
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.mindwarrior.app.NowProvider
 import java.util.Optional
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -287,13 +288,14 @@ class GameManagerTest {
             paused = true
         ).copy(
             sleepStartMinutes = start,
-            sleepEndMinutes = end
+            sleepEndMinutes = end,
+            nextSleepEventAtMillis = Optional.of(SleepUtils.calculateNextSleepEventMillisAt(
+                nowMillis,
+                start,
+                end
+            ))
         )
-        val expected = SleepUtils.calculateNextSleepEventMillisAt(
-            nowMillis,
-            start,
-            end
-        )
+        val expected = nextOccurrenceMillisAt(nowMillis, start)
 
         val actual = GameManager.calculateNextAlertMillis(user)
 
@@ -333,5 +335,19 @@ class GameManagerTest {
         val toleranceMillis = 2_000L
         val delta = kotlin.math.abs(expected - actual)
         assertTrue("Expected $expected but was $actual", delta <= toleranceMillis)
+    }
+
+    private fun nextOccurrenceMillisAt(nowMillis: Long, minutesOfDay: Int): Long {
+        val minutesInDay = 24 * 60
+        val normalized = ((minutesOfDay % minutesInDay) + minutesInDay) % minutesInDay
+        val calendar = Calendar.getInstance().apply { timeInMillis = nowMillis }
+        calendar.set(Calendar.HOUR_OF_DAY, normalized / 60)
+        calendar.set(Calendar.MINUTE, normalized % 60)
+        calendar.set(Calendar.SECOND, 0)
+        calendar.set(Calendar.MILLISECOND, 0)
+        if (calendar.timeInMillis < nowMillis) {
+            calendar.add(Calendar.DAY_OF_YEAR, 1)
+        }
+        return calendar.timeInMillis
     }
 }
