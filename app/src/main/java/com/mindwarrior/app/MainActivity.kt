@@ -207,6 +207,7 @@ class MainActivity : AppCompatActivity() {
                 WebViewActivity.EXTRA_ASSET_PATH,
                 "miniapp-frontend/index.html"
             )
+            intent.putExtra(WebViewActivity.EXTRA_IS_FORMULA, true)
             startActivity(intent)
         }
 
@@ -224,6 +225,7 @@ class MainActivity : AppCompatActivity() {
                 "miniapp-frontend/index.html"
             )
             intent.putExtra(WebViewActivity.EXTRA_IS_REVIEW, true)
+            intent.putExtra(WebViewActivity.EXTRA_IS_FORMULA, false)
             startActivity(intent)
         }
     }

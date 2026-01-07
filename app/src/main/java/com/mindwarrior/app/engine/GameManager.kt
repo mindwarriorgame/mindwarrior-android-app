@@ -1,6 +1,7 @@
 package com.mindwarrior.app.engine
 
 import com.mindwarrior.app.NowProvider
+import com.mindwarrior.app.badges.BadgesManager
 import java.util.Optional
 import org.json.JSONObject
 
@@ -89,23 +90,24 @@ object GameManager {
         )
     }
 
-    fun onLocalStorageUpdated(user: User, localStorate: Optional<String>): User {
+    fun onLocalStorageUpdated(
+        user: User,
+        localStorate: Optional<String>,
+        triggeredByFormulaEditor: Boolean
+    ): User {
         val userOldLocalStorage = user.localStorageSnapshot
-        val updatedUser = user.copy(localStorageSnapshot = localStorate)
+        var updatedUser = user.copy(localStorageSnapshot = localStorate)
         if (!localStorate.isPresent) {
             return updatedUser
         }
-        val isGameStarted = (!userOldLocalStorage.isPresent && localStorate.isPresent)
-        if (!user.pausedTimerSerialized.isPresent) {
+        val isGameStarted = (!userOldLocalStorage.isPresent && triggeredByFormulaEditor)
+        if (!isGameStarted) {
             return updatedUser
         }
-        val activePlaySeconds = Counter(user.activePlayTimerSerialized).getTotalSeconds()
-        if (activePlaySeconds > ACTIVE_PLAY_NEAR_ZERO_SECONDS) {
-            return updatedUser
-        }
-        if (!hasFormula(localStorate.get())) {
-            return updatedUser
-        }
+        val activePlaySeconds = Counter(updatedUser.activePlayTimerSerialized).getTotalSeconds()
+        val manager = BadgesManager(updatedUser.difficulty.ordinal, updatedUser.badgesSerialized)
+        manager.onGameStarted(activePlaySeconds)
+        updatedUser = updatedUser.copy(badgesSerialized = manager.serialize())
         return updatedUser.copy(
             pausedTimerSerialized = Optional.empty(),
             nextPenaltyTimerSerialized = Counter(user.nextPenaltyTimerSerialized).resume().serialize(),

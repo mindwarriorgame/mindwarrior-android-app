@@ -21,6 +21,7 @@ class WebViewActivity : AppCompatActivity() {
         val baseUrlExtra = intent.getStringExtra(EXTRA_BASE_URL)
         val assetPathExtra = intent.getStringExtra(EXTRA_ASSET_PATH)
         val isReviewMode = intent.getBooleanExtra(EXTRA_IS_REVIEW, false)
+        val isFormulaMode = intent.getBooleanExtra(EXTRA_IS_FORMULA, false)
 
         val loader = AssetWebViewLoader(assets)
         loader.loadInto(
@@ -32,7 +33,7 @@ class WebViewActivity : AppCompatActivity() {
                 replacements = AssetWebViewLoader.defaultReplacements(),
                 injectedScript = buildLocalStorageRestoreScript(),
                 javascriptInterfaceName = JS_INTERFACE_NAME,
-                javascriptInterface = WebViewBridge(isReviewMode)
+                javascriptInterface = WebViewBridge(isReviewMode, isFormulaMode)
             )
         )
     }
@@ -45,19 +46,26 @@ class WebViewActivity : AppCompatActivity() {
         }
     }
 
-    private inner class WebViewBridge(private val isReviewMode: Boolean) {
+    private inner class WebViewBridge(
+        private val isReviewMode: Boolean,
+        private val isFormulaMode: Boolean
+    ) {
         @JavascriptInterface
         fun close() {
-            runOnUiThread { saveLocalStorageAndFinish(isReviewMode) }
+            runOnUiThread { saveLocalStorageAndFinish(isReviewMode, isFormulaMode) }
         }
     }
 
-    private fun saveLocalStorageAndFinish(isReviewMode: Boolean) {
+    private fun saveLocalStorageAndFinish(isReviewMode: Boolean, isFormulaMode: Boolean) {
         binding.webview.evaluateJavascript(LOCAL_STORAGE_SNAPSHOT_JS) { result ->
             val user = UserStorage.getUser(this)
             var updated = user
             if (!result.isNullOrBlank() && result != "null" && result != "undefined") {
-                updated = GameManager.onLocalStorageUpdated(updated, Optional.of(result))
+                updated = GameManager.onLocalStorageUpdated(
+                    updated,
+                    Optional.of(result),
+                    isFormulaMode
+                )
             }
             if (isReviewMode) {
                 val totalMinutes =
@@ -117,6 +125,7 @@ class WebViewActivity : AppCompatActivity() {
         const val EXTRA_BASE_URL = "extra_base_url"
         const val EXTRA_ASSET_PATH = "extra_asset_path"
         const val EXTRA_IS_REVIEW = "extra_is_review"
+        const val EXTRA_IS_FORMULA = "extra_is_formula"
         private const val JS_INTERFACE_NAME = "MindWarrior"
         private const val DEFAULT_ASSET_PAGE_URL =
             "file:///android_asset/miniapp-frontend/board.html?lang=en&env=prod&new_badge=s1&level=12&b1=c1_s1a_c2_c2_s1am_s2_t0_t0_c0_c0_c0&bp1=c1_49829_31--c0_0_100--t0_85829_20--s2_15_0"
