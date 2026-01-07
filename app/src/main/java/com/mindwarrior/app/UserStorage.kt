@@ -134,7 +134,6 @@ object UserStorage {
         userUpdateListeners.add(WeakReference(listener))
         pruneListeners()
         removeDuplicates()
-        listener.onUserUpdated(getUser(context))
     }
 
     fun upsertUser(context: Context, user: User) {

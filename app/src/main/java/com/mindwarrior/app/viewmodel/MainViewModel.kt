@@ -98,6 +98,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _reviewEnabled.value = user.localStorageSnapshot.isPresent
         _difficultyLabel.value = formatDifficultyLabel(user.difficulty)
         updateLogsFromUser(user)
+        updateUnseenLogsFromUser(user)
         UserStorage.observeUserChanges(getApplication(), userListener)
     }
 

@@ -161,11 +161,15 @@ object GameManager {
 
     fun calculateNextAlertMillis(user: User): Long {
         var candidates: List<Long> = listOf()
-        if (user.pausedTimerSerialized.isPresent) {
-            if (!user.nextSleepEventAtMillis.isPresent) {
-                return NowProvider.nowMillis() + 5 * 365 * 24 * 3600 * 1000L
-            }
+        if (user.nextSleepEventAtMillis.isPresent) {
             candidates = candidates + user.nextSleepEventAtMillis.get()
+        }
+        if (user.pausedTimerSerialized.isPresent) {
+            return if (candidates.size == 0) {
+                NowProvider.nowMillis() + 5 * 365 * 24 * 3600 * 1000L
+            } else {
+                candidates.get(0)
+            }
         }
         val penaltyThreshold = DifficultyHelper.getReviewFrequencyMillis(user.difficulty)
         val penaltyTimerStartedAtMillis =
@@ -180,6 +184,24 @@ object GameManager {
         }
 
         return candidates.sorted().get(0)
+    }
+
+    fun onReviewCompleted(user: User): User {
+        val resetCounter = Counter(null)
+        if (user.pausedTimerSerialized.isPresent) {
+            resetCounter.pause()
+        } else {
+            resetCounter.resume()
+        }
+        val nextAlertType = if (DifficultyHelper.hasNudge(user.difficulty)) {
+            AlertType.Reminder
+        } else {
+            AlertType.Penalty
+        }
+        return user.copy(
+            nextPenaltyTimerSerialized = resetCounter.serialize(),
+            nextAlertType = nextAlertType
+        )
     }
 
     private fun handleAutoSleepEvent(user: User): User {

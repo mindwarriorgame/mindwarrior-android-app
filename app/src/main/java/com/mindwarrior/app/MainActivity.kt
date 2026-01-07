@@ -191,6 +191,7 @@ class MainActivity : AppCompatActivity() {
                 WebViewActivity.EXTRA_ASSET_PATH,
                 "miniapp-frontend/index.html"
             )
+            intent.putExtra(WebViewActivity.EXTRA_IS_REVIEW, true)
             startActivity(intent)
         }
     }
