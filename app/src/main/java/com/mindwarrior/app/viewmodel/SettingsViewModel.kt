@@ -17,6 +17,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     }
 
     init {
+        _timerForegroundEnabled.value = UserStorage.getUser(getApplication()).timerForegroundEnabled
         UserStorage.observeUserChanges(getApplication(), userListener)
     }
 
