@@ -34,7 +34,8 @@ object GameManager {
         user: User,
         draftEnabled: Boolean,
         draftStartMinutes: Int,
-        draftEndMinutes: Int
+        draftEndMinutes: Int,
+        logMessage: String
     ): User {
         val nextSleepEventAtMillis = if (draftEnabled) {
             Optional.of(
@@ -50,7 +51,10 @@ object GameManager {
         return user.copy(
             nextSleepEventAtMillis = nextSleepEventAtMillis,
             sleepStartMinutes = draftStartMinutes,
-            sleepEndMinutes = draftEndMinutes
+            sleepEndMinutes = draftEndMinutes,
+            unseenLogsNewestFirst = listOf(
+                Pair(logMessage, NowProvider.nowMillis())
+            ) + user.unseenLogsNewestFirst
         )
 
     }

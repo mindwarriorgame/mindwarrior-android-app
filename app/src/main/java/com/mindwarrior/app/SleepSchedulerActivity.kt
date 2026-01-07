@@ -47,11 +47,30 @@ class SleepSchedulerActivity : AppCompatActivity() {
         }
 
         binding.sleepDoneButton.setOnClickListener {
+            val currentUser = UserStorage.getUser(this)
+            val wasEnabled = currentUser.nextSleepEventAtMillis.isPresent
+            val changed = wasEnabled != draftEnabled ||
+                currentUser.sleepStartMinutes != draftStartMinutes ||
+                currentUser.sleepEndMinutes != draftEndMinutes
+            if (!changed) {
+                finish()
+                return@setOnClickListener
+            }
+            val message = if (draftEnabled) {
+                getString(
+                    R.string.log_sleep_schedule_enabled,
+                    formatMinutes(draftStartMinutes),
+                    formatMinutes(draftEndMinutes)
+                )
+            } else {
+                getString(R.string.log_sleep_schedule_disabled)
+            }
             UserStorage.upsertUser(this, GameManager.onSleepScheduleChanged(
-                UserStorage.getUser(this),
+                currentUser,
                 draftEnabled,
                 draftStartMinutes,
-                draftEndMinutes
+                draftEndMinutes,
+                message
             ))
             finish()
         }
