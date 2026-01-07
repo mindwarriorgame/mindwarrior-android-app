@@ -323,6 +323,9 @@ class MainActivity : AppCompatActivity() {
             binding.reviewButton.isEnabled = enabled
             binding.reviewButton.alpha = if (enabled) 1f else 0.5f
         }
+        viewModel.diamonds.observe(this) { count ->
+            binding.diamondsButton.text = getString(R.string.diamonds_button, count)
+        }
         viewModel.difficultyLabel.observe(this) { label ->
             binding.menuDifficulty.text = label
         }

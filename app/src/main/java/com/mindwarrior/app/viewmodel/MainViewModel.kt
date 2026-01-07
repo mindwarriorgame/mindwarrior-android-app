@@ -39,6 +39,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _reviewEnabled = MutableLiveData<Boolean>()
     val reviewEnabled: LiveData<Boolean> = _reviewEnabled
 
+    private val _diamonds = MutableLiveData<Int>()
+    val diamonds: LiveData<Int> = _diamonds
+
     private val _difficultyLabel = MutableLiveData<String>()
     val difficultyLabel: LiveData<String> = _difficultyLabel
 
@@ -64,6 +67,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         override fun onUserUpdated(user: com.mindwarrior.app.engine.User) {
             _isPaused.value = user.pausedTimerSerialized.isPresent
             _reviewEnabled.value = true
+            _diamonds.value = user.diamonds
             _difficultyLabel.value = formatDifficultyLabel(user.difficulty)
             updateLogsFromUser(user)
             updateUnseenLogsFromUser(user)
@@ -94,6 +98,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         val user = UserStorage.getUser(getApplication())
         _isPaused.value = user.pausedTimerSerialized.isPresent
         _reviewEnabled.value = true
+        _diamonds.value = user.diamonds
         _difficultyLabel.value = formatDifficultyLabel(user.difficulty)
         updateLogsFromUser(user)
         updateUnseenLogsFromUser(user)
