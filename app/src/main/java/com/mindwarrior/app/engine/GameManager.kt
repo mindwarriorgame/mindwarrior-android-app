@@ -195,7 +195,12 @@ object GameManager {
         return candidates.sorted().get(0)
     }
 
-    fun onReviewCompleted(user: User): User {
+    fun onReviewCompleted(
+        user: User,
+        reviewMessage: String,
+        rewardMessage: String,
+        noRewardMessage: String
+    ): User {
         val resetCounter = Counter(null)
         if (user.pausedTimerSerialized.isPresent) {
             resetCounter.pause()
@@ -207,9 +212,19 @@ object GameManager {
         } else {
             AlertType.Penalty
         }
+        val activePlaySeconds = Counter(user.activePlayTimerSerialized).getTotalSeconds()
+        val deltaSeconds = (activePlaySeconds - user.lastRewardAtActivePlayTime).coerceAtLeast(0L)
+        val rewarded = deltaSeconds >= FREEZE_WINDOW_SECONDS
+        val rewardLog = if (rewarded) rewardMessage else noRewardMessage
+        val nowMillis = NowProvider.nowMillis()
+        val combinedMessage = "$reviewMessage\n\n$rewardLog"
+        val newLogs = listOf(Pair(combinedMessage, nowMillis)) + user.unseenLogsNewestFirst
         return user.copy(
             nextPenaltyTimerSerialized = resetCounter.serialize(),
-            nextAlertType = nextAlertType
+            nextAlertType = nextAlertType,
+            diamonds = if (rewarded) user.diamonds + 1 else user.diamonds,
+            lastRewardAtActivePlayTime = if (rewarded) activePlaySeconds else user.lastRewardAtActivePlayTime,
+            unseenLogsNewestFirst = newLogs
         )
     }
 
@@ -268,4 +283,5 @@ object GameManager {
     }
 
     private const val ACTIVE_PLAY_NEAR_ZERO_SECONDS = 10L
+    private const val FREEZE_WINDOW_SECONDS = 5 * 60L
 }

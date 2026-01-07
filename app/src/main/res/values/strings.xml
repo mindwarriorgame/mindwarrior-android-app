@@ -80,4 +80,7 @@
     <string name="difficulty_info_medium">Medium ⚔️🔥\nBalanced challenge with tighter windows and sharper penalties.</string>
     <string name="difficulty_info_hard">Hard 💥🧠\nHigh intensity, minimal breaks, mistakes cost more.</string>
     <string name="difficulty_info_export">Export 📤📊\nNo gameplay tuning; data-focused mode for sharing.</string>
+    <string name="log_review_completed">&#x1F389; You\'ve successfully reviewed the Formula! Next review in %1$d h %2$d m.</string>
+    <string name="log_review_reward">&#x1F48E; You\'ve got a diamond!</string>
+    <string name="log_review_no_reward">&#x2744;&#xFE0F; Early reviews are not rewarded.</string>
 </resources>

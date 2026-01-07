@@ -5,6 +5,7 @@ import android.util.Base64
 import android.webkit.JavascriptInterface
 import androidx.appcompat.app.AppCompatActivity
 import com.mindwarrior.app.databinding.ActivityWebviewBinding
+import com.mindwarrior.app.engine.DifficultyHelper
 import com.mindwarrior.app.engine.GameManager
 import com.mindwarrior.app.NowProvider
 import java.util.Optional
@@ -59,7 +60,19 @@ class WebViewActivity : AppCompatActivity() {
                 updated = GameManager.onLocalStorageUpdated(updated, Optional.of(result))
             }
             if (isReviewMode) {
-                updated = GameManager.onReviewCompleted(updated)
+                val totalMinutes =
+                    DifficultyHelper.getReviewFrequencyMillis(updated.difficulty) / 60_000L
+                val hours = (totalMinutes / 60).toInt()
+                val minutes = (totalMinutes % 60).toInt()
+                val reviewMessage = getString(R.string.log_review_completed, hours, minutes)
+                val rewardMessage = getString(R.string.log_review_reward)
+                val noRewardMessage = getString(R.string.log_review_no_reward)
+                updated = GameManager.onReviewCompleted(
+                    updated,
+                    reviewMessage,
+                    rewardMessage,
+                    noRewardMessage
+                )
             }
             if (updated != user) {
                 UserStorage.upsertUser(this, updated)
