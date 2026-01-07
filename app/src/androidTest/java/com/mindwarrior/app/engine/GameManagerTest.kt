@@ -101,7 +101,7 @@ class GameManagerTest {
             pausedTimerSerialized = Optional.empty()
         )
 
-        val updated = GameManager.onDifficultyChanged(user, Difficulty.HARD)
+        val updated = GameManager.onDifficultyChanged(user, Difficulty.HARD, "test")
 
         assertEquals(Difficulty.HARD, updated.difficulty)
         assertFalse(updated.pausedTimerSerialized.isPresent)
@@ -111,7 +111,7 @@ class GameManagerTest {
     fun onDifficultyChangedKeepsPausedWhenPaused() {
         val user = UserFactory.createUser(Difficulty.EASY)
 
-        val updated = GameManager.onDifficultyChanged(user, Difficulty.HARD)
+        val updated = GameManager.onDifficultyChanged(user, Difficulty.HARD, "test")
 
         assertEquals(Difficulty.HARD, updated.difficulty)
         assertTrue(updated.pausedTimerSerialized.isPresent)

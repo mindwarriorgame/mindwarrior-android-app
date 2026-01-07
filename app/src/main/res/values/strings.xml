@@ -62,6 +62,7 @@
     <string name="timer_notification_loading">Loading timer...</string>
     <string name="timer_notification_running">Time left: %1$s</string>
     <string name="timer_notification_paused">Paused</string>
+    <string name="log_difficulty_changed">💪 The difficulty was changed from %1$s to %2$s. The game has been restarted.</string>
     <string name="settings_title">Settings</string>
     <string name="settings_subtitle">Toggle the always-on timer banner.</string>
     <string name="settings_timer_foreground">Show timer on lock screen</string>

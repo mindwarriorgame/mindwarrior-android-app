@@ -6,9 +6,14 @@ import org.json.JSONObject
 
 object GameManager {
 
-    fun onDifficultyChanged(user: User, newDifficulty: Difficulty): User {
+    fun onDifficultyChanged(
+        user: User,
+        newDifficulty: Difficulty,
+        logMessage: String
+    ): User {
         val newUser = UserFactory.createUser(newDifficulty).copy(
-            localStorageSnapshot = user.localStorageSnapshot
+            localStorageSnapshot = user.localStorageSnapshot,
+            unseenLogsNewestFirst = listOf(Pair(logMessage, NowProvider.nowMillis()))
         )
         return if (user.pausedTimerSerialized.isPresent) {
             newUser.copy(

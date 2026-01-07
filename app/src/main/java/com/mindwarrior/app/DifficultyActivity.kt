@@ -36,7 +36,12 @@ class DifficultyActivity : AppCompatActivity() {
             }
             if (selected != current) {
                 val user = UserStorage.getUser(this)
-                UserStorage.upsertUser(this, GameManager.onDifficultyChanged(user, selected))
+                val message = getString(
+                    R.string.log_difficulty_changed,
+                    getString(user.difficulty.labelRes),
+                    getString(selected.labelRes)
+                )
+                UserStorage.upsertUser(this, GameManager.onDifficultyChanged(user, selected, message))
                 OneOffAlertController.restart(this)
                 current = selected
             }
