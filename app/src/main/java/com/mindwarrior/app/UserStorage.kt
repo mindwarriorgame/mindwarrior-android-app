@@ -10,12 +10,14 @@ import java.util.Optional
 import android.os.Handler
 import android.os.Looper
 import java.lang.ref.WeakReference
+import android.os.Build
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 
 object UserStorage {
     private const val PREFS_NAME = "mindwarrior_user"
+    private const val PREFS_NAME_DEVICE = "mindwarrior_user_device"
     private const val KEY_PAUSED_TIMER_SERIALIZED = "paused_timer_serialized"
     private const val KEY_ACTIVE_PLAY_TIMER_SERIALIZED = "active_play_timer_serialized"
     private const val KEY_LAST_REWARD_AT_ACTIVE_PLAY_TIME = "last_reward_at_active_play_time"
@@ -198,6 +200,7 @@ object UserStorage {
             editor.putString(KEY_PAUSED_TIMER_SERIALIZED, "empty")
         }
         editor.apply()
+        storeTimerForegroundEnabled(context, user.timerForegroundEnabled)
         if (shouldTriggerObservers) {
             Handler(Looper.getMainLooper()).post {
                 notifyUserUpdated(user)
@@ -253,6 +256,29 @@ object UserStorage {
             array.put(item)
         }
         return array.toString()
+    }
+
+    fun isTimerForegroundEnabledDevice(context: Context): Boolean {
+        val deviceContext = if (Build.VERSION.SDK_INT >= 24) {
+            context.createDeviceProtectedStorageContext()
+        } else {
+            context
+        }
+        return deviceContext
+            .getSharedPreferences(PREFS_NAME_DEVICE, Context.MODE_PRIVATE)
+            .getBoolean(KEY_TIMER_FOREGROUND_ENABLED, false)
+    }
+
+    private fun storeTimerForegroundEnabled(context: Context, enabled: Boolean) {
+        if (Build.VERSION.SDK_INT < 24) {
+            return
+        }
+        val deviceContext = context.createDeviceProtectedStorageContext()
+        deviceContext
+            .getSharedPreferences(PREFS_NAME_DEVICE, Context.MODE_PRIVATE)
+            .edit()
+            .putBoolean(KEY_TIMER_FOREGROUND_ENABLED, enabled)
+            .apply()
     }
 
     private fun deserializeLogList(

@@ -45,7 +45,7 @@ class StickyAlertForegroundService : Service() {
     }
 
     private fun buildNotification(): Notification {
-        val channelId = STICKY_CHANNEL_ID
+        val channelId = STICKY_CHANNEL_ID_V2
         ensureStickyNotificationChannel()
 
         return NotificationCompat.Builder(this, channelId)
@@ -75,7 +75,7 @@ class StickyAlertForegroundService : Service() {
             getString(R.string.timer_notification_running, formatRemaining(remaining))
         }
 
-        val notification = NotificationCompat.Builder(this, STICKY_CHANNEL_ID)
+        val notification = NotificationCompat.Builder(this, STICKY_CHANNEL_ID_V2)
             .setSmallIcon(R.drawable.ic_notification)
             .setOngoing(true)
             .setContentIntent(createContentIntent())
@@ -115,18 +115,18 @@ class StickyAlertForegroundService : Service() {
 
     companion object {
         private const val NOTIFICATION_ID = 2002
-        private const val STICKY_CHANNEL_ID = "battle_timer_sticky"
+        private const val STICKY_CHANNEL_ID_V2 = "battle_timer_sticky_v2"
         private const val STICKY_CHANNEL_NAME = "Battle Timer (Persistent)"
     }
 
     private fun ensureStickyNotificationChannel() {
         val notificationManager =
             getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-        val existing = notificationManager.getNotificationChannel(STICKY_CHANNEL_ID)
+        val existing = notificationManager.getNotificationChannel(STICKY_CHANNEL_ID_V2)
         if (existing != null) return
 
         val channel = NotificationChannel(
-            STICKY_CHANNEL_ID,
+            STICKY_CHANNEL_ID_V2,
             STICKY_CHANNEL_NAME,
             NotificationManager.IMPORTANCE_DEFAULT
         )
