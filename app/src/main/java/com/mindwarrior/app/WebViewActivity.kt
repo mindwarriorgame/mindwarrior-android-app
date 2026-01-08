@@ -88,7 +88,7 @@ class WebViewActivity : AppCompatActivity() {
                     getString(R.string.log_grumpy_removed),
                     getString(R.string.log_grumpy_remaining),
                     getString(R.string.log_achievements_unblocked),
-                    getString(R.string.log_grumpy_blocking)
+                    getString(R.string.log_grumpy_expelling)
                 )
             }
             if (updated != user) {

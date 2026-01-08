@@ -413,6 +413,7 @@ class MainActivity : AppCompatActivity() {
             .show()
     }
 
+
     private fun requestNotificationPermission() {
         if (android.os.Build.VERSION.SDK_INT < 33) return
         val granted = ContextCompat.checkSelfPermission(
