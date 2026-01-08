@@ -301,11 +301,32 @@ class GameManagerTest {
             oldLogsNewestFirst = oldLogs
         )
 
-        val updated = GameManager.onUnseenLogsObserved(user)
+        val updated = GameManager.onUnseenLogsObserved(user, unseen.size)
 
         assertTrue(updated.unseenLogsNewestFirst.isEmpty())
         assertEquals(100, updated.oldLogsNewestFirst.size)
         assertEquals("new-0", updated.oldLogsNewestFirst.first().first)
+    }
+
+    @Test
+    fun onUnseenLogsObservedMovesOldestObservedItems() {
+        val now = NowProvider.nowMillis()
+        val unseen = listOf(
+            Pair("u0", now),
+            Pair("u1", now - 1),
+            Pair("u2", now - 2),
+            Pair("u3", now - 3)
+        )
+        val oldLogs = listOf(Pair("old", now - 10))
+        val user = UserFactory.createUser(Difficulty.BEGINNER).copy(
+            unseenLogsNewestFirst = unseen,
+            oldLogsNewestFirst = oldLogs
+        )
+
+        val updated = GameManager.onUnseenLogsObserved(user, 2)
+
+        assertEquals(listOf("u0", "u1"), updated.unseenLogsNewestFirst.map { it.first })
+        assertEquals("u2", updated.oldLogsNewestFirst.first().first)
     }
 
     @Test

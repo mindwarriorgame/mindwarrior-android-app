@@ -149,15 +149,26 @@ object GameManager {
         )
     }
 
-    fun onUnseenLogsObserved(user: User): User {
+    fun onUnseenLogsObserved(user: User, nLogsObserved: Int): User {
         if (user.unseenLogsNewestFirst.isEmpty()) {
             return user
         }
-        val mergedLogs = (user.unseenLogsNewestFirst + user.oldLogsNewestFirst)
+        val toMoveCount = nLogsObserved.coerceIn(0, user.unseenLogsNewestFirst.size)
+        val toMove = if (toMoveCount == user.unseenLogsNewestFirst.size) {
+            user.unseenLogsNewestFirst
+        } else {
+            user.unseenLogsNewestFirst.takeLast(toMoveCount)
+        }
+        val remainingUnseen = if (toMoveCount == 0) {
+            user.unseenLogsNewestFirst
+        } else {
+            user.unseenLogsNewestFirst.dropLast(toMoveCount)
+        }
+        val mergedLogs = (toMove + user.oldLogsNewestFirst)
             .sortedByDescending { it.second }
             .take(MAX_OLD_LOGS)
         return user.copy(
-            unseenLogsNewestFirst = emptyList(),
+            unseenLogsNewestFirst = remainingUnseen,
             oldLogsNewestFirst = mergedLogs
         )
     }

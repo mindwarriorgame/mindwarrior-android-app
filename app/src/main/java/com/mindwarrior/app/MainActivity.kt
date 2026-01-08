@@ -400,11 +400,12 @@ class MainActivity : AppCompatActivity() {
         if (unseenLogDialogShowing) return
         unseenLogDialogShowing = true
         val message = logs.joinToString("\n") { it.first }
+        val nLogsObserved = logs.size
         AlertDialog.Builder(this)
             .setTitle("New events")
             .setMessage(message)
             .setPositiveButton(android.R.string.ok) { _, _ ->
-                viewModel.markUnseenLogsObserved()
+                viewModel.markUnseenLogsObserved(nLogsObserved)
                 unseenLogDialogShowing = false
             }
             .setOnDismissListener { unseenLogDialogShowing = false }

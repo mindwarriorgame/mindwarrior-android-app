@@ -184,9 +184,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         timerFlagNotified = false
     }
 
-    fun markUnseenLogsObserved() {
+    fun markUnseenLogsObserved(nLogsObserved: Int) {
         val user = UserStorage.getUser(getApplication())
-        val updated = GameManager.onUnseenLogsObserved(user)
+        val updated = GameManager.onUnseenLogsObserved(user, nLogsObserved)
         if (updated != user) {
             UserStorage.upsertUser(getApplication(), updated)
         }
