@@ -290,12 +290,8 @@ object GameManager {
         achievementsUnblockedLogMessage: String,
         grumpyBlockingLogMessage: String
     ): User {
-        val resetCounter = Counter(null)
-        if (user.pausedTimerSerialized.isPresent) {
-            resetCounter.pause()
-        } else {
-            resetCounter.resume()
-        }
+        val wasPaused = user.pausedTimerSerialized.isPresent
+        val resetCounter = Counter(null).resume()
         val nextAlertType = if (DifficultyHelper.hasNudge(user.difficulty)) {
             AlertType.Reminder
         } else {
@@ -306,10 +302,20 @@ object GameManager {
         val isFreeze = deltaSeconds < FREEZE_WINDOW_SECONDS
         val nowMillis = NowProvider.nowMillis()
 
+        val updatedPausedTimerSerialized = if (wasPaused) Optional.empty() else user.pausedTimerSerialized
+        val updatedActivePlayTimerSerialized = if (wasPaused) {
+            Counter(user.activePlayTimerSerialized).resume().serialize()
+        } else {
+            user.activePlayTimerSerialized
+        }
+        val updatedNextPenaltyTimerSerialized = resetCounter.serialize()
+
         if (isFreeze) {
             val newLogs = listOf(Pair(reviewMessage + "\n\n" + freezeMessage, nowMillis)) + user.unseenLogsNewestFirst
             return user.copy(
-                nextPenaltyTimerSerialized = resetCounter.serialize(),
+                pausedTimerSerialized = updatedPausedTimerSerialized,
+                activePlayTimerSerialized = updatedActivePlayTimerSerialized,
+                nextPenaltyTimerSerialized = updatedNextPenaltyTimerSerialized,
                 nextAlertType = nextAlertType,
                 unseenLogsNewestFirst = trimUnseenLogs(newLogs),
             )
@@ -343,7 +349,9 @@ object GameManager {
 
         val newLogs = listOf(Pair(newMessage, nowMillis)) + user.unseenLogsNewestFirst
         return user.copy(
-            nextPenaltyTimerSerialized = resetCounter.serialize(),
+            pausedTimerSerialized = updatedPausedTimerSerialized,
+            activePlayTimerSerialized = updatedActivePlayTimerSerialized,
+            nextPenaltyTimerSerialized = updatedNextPenaltyTimerSerialized,
             nextAlertType = nextAlertType,
             diamonds = if (isNewDiamond) user.diamonds + 1 else user.diamonds,
 

@@ -292,6 +292,38 @@ class GameManagerTest {
     }
 
     @Test
+    fun onReviewCompletedUnpausesWhenPaused() {
+        val badgesSerialized = buildBadgesSerialized(
+            board = listOf(Pair("s0", false)),
+            badgesState = mapOf("StarBadgeCounter" to "0,3")
+        )
+        val pausedTimer = Optional.of(Counter(null).resume().serialize())
+        val user = UserFactory.createUser(Difficulty.BEGINNER).copy(
+            badgesSerialized = badgesSerialized,
+            pausedTimerSerialized = pausedTimer,
+            activePlayTimerSerialized = Counter(null).pause().serialize(),
+            nextPenaltyTimerSerialized = Counter(null).pause().serialize(),
+            lastRewardAtActivePlayTime = 0L
+        )
+
+        val updated = GameManager.onReviewCompleted(
+            user,
+            "REVIEW",
+            "REWARD",
+            "FREEZE",
+            "NEW_BADGE",
+            "GRUMPY_REMOVED",
+            "REMAINING %d",
+            "UNBLOCKED",
+            "GRUMPY_BLOCKING"
+        )
+
+        assertTrue(updated.pausedTimerSerialized.isEmpty)
+        assertTrue(Counter(updated.activePlayTimerSerialized).isActive())
+        assertTrue(Counter(updated.nextPenaltyTimerSerialized).isActive())
+    }
+
+    @Test
     fun onUnseenLogsObservedTrimsOldLogsToHundred() {
         val now = NowProvider.nowMillis()
         val unseen = List(5) { idx -> Pair("new-$idx", now - idx) }
