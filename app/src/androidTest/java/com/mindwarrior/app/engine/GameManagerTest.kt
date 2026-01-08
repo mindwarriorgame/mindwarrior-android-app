@@ -264,6 +264,34 @@ class GameManagerTest {
     }
 
     @Test
+    fun onReviewCompletedUpdatesLastRewardAtActivePlayTimeWhenRewarded() {
+        val badgesSerialized = buildBadgesSerialized(
+            board = listOf(Pair("s0", false)),
+            badgesState = mapOf("StarBadgeCounter" to "0,3")
+        )
+        val user = UserFactory.createUser(Difficulty.BEGINNER).copy(
+            badgesSerialized = badgesSerialized,
+            activePlayTimerSerialized = activeTimerSerialized(minutes = 10),
+            lastRewardAtActivePlayTime = 0L
+        )
+        val activePlaySeconds = Counter(user.activePlayTimerSerialized).getTotalSeconds()
+
+        val updated = GameManager.onReviewCompleted(
+            user,
+            "REVIEW",
+            "REWARD",
+            "NO_REWARD",
+            "NEW_BADGE",
+            "GRUMPY_REMOVED",
+            "REMAINING %d",
+            "UNBLOCKED",
+            "GRUMPY_BLOCKING"
+        )
+
+        assertEquals(activePlaySeconds, updated.lastRewardAtActivePlayTime)
+    }
+
+    @Test
     fun onUnseenLogsObservedTrimsOldLogsToHundred() {
         val now = NowProvider.nowMillis()
         val unseen = List(5) { idx -> Pair("new-$idx", now - idx) }
