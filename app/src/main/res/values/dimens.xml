@@ -1,3 +1,5 @@
 <resources>
     <dimen name="board_cell_spacing">8dp</dimen>
+    <dimen name="unseen_log_padding">16dp</dimen>
+    <dimen name="unseen_log_item_spacing">10dp</dimen>
 </resources>

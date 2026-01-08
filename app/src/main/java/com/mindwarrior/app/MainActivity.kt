@@ -10,6 +10,9 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.text.InputType
 import android.widget.EditText
+import android.view.LayoutInflater
+import android.widget.LinearLayout
+import android.widget.ScrollView
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -25,6 +28,8 @@ import com.mindwarrior.app.notifications.OneOffAlertController
 import com.mindwarrior.app.notifications.StickyAlertController
 import com.mindwarrior.app.notifications.StickyAlertForegroundService
 import java.util.Optional
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -36,6 +41,8 @@ class MainActivity : AppCompatActivity() {
     private var unseenLogDialogShowing = false
     private var lastProgressLevel = 0
     private var lastProgressHasGrumpyCat = false
+    private val unseenTimeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
+    private val unseenDayFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
     private var labGlowActive = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -436,11 +443,36 @@ class MainActivity : AppCompatActivity() {
     private fun showUnseenLogDialog(logs: List<Pair<String, Long>>) {
         if (unseenLogDialogShowing) return
         unseenLogDialogShowing = true
-        val message = logs.joinToString("\n") { it.first }
         val nLogsObserved = logs.size
+        val content = ScrollView(this).apply {
+            isFillViewport = true
+            val padding = resources.getDimensionPixelSize(R.dimen.unseen_log_padding)
+            setPadding(padding, padding, padding, padding)
+            addView(LinearLayout(context).apply {
+                orientation = LinearLayout.VERTICAL
+                logs.forEachIndexed { index, (message, timestampMillis) ->
+                    val item = LayoutInflater.from(context)
+                        .inflate(R.layout.item_log, this, false)
+                    val timeView = item.findViewById<android.widget.TextView>(R.id.log_time)
+                    val messageView = item.findViewById<android.widget.TextView>(R.id.log_message)
+                    timeView.text = formatUnseenTimeLabel(timestampMillis)
+                    messageView.text = message
+                    val params = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                    )
+                    if (index > 0) {
+                        params.topMargin =
+                            resources.getDimensionPixelSize(R.dimen.unseen_log_item_spacing)
+                    }
+                    item.layoutParams = params
+                    addView(item)
+                }
+            })
+        }
         AlertDialog.Builder(this)
             .setTitle("New events")
-            .setMessage(message)
+            .setView(content)
             .setPositiveButton(android.R.string.ok) { _, _ ->
                 viewModel.markUnseenLogsObserved(nLogsObserved)
                 unseenLogDialogShowing = false
@@ -450,6 +482,22 @@ class MainActivity : AppCompatActivity() {
             .show()
     }
 
+    private fun formatUnseenTimeLabel(timeMillis: Long): String {
+        val now = NowProvider.nowMillis()
+        val diff = now - timeMillis
+        return if (diff < DAY_MILLIS) {
+            val relative = when {
+                diff < 10_000L -> "now"
+                diff < 30_000L -> "10s ago"
+                diff < 60_000L -> "30s ago"
+                diff < 3_600_000L -> "${(diff / 60_000).coerceAtLeast(1)}m ago"
+                else -> "${diff / 3_600_000}h ago"
+            }
+            "$relative · ${unseenTimeFormat.format(timeMillis)}"
+        } else {
+            unseenDayFormat.format(timeMillis)
+        }
+    }
 
     private fun requestNotificationPermission() {
         if (android.os.Build.VERSION.SDK_INT < 33) return
@@ -488,6 +536,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     companion object {
+        private const val DAY_MILLIS = 24 * 60 * 60 * 1000L
         private const val NOTIFICATION_PERMISSION_REQUEST = 1003
     }
 }
