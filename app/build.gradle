@@ -13,8 +13,38 @@ android {
         targetSdk 34
         versionCode 1
         versionName '1.0'
+
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
+
+    // Keep standard build types (Android Studio expects debug for androidTest)
+    buildTypes {
+        debug {
+            // optional: debug settings
+        }
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    // ✅ This is the "different appId" option (without breaking IDE tests)
+    flavorDimensions "mode"
+    productFlavors {
+        normal {
+            dimension "mode"
+            // uses defaultConfig applicationId: com.mindwarrior.app
+        }
+        instrumented {
+            dimension "mode"
+            // different app id so you can install alongside normal
+            applicationIdSuffix ".instrumented"
+            // optional: versionNameSuffix "-instrumented"
+        }
+    }
+
+    // DO NOT set testBuildType to a custom one; leave default as debug
+    // testBuildType 'instrumentation'  <-- remove / do not add
 
     buildFeatures {
         viewBinding true
@@ -39,7 +69,9 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.7.0'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0'
     implementation 'androidx.recyclerview:recyclerview:1.3.2'
+
     testImplementation 'junit:junit:4.13.2'
+
     androidTestImplementation 'androidx.test:core:1.5.0'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test:runner:1.5.2'
