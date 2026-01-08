@@ -8,6 +8,7 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.app.NotificationCompat
+import com.mindwarrior.app.engine.GameManager
 import com.mindwarrior.app.engine.User
 import com.mindwarrior.app.notifications.OneOffAlertController
 
@@ -20,7 +21,8 @@ class MindWarriorApplication : Application() {
                 showNotification(pending.first().first)
                 val updated = user.copy(
                     pendingNotificationLogsNewestFirst = emptyList(),
-                    unseenLogsNewestFirst = pending + user.unseenLogsNewestFirst
+                    unseenLogsNewestFirst = (pending + user.unseenLogsNewestFirst)
+                        .take(GameManager.MAX_UNSEEN_LOGS)
                 )
                 UserStorage.upsertUser(applicationContext, updated)
                 return

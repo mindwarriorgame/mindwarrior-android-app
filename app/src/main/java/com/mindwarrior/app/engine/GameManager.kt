@@ -8,6 +8,8 @@ import org.json.JSONObject
 import java.net.URLEncoder
 
 object GameManager {
+    const val MAX_UNSEEN_LOGS = 10
+    const val MAX_OLD_LOGS = 100
 
     fun onDifficultyChanged(
         user: User,
@@ -59,9 +61,9 @@ object GameManager {
             nextSleepEventAtMillis = nextSleepEventAtMillis,
             sleepStartMinutes = draftStartMinutes,
             sleepEndMinutes = draftEndMinutes,
-            unseenLogsNewestFirst = listOf(
-                Pair(logMessage, NowProvider.nowMillis())
-            ) + user.unseenLogsNewestFirst
+            unseenLogsNewestFirst = trimUnseenLogs(
+                listOf(Pair(logMessage, NowProvider.nowMillis())) + user.unseenLogsNewestFirst
+            )
         )
 
     }
@@ -75,7 +77,9 @@ object GameManager {
             pausedTimerSerialized = Optional.of(Counter(null).resume().serialize()),
             nextPenaltyTimerSerialized = Counter(user.nextPenaltyTimerSerialized).pause().serialize(),
             activePlayTimerSerialized = Counter(user.activePlayTimerSerialized).pause().serialize(),
-            unseenLogsNewestFirst = listOf(Pair(logMessage, nowMillis)) + user.unseenLogsNewestFirst
+            unseenLogsNewestFirst = trimUnseenLogs(
+                listOf(Pair(logMessage, nowMillis)) + user.unseenLogsNewestFirst
+            )
         )
     }
 
@@ -88,7 +92,9 @@ object GameManager {
             pausedTimerSerialized = Optional.empty(),
             nextPenaltyTimerSerialized = Counter(user.nextPenaltyTimerSerialized).resume().serialize(),
             activePlayTimerSerialized = Counter(user.activePlayTimerSerialized).resume().serialize(),
-            unseenLogsNewestFirst = listOf(Pair(logMessage, nowMillis)) + user.unseenLogsNewestFirst
+            unseenLogsNewestFirst = trimUnseenLogs(
+                listOf(Pair(logMessage, nowMillis)) + user.unseenLogsNewestFirst
+            )
         )
     }
 
@@ -139,7 +145,7 @@ object GameManager {
             pausedTimerSerialized = Optional.empty(),
             nextPenaltyTimerSerialized = Counter(user.nextPenaltyTimerSerialized).resume().serialize(),
             activePlayTimerSerialized = Counter(user.activePlayTimerSerialized).resume().serialize(),
-            unseenLogsNewestFirst = mergedLog + user.unseenLogsNewestFirst
+            unseenLogsNewestFirst = trimUnseenLogs(mergedLog + user.unseenLogsNewestFirst)
         )
     }
 
@@ -149,10 +155,19 @@ object GameManager {
         }
         val mergedLogs = (user.unseenLogsNewestFirst + user.oldLogsNewestFirst)
             .sortedByDescending { it.second }
+            .take(MAX_OLD_LOGS)
         return user.copy(
             unseenLogsNewestFirst = emptyList(),
             oldLogsNewestFirst = mergedLogs
         )
+    }
+
+    private fun trimUnseenLogs(logs: List<Pair<String, Long>>): List<Pair<String, Long>> {
+        return if (logs.size > MAX_UNSEEN_LOGS) logs.take(MAX_UNSEEN_LOGS) else logs
+    }
+
+    private fun trimOldLogs(logs: List<Pair<String, Long>>): List<Pair<String, Long>> {
+        return if (logs.size > MAX_OLD_LOGS) logs.take(MAX_OLD_LOGS) else logs
     }
 
     fun evaluateAlerts(
@@ -309,7 +324,7 @@ object GameManager {
             nextAlertType = nextAlertType,
             diamonds = if (rewarded) user.diamonds + 1 else user.diamonds,
             lastRewardAtActivePlayTime = if (rewarded) activePlaySeconds else user.lastRewardAtActivePlayTime,
-            unseenLogsNewestFirst = newLogs,
+            unseenLogsNewestFirst = trimUnseenLogs(newLogs),
             badgesSerialized = badgesManager.serialize()
         )
     }

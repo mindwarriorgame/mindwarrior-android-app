@@ -233,6 +233,54 @@ class GameManagerTest {
     }
 
     @Test
+    fun onReviewCompletedTrimsUnseenLogsToTen() {
+        val badgesSerialized = buildBadgesSerialized(
+            board = listOf(Pair("s0", false)),
+            badgesState = mapOf("StarBadgeCounter" to "0,3")
+        )
+        val now = NowProvider.nowMillis()
+        val existingLogs = List(12) { idx -> Pair("old-$idx", now - idx) }
+        val user = UserFactory.createUser(Difficulty.BEGINNER).copy(
+            badgesSerialized = badgesSerialized,
+            activePlayTimerSerialized = activeTimerSerialized(minutes = 10),
+            lastRewardAtActivePlayTime = 0L,
+            unseenLogsNewestFirst = existingLogs
+        )
+
+        val updated = GameManager.onReviewCompleted(
+            user,
+            "REVIEW",
+            "REWARD",
+            "NO_REWARD",
+            "NEW_BADGE",
+            "GRUMPY_REMOVED",
+            "REMAINING %d",
+            "UNBLOCKED",
+            "GRUMPY_BLOCKING"
+        )
+
+        assertEquals(10, updated.unseenLogsNewestFirst.size)
+        assertEquals("REWARD\n\nREVIEW", updated.unseenLogsNewestFirst.first().first)
+    }
+
+    @Test
+    fun onUnseenLogsObservedTrimsOldLogsToHundred() {
+        val now = NowProvider.nowMillis()
+        val unseen = List(5) { idx -> Pair("new-$idx", now - idx) }
+        val oldLogs = List(150) { idx -> Pair("old-$idx", now - 1_000 - idx) }
+        val user = UserFactory.createUser(Difficulty.BEGINNER).copy(
+            unseenLogsNewestFirst = unseen,
+            oldLogsNewestFirst = oldLogs
+        )
+
+        val updated = GameManager.onUnseenLogsObserved(user)
+
+        assertTrue(updated.unseenLogsNewestFirst.isEmpty())
+        assertEquals(100, updated.oldLogsNewestFirst.size)
+        assertEquals("new-0", updated.oldLogsNewestFirst.first().first)
+    }
+
+    @Test
     fun onDifficultyChangedResetsUserForNewDifficultyWhenUnpaused() {
         val user = UserFactory.createUser(Difficulty.EASY).copy(
             pausedTimerSerialized = Optional.empty()
