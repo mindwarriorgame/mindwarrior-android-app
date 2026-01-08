@@ -158,7 +158,12 @@ object GameManager {
         )
     }
 
-    fun evaluateAlerts(user: User): User {
+    fun evaluateAlerts(
+        user: User,
+        reminderMessage: String,
+        penaltyMessage: String,
+        grumpyCatMessage: String
+    ): User {
         if (user.nextSleepEventAtMillis.isPresent &&
             user.nextSleepEventAtMillis.get() < NowProvider.nowMillis()
         ) {
@@ -172,6 +177,7 @@ object GameManager {
         val penaltyThreshold = DifficultyHelper.getReviewFrequencyMillis(user.difficulty)
         val penaltyTimerStartedAtMillis =
             NowProvider.nowMillis() - Counter(user.nextPenaltyTimerSerialized).getTotalSeconds() * 1000
+        val activePlaySeconds = Counter(user.activePlayTimerSerialized).getTotalSeconds()
 
         if (user.nextAlertType == AlertType.Reminder) {
             val nudgeThreshold = penaltyThreshold - 15 * 60 * 1000
@@ -179,10 +185,18 @@ object GameManager {
             val nudgeThesholdAtMsecs = penaltyTimerStartedAtMillis + nudgeThreshold
 
             if (nudgeThesholdAtMsecs < NowProvider.nowMillis()) {
+                val badgesManager = BadgesManager(user.difficulty.ordinal, user.badgesSerialized)
+                val newBadge = badgesManager.onPrompt(activePlaySeconds)
+                val prefix = if (newBadge == "c0" && grumpyCatMessage.isNotBlank()) {
+                    "$grumpyCatMessage\n\n"
+                } else {
+                    ""
+                }
                 return user.copy(
                     nextAlertType = AlertType.Penalty,
+                    badgesSerialized = badgesManager.serialize(),
                     pendingNotificationLogsNewestFirst = listOf(
-                        Pair("⏰ Don't forget to review your formula!", NowProvider.nowMillis())
+                        Pair(prefix + reminderMessage, NowProvider.nowMillis())
                     ) + user.pendingNotificationLogsNewestFirst
                 )
             }
@@ -191,6 +205,13 @@ object GameManager {
         if (user.nextAlertType == AlertType.Penalty
             && (penaltyTimerStartedAtMillis + penaltyThreshold) < NowProvider.nowMillis()
         ) {
+            val badgesManager = BadgesManager(user.difficulty.ordinal, user.badgesSerialized)
+            val newBadge = badgesManager.onPenalty(activePlaySeconds)
+            val prefix = if (newBadge == "c0" && grumpyCatMessage.isNotBlank()) {
+                "$grumpyCatMessage\n\n"
+            } else {
+                ""
+            }
             return user.copy(
                 nextAlertType = if (DifficultyHelper.hasNudge(user.difficulty)) {
                     AlertType.Reminder
@@ -198,8 +219,9 @@ object GameManager {
                     AlertType.Penalty
                 },
                 nextPenaltyTimerSerialized = Counter(null).resume().serialize(),
+                badgesSerialized = badgesManager.serialize(),
                 pendingNotificationLogsNewestFirst = listOf(
-                    Pair("🟥 have missed the review!", NowProvider.nowMillis())
+                    Pair(prefix + penaltyMessage, NowProvider.nowMillis())
                 ) + user.pendingNotificationLogsNewestFirst
             )
         }

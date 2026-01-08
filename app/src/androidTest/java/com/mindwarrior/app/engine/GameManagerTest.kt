@@ -2,6 +2,7 @@ package com.mindwarrior.app.engine
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.mindwarrior.app.NowProvider
+import com.mindwarrior.app.badges.BadgesManager
 import java.util.Optional
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -271,7 +272,12 @@ class GameManagerTest {
             paused = true
         )
 
-        val updated = GameManager.evaluateAlerts(user)
+        val updated = GameManager.evaluateAlerts(
+            user,
+            "REMINDER",
+            "PENALTY",
+            "GRUMPY"
+        )
 
         assertEquals(user, updated)
     }
@@ -285,7 +291,12 @@ class GameManagerTest {
             paused = false
         )
 
-        val updated = GameManager.evaluateAlerts(user)
+        val updated = GameManager.evaluateAlerts(
+            user,
+            "REMINDER",
+            "PENALTY",
+            "GRUMPY"
+        )
 
         assertEquals(AlertType.Penalty, updated.nextAlertType)
         assertTrue(updated.pendingNotificationLogsNewestFirst.isNotEmpty())
@@ -300,11 +311,59 @@ class GameManagerTest {
             paused = false
         )
 
-        val updated = GameManager.evaluateAlerts(user)
+        val updated = GameManager.evaluateAlerts(
+            user,
+            "REMINDER",
+            "PENALTY",
+            "GRUMPY"
+        )
 
         assertEquals(AlertType.Reminder, updated.nextAlertType)
         assertTrue(updated.pendingNotificationLogsNewestFirst.isNotEmpty())
         assertFalse(user.nextPenaltyTimerSerialized == updated.nextPenaltyTimerSerialized)
+    }
+
+    @Test
+    fun evaluateAlertsReminderDoesNotPrefixWithoutNewCat() {
+        val user = userWithElapsedMinutes(
+            elapsedMinutes = 170,
+            difficulty = Difficulty.EASY,
+            nextAlertType = AlertType.Reminder,
+            paused = false
+        )
+
+        val updated = GameManager.evaluateAlerts(
+            user,
+            "REMINDER",
+            "PENALTY",
+            "GRUMPY"
+        )
+
+        assertEquals(AlertType.Penalty, updated.nextAlertType)
+        val message = updated.pendingNotificationLogsNewestFirst.first().first
+        assertTrue(message.startsWith("REMINDER"))
+    }
+
+    @Test
+    fun evaluateAlertsPenaltyPrefixesWhenCatAppears() {
+        val user = userWithElapsedMinutes(
+            elapsedMinutes = 190,
+            difficulty = Difficulty.EASY,
+            nextAlertType = AlertType.Penalty,
+            paused = false
+        )
+
+        val updated = GameManager.evaluateAlerts(
+            user,
+            "REMINDER",
+            "PENALTY",
+            "GRUMPY"
+        )
+
+        val message = updated.pendingNotificationLogsNewestFirst.first().first
+        assertTrue(message.startsWith("GRUMPY\n\nPENALTY"))
+        val manager = BadgesManager(updated.difficulty.ordinal, updated.badgesSerialized)
+        assertTrue(manager.countActiveGrumpyCatsOnBoard() > 0)
     }
 
     @Test
@@ -316,9 +375,14 @@ class GameManagerTest {
             paused = false
         )
 
-        val updated = GameManager.evaluateAlerts(user)
+        val updated = GameManager.evaluateAlerts(
+            user,
+            "REMINDER",
+            "PENALTY",
+            "GRUMPY"
+        )
 
-        assertEquals(updated.pendingNotificationLogsNewestFirst[0].first, "\uD83D\uDFE5 have missed the review!")
+        assertEquals(updated.pendingNotificationLogsNewestFirst[0].first, "GRUMPY\n\nPENALTY")
         assertEquals(updated.nextAlertType, AlertType.Penalty)
     }
 
@@ -338,7 +402,12 @@ class GameManagerTest {
             nextSleepEventAtMillis = Optional.of(System.currentTimeMillis() - 1)
         )
 
-        val updated = GameManager.evaluateAlerts(user)
+        val updated = GameManager.evaluateAlerts(
+            user,
+            "REMINDER",
+            "PENALTY",
+            "GRUMPY"
+        )
 
         assertTrue(updated.pausedTimerSerialized.isPresent)
         assertTrue(updated.nextSleepEventAtMillis.isPresent)
@@ -361,7 +430,12 @@ class GameManagerTest {
             nextSleepEventAtMillis = Optional.of(System.currentTimeMillis() - 1)
         )
 
-        val updated = GameManager.evaluateAlerts(user)
+        val updated = GameManager.evaluateAlerts(
+            user,
+            "REMINDER",
+            "PENALTY",
+            "GRUMPY"
+        )
 
         assertFalse(updated.pausedTimerSerialized.isPresent)
         assertTrue(updated.nextSleepEventAtMillis.isPresent)

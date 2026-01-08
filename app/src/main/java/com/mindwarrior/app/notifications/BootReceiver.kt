@@ -13,7 +13,12 @@ class BootReceiver : BroadcastReceiver() {
         Log.i(TAG, "BootReceiver.onReceive action=${intent.action}")
         if (intent.action == Intent.ACTION_BOOT_COMPLETED) {
             val user = UserStorage.getUser(context)
-            val updatedUser = GameManager.evaluateAlerts(user)
+            val updatedUser = GameManager.evaluateAlerts(
+                user,
+                context.getString(com.mindwarrior.app.R.string.log_prompt_reminder),
+                context.getString(com.mindwarrior.app.R.string.log_prompt_penalty),
+                context.getString(com.mindwarrior.app.R.string.log_grumpy_sneaked_in)
+            )
             if (updatedUser != user) {
                 UserStorage.upsertUser(context, updatedUser)
             }

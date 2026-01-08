@@ -137,7 +137,12 @@ object UserStorage {
             }
         )
 
-        val updatedUser = GameManager.evaluateAlerts(user)
+        val updatedUser = GameManager.evaluateAlerts(
+            user,
+            context.getString(R.string.log_prompt_reminder),
+            context.getString(R.string.log_prompt_penalty),
+            context.getString(R.string.log_grumpy_sneaked_in)
+        )
         if (updatedUser == user && !isNewUser) {
             return user
         }
