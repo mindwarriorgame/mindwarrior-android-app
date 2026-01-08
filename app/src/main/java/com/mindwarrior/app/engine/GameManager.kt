@@ -271,8 +271,8 @@ object GameManager {
     fun onReviewCompleted(
         user: User,
         reviewMessage: String,
-        rewardMessage: String,
-        noRewardMessage: String,
+        newDiamondMessage: String,
+        freezeMessage: String,
         newBadgeLogMessage: String,
         grumpyRemovedLogMessage: String,
         grumpyRemainingLogMessage: String,
@@ -295,10 +295,18 @@ object GameManager {
         val newBadge = badgesManager.onReview(activePlaySeconds)
         val activeGrumpyCats = badgesManager.countActiveGrumpyCatsOnBoard()
         val deltaSeconds  = (activePlaySeconds - user.lastRewardAtActivePlayTime).coerceAtLeast(0L)
-        val rewarded = deltaSeconds >= FREEZE_WINDOW_SECONDS && activeGrumpyCats == 0
-        val rewardLog = if (rewarded) rewardMessage else noRewardMessage
+        val isFreeze = deltaSeconds < FREEZE_WINDOW_SECONDS && activeGrumpyCats == 0
+        val isNewDiamond = !isFreeze && activeGrumpyCats == 0;
         val nowMillis = NowProvider.nowMillis()
-        val baseMessage = "$rewardLog\n\n$reviewMessage"
+        val baseMessage = if (isFreeze) {
+            freezeMessage + "\n\n"
+        } else {
+            if (isNewDiamond) {
+                newDiamondMessage + "\n\n"
+            } else {
+                ""
+            }
+        } + reviewMessage
         val prefixMessage = if (newBadge == "c0_removed") {
             val tailMessage = if (activeGrumpyCats > 0) {
                 String.format(grumpyRemainingLogMessage, activeGrumpyCats)
@@ -322,8 +330,8 @@ object GameManager {
         return user.copy(
             nextPenaltyTimerSerialized = resetCounter.serialize(),
             nextAlertType = nextAlertType,
-            diamonds = if (rewarded) user.diamonds + 1 else user.diamonds,
-            lastRewardAtActivePlayTime = if (rewarded) activePlaySeconds else user.lastRewardAtActivePlayTime,
+            diamonds = if (isNewDiamond) user.diamonds + 1 else user.diamonds,
+            lastRewardAtActivePlayTime = if (isNewDiamond) activePlaySeconds else user.lastRewardAtActivePlayTime,
             unseenLogsNewestFirst = trimUnseenLogs(newLogs),
             badgesSerialized = badgesManager.serialize()
         )

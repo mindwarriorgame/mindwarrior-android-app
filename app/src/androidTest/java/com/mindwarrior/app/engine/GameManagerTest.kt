@@ -163,7 +163,7 @@ class GameManagerTest {
 
         assertEquals(0, updated.diamonds)
         assertEquals(
-            "GRUMPY_BLOCKING\n\nNO_REWARD\n\nREVIEW",
+            "GRUMPY_BLOCKING\n\nREVIEW",
             updated.unseenLogsNewestFirst.first().first
         )
     }
@@ -195,7 +195,7 @@ class GameManagerTest {
 
         assertEquals(0, updated.diamonds)
         assertEquals(
-            "GRUMPY_REMOVED REMAINING 1\n\nNO_REWARD\n\nREVIEW",
+            "GRUMPY_REMOVED REMAINING 1\n\nREVIEW",
             updated.unseenLogsNewestFirst.first().first
         )
     }
