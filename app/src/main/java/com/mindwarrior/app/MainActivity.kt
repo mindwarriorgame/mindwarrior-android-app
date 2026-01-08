@@ -15,6 +15,8 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.appcompat.app.AlertDialog
 import android.view.View
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
 import androidx.lifecycle.ViewModelProvider
 import com.mindwarrior.app.viewmodel.MainViewModel
 import com.mindwarrior.app.engine.Counter
@@ -34,6 +36,7 @@ class MainActivity : AppCompatActivity() {
     private var unseenLogDialogShowing = false
     private var lastProgressLevel = 0
     private var lastProgressHasGrumpyCat = false
+    private var labGlowActive = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -273,6 +276,11 @@ class MainActivity : AppCompatActivity() {
         )
         binding.pauseButton.alpha = 1f
         binding.pauseButton.isSelected = paused
+        if (paused && !labGlowActive) {
+            startPulse(binding.pauseButton)
+        } else {
+            stopPulse(binding.pauseButton, R.drawable.chip_bg_state)
+        }
         if (paused) {
             binding.pauseIndicator.visibility = View.VISIBLE
         } else {
@@ -333,6 +341,9 @@ class MainActivity : AppCompatActivity() {
         viewModel.isPaused.observe(this) { paused ->
             updatePauseUi(paused)
         }
+        viewModel.hasFormula.observe(this) { hasFormula ->
+            updateLabGlow(hasFormula)
+        }
         viewModel.reviewEnabled.observe(this) { enabled ->
             binding.reviewButton.isEnabled = enabled
             binding.reviewButton.alpha = if (enabled) 1f else 0.5f
@@ -384,6 +395,32 @@ class MainActivity : AppCompatActivity() {
 
     private fun addTimerLog() {
         viewModel.addLog(getString(R.string.timer_flag_log))
+    }
+
+    private fun updateLabGlow(hasFormula: Boolean) {
+        labGlowActive = !hasFormula
+        if (labGlowActive) {
+            startPulse(binding.labButton)
+            if (viewModel.isPaused.value == true) {
+                stopPulse(binding.pauseButton, R.drawable.chip_bg_state)
+            }
+        } else {
+            stopPulse(binding.labButton, R.drawable.lab_chip_bg_state)
+        }
+    }
+
+    private fun startPulse(view: View) {
+        view.foreground = getDrawable(R.drawable.pulse_outline)
+        view.startAnimation(AnimationUtils.loadAnimation(this, R.anim.pause_pulse))
+    }
+
+    private fun stopPulse(view: View, backgroundRes: Int) {
+        view.clearAnimation()
+        view.background = getDrawable(backgroundRes)
+        view.foreground = null
+        view.alpha = 1f
+        view.scaleX = 1f
+        view.scaleY = 1f
     }
 
     private fun updateProgressButtonText() {

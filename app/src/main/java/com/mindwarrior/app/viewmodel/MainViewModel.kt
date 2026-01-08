@@ -52,6 +52,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _difficultyLabel = MutableLiveData<String>()
     val difficultyLabel: LiveData<String> = _difficultyLabel
 
+    private val _hasFormula = MutableLiveData<Boolean>()
+    val hasFormula: LiveData<Boolean> = _hasFormula
+
     private val _snowflakeVisible = MutableLiveData<Boolean>(true)
     val snowflakeVisible: LiveData<Boolean> = _snowflakeVisible
 
@@ -76,6 +79,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             _reviewEnabled.value = true
             _diamonds.value = user.diamonds
             updateProgressState(user)
+            _hasFormula.value = user.localStorageSnapshot.isPresent
             _difficultyLabel.value = formatDifficultyLabel(user.difficulty)
             updateLogsFromUser(user)
             updateUnseenLogsFromUser(user)
@@ -108,6 +112,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _reviewEnabled.value = true
         _diamonds.value = user.diamonds
         updateProgressState(user)
+        _hasFormula.value = user.localStorageSnapshot.isPresent
         _difficultyLabel.value = formatDifficultyLabel(user.difficulty)
         updateLogsFromUser(user)
         updateUnseenLogsFromUser(user)
