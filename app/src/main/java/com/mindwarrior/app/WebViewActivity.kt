@@ -84,6 +84,7 @@ class WebViewActivity : AppCompatActivity() {
                     reviewMessage,
                     rewardMessage,
                     noRewardMessage,
+                    getString(R.string.log_game_resumed),
                     getString(R.string.log_new_badge),
                     getString(R.string.log_grumpy_removed),
                     getString(R.string.log_grumpy_remaining),

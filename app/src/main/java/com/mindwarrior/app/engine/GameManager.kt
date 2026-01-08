@@ -284,6 +284,7 @@ object GameManager {
         reviewMessage: String,
         newDiamondMessage: String,
         freezeMessage: String,
+        resumeMessage: String,
         newBadgeLogMessage: String,
         grumpyRemovedLogMessage: String,
         grumpyRemainingLogMessage: String,
@@ -311,7 +312,13 @@ object GameManager {
         val updatedNextPenaltyTimerSerialized = resetCounter.serialize()
 
         if (isFreeze) {
-            val newLogs = listOf(Pair(reviewMessage + "\n\n" + freezeMessage, nowMillis)) + user.unseenLogsNewestFirst
+            val baseMessage = reviewMessage + "\n\n" + freezeMessage
+            val newMessage = if (wasPaused) {
+                baseMessage + "\n\n" + resumeMessage
+            } else {
+                baseMessage
+            }
+            val newLogs = listOf(Pair(newMessage, nowMillis)) + user.unseenLogsNewestFirst
             return user.copy(
                 pausedTimerSerialized = updatedPausedTimerSerialized,
                 activePlayTimerSerialized = updatedActivePlayTimerSerialized,
@@ -345,7 +352,12 @@ object GameManager {
             })
 
         val filteredMessages = messages.filter { it.isNotBlank() };
-        val newMessage = filteredMessages.joinToString("\n\n")
+        val baseMessage = filteredMessages.joinToString("\n\n")
+        val newMessage = if (wasPaused) {
+            baseMessage + "\n\n" + resumeMessage
+        } else {
+            baseMessage
+        }
 
         val newLogs = listOf(Pair(newMessage, nowMillis)) + user.unseenLogsNewestFirst
         return user.copy(

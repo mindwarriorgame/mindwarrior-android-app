@@ -92,6 +92,7 @@ class GameManagerTest {
             "REVIEW",
             "REWARD",
             "NO_REWARD",
+            "RESUME",
             "NEW_BADGE",
             "GRUMPY_REMOVED",
             "REMAINING %d",
@@ -101,7 +102,7 @@ class GameManagerTest {
 
         assertEquals(1, updated.diamonds)
         assertEquals(
-            "REVIEW\n\nREWARD",
+            "REVIEW\n\nREWARD\n\nRESUME",
             updated.unseenLogsNewestFirst.first().first
         )
     }
@@ -115,7 +116,8 @@ class GameManagerTest {
         val user = UserFactory.createUser(Difficulty.BEGINNER).copy(
             badgesSerialized = badgesSerialized,
             activePlayTimerSerialized = activeTimerSerialized(minutes = 10),
-            lastRewardAtActivePlayTime = 0L
+            lastRewardAtActivePlayTime = 0L,
+            pausedTimerSerialized = Optional.empty()
         )
 
         val updated = GameManager.onReviewCompleted(
@@ -123,6 +125,7 @@ class GameManagerTest {
             "REVIEW",
             "REWARD",
             "NO_REWARD",
+            "RESUME",
             "NEW_BADGE",
             "GRUMPY_REMOVED",
             "REMAINING %d",
@@ -154,6 +157,7 @@ class GameManagerTest {
             "REVIEW",
             "REWARD",
             "NO_REWARD",
+            "RESUME",
             "NEW_BADGE",
             "GRUMPY_REMOVED",
             "REMAINING %d",
@@ -163,7 +167,7 @@ class GameManagerTest {
 
         assertEquals(0, updated.diamonds)
         assertEquals(
-            "REVIEW\n\nGRUMPY_BLOCKING",
+            "REVIEW\n\nGRUMPY_BLOCKING\n\nRESUME",
             updated.unseenLogsNewestFirst.first().first
         )
     }
@@ -178,7 +182,8 @@ class GameManagerTest {
         val user = UserFactory.createUser(Difficulty.BEGINNER).copy(
             badgesSerialized = badgesSerialized,
             activePlayTimerSerialized = activeTimerSerialized(minutes = 10),
-            lastRewardAtActivePlayTime = 0L
+            lastRewardAtActivePlayTime = 0L,
+            pausedTimerSerialized = Optional.empty()
         )
 
         val updated = GameManager.onReviewCompleted(
@@ -186,6 +191,7 @@ class GameManagerTest {
             "REVIEW",
             "REWARD",
             "NO_REWARD",
+            "RESUME",
             "NEW_BADGE",
             "GRUMPY_REMOVED",
             "REMAINING %d",
@@ -205,12 +211,13 @@ class GameManagerTest {
         val badgesSerialized = buildBadgesSerialized(
             board = listOf(Pair("c0", true)),
             c0Hp = 2,
-            c0HpNextDelta = 3
+            c0HpNextDelta = 3,
         )
         val user = UserFactory.createUser(Difficulty.BEGINNER).copy(
             badgesSerialized = badgesSerialized,
             activePlayTimerSerialized = activeTimerSerialized(minutes = 10),
-            lastRewardAtActivePlayTime = 0L
+            lastRewardAtActivePlayTime = 0L,
+            pausedTimerSerialized = Optional.empty()
         )
 
         val updated = GameManager.onReviewCompleted(
@@ -218,6 +225,7 @@ class GameManagerTest {
             "REVIEW",
             "REWARD",
             "NO_REWARD",
+            "RESUME",
             "NEW_BADGE",
             "GRUMPY_REMOVED",
             "REMAINING %d",
@@ -244,7 +252,8 @@ class GameManagerTest {
             badgesSerialized = badgesSerialized,
             activePlayTimerSerialized = activeTimerSerialized(minutes = 10),
             lastRewardAtActivePlayTime = 0L,
-            unseenLogsNewestFirst = existingLogs
+            unseenLogsNewestFirst = existingLogs,
+            pausedTimerSerialized = Optional.empty()
         )
 
         val updated = GameManager.onReviewCompleted(
@@ -252,6 +261,7 @@ class GameManagerTest {
             "REVIEW",
             "REWARD",
             "NO_REWARD",
+            "RESUME",
             "NEW_BADGE",
             "GRUMPY_REMOVED",
             "REMAINING %d",
@@ -281,6 +291,7 @@ class GameManagerTest {
             "REVIEW",
             "REWARD",
             "NO_REWARD",
+            "RESUME",
             "NEW_BADGE",
             "GRUMPY_REMOVED",
             "REMAINING %d",
@@ -311,6 +322,7 @@ class GameManagerTest {
             "REVIEW",
             "REWARD",
             "FREEZE",
+            "RESUME",
             "NEW_BADGE",
             "GRUMPY_REMOVED",
             "REMAINING %d",
