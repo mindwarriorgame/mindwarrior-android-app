@@ -302,47 +302,55 @@ object GameManager {
             AlertType.Penalty
         }
         val activePlaySeconds = Counter(user.activePlayTimerSerialized).getTotalSeconds()
+        val deltaSeconds  = (activePlaySeconds - user.lastRewardAtActivePlayTime).coerceAtLeast(0L)
+        val isFreeze = deltaSeconds < FREEZE_WINDOW_SECONDS
+        val nowMillis = NowProvider.nowMillis()
+
+        if (isFreeze) {
+            val newLogs = listOf(Pair(reviewMessage + "\n\n" + freezeMessage, nowMillis)) + user.unseenLogsNewestFirst
+            return user.copy(
+                nextPenaltyTimerSerialized = resetCounter.serialize(),
+                nextAlertType = nextAlertType,
+                unseenLogsNewestFirst = trimUnseenLogs(newLogs),
+            )
+        }
+
         val badgesManager = BadgesManager(user.difficulty.ordinal, user.badgesSerialized)
         val newBadge = badgesManager.onReview(activePlaySeconds)
         val activeGrumpyCats = badgesManager.countActiveGrumpyCatsOnBoard()
-        val deltaSeconds  = (activePlaySeconds - user.lastRewardAtActivePlayTime).coerceAtLeast(0L)
-        val isFreeze = deltaSeconds < FREEZE_WINDOW_SECONDS && activeGrumpyCats == 0
-        val isNewDiamond = !isFreeze && activeGrumpyCats == 0;
-        val nowMillis = NowProvider.nowMillis()
-        val baseMessage = if (isFreeze) {
-            freezeMessage + "\n\n"
-        } else {
-            if (isNewDiamond) {
-                newDiamondMessage + "\n\n"
+        val isNewDiamond = activeGrumpyCats == 0;
+        val messages = mutableListOf<String>(reviewMessage)
+        messages.add(if (newBadge == "c0_removed" && activeGrumpyCats > 0) {
+                grumpyRemovedLogMessage + " " + String.format(grumpyRemainingLogMessage, activeGrumpyCats)
+            } else if (newBadge == "c0_removed" && activeGrumpyCats == 0) {
+                grumpyRemovedLogMessage + " " + achievementsUnblockedLogMessage
+            } else if (activeGrumpyCats > 0) {
+                grumpyBlockingLogMessage
+            } else if (newBadge != null) {
+                newBadgeLogMessage
             } else {
                 ""
-            }
-        } + reviewMessage
-        val prefixMessage = if (newBadge == "c0_removed") {
-            val tailMessage = if (activeGrumpyCats > 0) {
-                String.format(grumpyRemainingLogMessage, activeGrumpyCats)
+            })
+
+        messages.add(if (isNewDiamond) {
+                newDiamondMessage
             } else {
-                achievementsUnblockedLogMessage
-            }
-            "$grumpyRemovedLogMessage $tailMessage"
-        } else if (activeGrumpyCats > 0) {
-            grumpyBlockingLogMessage
-        } else if (newBadge != null) {
-            newBadgeLogMessage
-        } else {
-            ""
-        }
-        val combinedMessage = if (newBadge == "c0_removed" || activeGrumpyCats > 0 || newBadge != null) {
-            "$prefixMessage\n\n$baseMessage"
-        } else {
-            baseMessage
-        }
-        val newLogs = listOf(Pair(combinedMessage, nowMillis)) + user.unseenLogsNewestFirst
+                ""
+            })
+
+        val filteredMessages = messages.filter { it.isNotBlank() };
+        val newMessage = filteredMessages.joinToString("\n\n")
+
+        val newLogs = listOf(Pair(newMessage, nowMillis)) + user.unseenLogsNewestFirst
         return user.copy(
             nextPenaltyTimerSerialized = resetCounter.serialize(),
             nextAlertType = nextAlertType,
             diamonds = if (isNewDiamond) user.diamonds + 1 else user.diamonds,
-            lastRewardAtActivePlayTime = if (isNewDiamond) activePlaySeconds else user.lastRewardAtActivePlayTime,
+
+            // Doesn't matter if isNewDiamond or expelling the grumpy cat, because
+            // "expelling" is also an action that should be prevented from abuse, therefore bump
+            // lastRewardAt in any case (only if freeze then don't to avoid resetting freeze timer)
+            lastRewardAtActivePlayTime = activePlaySeconds,
             unseenLogsNewestFirst = trimUnseenLogs(newLogs),
             badgesSerialized = badgesManager.serialize()
         )

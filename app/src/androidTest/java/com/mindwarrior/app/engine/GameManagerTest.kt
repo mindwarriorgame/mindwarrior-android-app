@@ -101,7 +101,7 @@ class GameManagerTest {
 
         assertEquals(1, updated.diamonds)
         assertEquals(
-            "REWARD\n\nREVIEW",
+            "REVIEW\n\nREWARD",
             updated.unseenLogsNewestFirst.first().first
         )
     }
@@ -131,7 +131,7 @@ class GameManagerTest {
         )
 
         assertEquals(
-            "NEW_BADGE\n\nREWARD\n\nREVIEW",
+            "REVIEW\n\nNEW_BADGE\n\nREWARD",
             updated.unseenLogsNewestFirst.first().first
         )
     }
@@ -163,7 +163,7 @@ class GameManagerTest {
 
         assertEquals(0, updated.diamonds)
         assertEquals(
-            "GRUMPY_BLOCKING\n\nREVIEW",
+            "REVIEW\n\nGRUMPY_BLOCKING",
             updated.unseenLogsNewestFirst.first().first
         )
     }
@@ -195,7 +195,7 @@ class GameManagerTest {
 
         assertEquals(0, updated.diamonds)
         assertEquals(
-            "GRUMPY_REMOVED REMAINING 1\n\nREVIEW",
+            "REVIEW\n\nGRUMPY_REMOVED REMAINING 1",
             updated.unseenLogsNewestFirst.first().first
         )
     }
@@ -227,7 +227,7 @@ class GameManagerTest {
 
         assertEquals(1, updated.diamonds)
         assertEquals(
-            "GRUMPY_REMOVED UNBLOCKED\n\nREWARD\n\nREVIEW",
+            "REVIEW\n\nGRUMPY_REMOVED UNBLOCKED\n\nREWARD",
             updated.unseenLogsNewestFirst.first().first
         )
     }
@@ -260,7 +260,7 @@ class GameManagerTest {
         )
 
         assertEquals(10, updated.unseenLogsNewestFirst.size)
-        assertEquals("REWARD\n\nREVIEW", updated.unseenLogsNewestFirst.first().first)
+        assertEquals("REVIEW\n\nREWARD", updated.unseenLogsNewestFirst.first().first)
     }
 
     @Test
