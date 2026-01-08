@@ -98,7 +98,8 @@ object GameManager {
         triggeredByFormulaEditor: Boolean,
         newBadgeLogMessage: String = "",
         gameStartedLogMessage: String = "",
-        formulaUpdatedLogMessage: String = ""
+        formulaUpdatedLogMessage: String = "",
+        grumpyBlockingLogMessage: String = ""
     ): User {
         val userOldLocalStorage = user.localStorageSnapshot
         var updatedUser = user.copy(localStorageSnapshot = localStorate)
@@ -127,16 +128,12 @@ object GameManager {
         } else {
             formulaUpdatedLogMessage
         }
-        val mergedLog = if (newBadge != null && newBadgeLogMessage.isNotBlank()) {
-            if (baseLogMessage.isNotBlank()) {
-                listOf(Pair("$newBadgeLogMessage\n\n$baseLogMessage", nowMillis))
-            } else {
-                listOf(Pair(newBadgeLogMessage, nowMillis))
-            }
-        } else if (baseLogMessage.isNotBlank()) {
-            listOf(Pair(baseLogMessage, nowMillis))
+        val mergedLog = if (newBadge != null) {
+            listOf(Pair("$newBadgeLogMessage\n\n$baseLogMessage", nowMillis))
+        } else if (manager.countActiveGrumpyCatsOnBoard() > 0) {
+            listOf(Pair("$grumpyBlockingLogMessage\n\n$baseLogMessage", nowMillis))
         } else {
-            emptyList()
+            listOf(Pair(baseLogMessage, nowMillis))
         }
         return updatedUser.copy(
             pausedTimerSerialized = Optional.empty(),
@@ -187,7 +184,7 @@ object GameManager {
             if (nudgeThesholdAtMsecs < NowProvider.nowMillis()) {
                 val badgesManager = BadgesManager(user.difficulty.ordinal, user.badgesSerialized)
                 val newBadge = badgesManager.onPrompt(activePlaySeconds)
-                val prefix = if (newBadge == "c0" && grumpyCatMessage.isNotBlank()) {
+                val prefix = if (newBadge == "c0") {
                     "$grumpyCatMessage\n\n"
                 } else {
                     ""
@@ -207,7 +204,7 @@ object GameManager {
         ) {
             val badgesManager = BadgesManager(user.difficulty.ordinal, user.badgesSerialized)
             val newBadge = badgesManager.onPenalty(activePlaySeconds)
-            val prefix = if (newBadge == "c0" && grumpyCatMessage.isNotBlank()) {
+            val prefix = if (newBadge == "c0") {
                 "$grumpyCatMessage\n\n"
             } else {
                 ""
@@ -282,7 +279,7 @@ object GameManager {
         val badgesManager = BadgesManager(user.difficulty.ordinal, user.badgesSerialized)
         val newBadge = badgesManager.onReview(activePlaySeconds)
         val activeGrumpyCats = badgesManager.countActiveGrumpyCatsOnBoard()
-        val deltaSeconds = (activePlaySeconds - user.lastRewardAtActivePlayTime).coerceAtLeast(0L)
+        val deltaSeconds  = (activePlaySeconds - user.lastRewardAtActivePlayTime).coerceAtLeast(0L)
         val rewarded = deltaSeconds >= FREEZE_WINDOW_SECONDS && activeGrumpyCats == 0
         val rewardLog = if (rewarded) rewardMessage else noRewardMessage
         val nowMillis = NowProvider.nowMillis()
@@ -293,19 +290,15 @@ object GameManager {
             } else {
                 achievementsUnblockedLogMessage
             }
-            if (grumpyRemovedLogMessage.isNotBlank()) {
-                "$grumpyRemovedLogMessage $tailMessage"
-            } else {
-                tailMessage
-            }
-        } else if (activeGrumpyCats > 0 && grumpyBlockingLogMessage.isNotBlank()) {
+            "$grumpyRemovedLogMessage $tailMessage"
+        } else if (activeGrumpyCats > 0) {
             grumpyBlockingLogMessage
-        } else if (newBadge != null && newBadgeLogMessage.isNotBlank()) {
+        } else if (newBadge != null) {
             newBadgeLogMessage
         } else {
             ""
         }
-        val combinedMessage = if (prefixMessage.isNotBlank()) {
+        val combinedMessage = if (newBadge == "c0_removed" || activeGrumpyCats > 0 || newBadge != null) {
             "$prefixMessage\n\n$baseMessage"
         } else {
             baseMessage

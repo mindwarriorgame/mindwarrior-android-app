@@ -62,7 +62,11 @@ class GameManagerTest {
         val updated = GameManager.onLocalStorageUpdated(
             user,
             storage,
-            true
+            true,
+            "",
+            "",
+            "",
+            ""
         )
 
         assertTrue(updated.localStorageSnapshot.isPresent)
