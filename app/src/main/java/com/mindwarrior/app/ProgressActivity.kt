@@ -3,6 +3,7 @@ package com.mindwarrior.app
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.mindwarrior.app.databinding.ActivityProgressBinding
+import com.mindwarrior.app.engine.Counter
 import com.mindwarrior.app.engine.DifficultyHelper
 import kotlin.math.max
 import kotlin.math.min
@@ -39,6 +40,24 @@ class ProgressActivity : AppCompatActivity() {
             maxY = maxY,
             rangeStartMillis = start,
             rangeEndMillis = now
+        )
+
+        val totalSeconds = Counter(user.activePlayTimerSerialized).getTotalSeconds()
+        val days = totalSeconds / 86_400
+        val hours = (totalSeconds % 86_400) / 3_600
+        val minutes = (totalSeconds % 3_600) / 60
+        val seconds = totalSeconds % 60
+        binding.progressActiveTime.text = getString(
+            R.string.progress_active_time,
+            days,
+            hours,
+            minutes,
+            seconds
+        )
+        val totalDiamonds = user.diamonds + user.diamondsSpent
+        binding.progressDiamondsTotal.text = getString(
+            R.string.progress_diamonds_total,
+            totalDiamonds
         )
 
         binding.progressClose.setOnClickListener {
