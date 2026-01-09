@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.mindwarrior.app.databinding.ActivityProgressBinding
 import kotlin.math.max
-import kotlin.random.Random
+import kotlin.math.min
 
 class ProgressActivity : AppCompatActivity() {
     private lateinit var binding: ActivityProgressBinding
@@ -15,14 +15,14 @@ class ProgressActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         val now = NowProvider.nowMillis()
-        val weekMillis = 7L * 24 * 60 * 60 * 1000
-        val start = now - weekMillis
+        val start = now - WEEK_MILLIS
+        val user = UserStorage.getUser(this)
 
-        val points = buildPoints(start, now)
-        val sleepIntervals = buildSleepIntervals(start, now)
-        val mean = points.map { it.y }.average().toFloat()
+        val points = buildPointsFromHistory(user.reviewAtMillisActivePlayTimeHistory, start, now)
+        val sleepIntervals = buildPauseIntervals(user.pauseIntervalHistory, start, now)
+        val mean = if (points.isEmpty()) 0f else points.map { it.y }.average().toFloat()
         val threshold = 30f
-        val maxY = max(points.maxOf { it.y }, threshold)
+        val maxY = if (points.isEmpty()) threshold else max(points.maxOf { it.y }, threshold)
 
         binding.progressGraph.setData(
             points = points,
@@ -38,32 +38,45 @@ class ProgressActivity : AppCompatActivity() {
         }
     }
 
-    private fun buildPoints(start: Long, end: Long): List<ProgressPoint> {
-        val count = 28
-        return List(count) {
-            val x = Random.nextLong(start, end)
-            val y = randomYValue()
-            ProgressPoint(x, y)
-        }.sortedBy { it.x }
-    }
-
-    private fun buildSleepIntervals(start: Long, end: Long): List<TimeInterval> {
-        val intervals = mutableListOf<TimeInterval>()
-        val dayMillis = 24L * 60 * 60 * 1000
-        var cursor = start
-        while (cursor < end) {
-            val sleepStart = cursor + 23L * 60 * 60 * 1000
-            val sleepEnd = cursor + dayMillis + 7L * 60 * 60 * 1000
-            intervals.add(TimeInterval(sleepStart, sleepEnd))
-            cursor += dayMillis
+    private fun buildPointsFromHistory(
+        history: List<Pair<Long, Long>>,
+        startMillis: Long,
+        endMillis: Long
+    ): List<ProgressPoint> {
+        val filtered = history
+            .filter { it.first in startMillis..endMillis }
+            .sortedBy { it.first }
+        if (filtered.size < 2) {
+            return emptyList()
         }
-        return intervals
+        val points = mutableListOf<ProgressPoint>()
+        for (index in 1 until filtered.size) {
+            val (atMillis, activePlayMillis) = filtered[index]
+            val prevActivePlayMillis = filtered[index - 1].second
+            val deltaMinutes = ((activePlayMillis - prevActivePlayMillis).coerceAtLeast(0L)) / 60_000f
+            points.add(ProgressPoint(atMillis, deltaMinutes))
+        }
+        return points
     }
 
-    private fun randomYValue(): Float {
-        val base = 5f
-        val skew = Random.nextFloat()
-        val scaled = 5f + skew * skew * 80f
-        return base + scaled
+    private fun buildPauseIntervals(
+        history: List<Pair<Long, Long>>,
+        startMillis: Long,
+        endMillis: Long
+    ): List<TimeInterval> {
+        return history
+            .mapNotNull { (start, end) ->
+                if (end < startMillis || start > endMillis) {
+                    null
+                } else {
+                    val clippedStart = max(start, startMillis)
+                    val clippedEnd = min(end, endMillis)
+                    TimeInterval(clippedStart, clippedEnd)
+                }
+            }
+    }
+
+    companion object {
+        private const val WEEK_MILLIS = 7L * 24 * 60 * 60 * 1000
     }
 }

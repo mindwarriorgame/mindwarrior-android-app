@@ -29,6 +29,10 @@ class ProgressGraphView @JvmOverloads constructor(
         strokeWidth = 3f
         style = Paint.Style.STROKE
     }
+    private val pointPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = 0xFF5AC8FF.toInt()
+        style = Paint.Style.FILL
+    }
     private val meanPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         color = 0xFF1E9E63.toInt()
         strokeWidth = 2f
@@ -91,6 +95,7 @@ class ProgressGraphView @JvmOverloads constructor(
         drawGrid(canvas, chart)
         drawAxes(canvas, chart)
         drawLine(canvas, chart)
+        drawPoints(canvas, chart)
         drawThresholds(canvas, chart)
         drawLabels(canvas, chart)
     }
@@ -122,6 +127,16 @@ class ProgressGraphView @JvmOverloads constructor(
             }
         }
         canvas.drawPath(path, linePaint)
+    }
+
+    private fun drawPoints(canvas: Canvas, chart: RectF) {
+        val minX = points.first().x
+        val maxX = points.last().x
+        points.forEach { point ->
+            val x = mapX(point.x, minX, maxX, chart)
+            val y = mapY(point.y, chart)
+            canvas.drawCircle(x, y, 6f, pointPaint)
+        }
     }
 
     private fun drawThresholds(canvas: Canvas, chart: RectF) {

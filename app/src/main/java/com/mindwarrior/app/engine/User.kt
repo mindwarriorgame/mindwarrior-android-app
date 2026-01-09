@@ -24,7 +24,7 @@ data class User(
     var diamondsSpent: Int,
     var badgesSerialized: String,
     var pauseIntervalHistory: List<Pair<Long, Long>>,
-    var reviewAtMillisDurationHistory: List<Pair<Long, Long>>,
+    var reviewAtMillisActivePlayTimeHistory: List<Pair<Long, Long>>,
 
     val pendingNotificationLogsNewestFirst: List<Pair<String, Long>>,
     val unseenLogsNewestFirst: List<Pair<String, Long>>,
@@ -59,7 +59,7 @@ object UserFactory {
             diamondsSpent = 0,
             badgesSerialized = "",
             pauseIntervalHistory = emptyList(),
-            reviewAtMillisDurationHistory = emptyList(),
+            reviewAtMillisActivePlayTimeHistory = emptyList(),
             pendingNotificationLogsNewestFirst = emptyList(),
             unseenLogsNewestFirst = emptyList(),
             oldLogsNewestFirst = emptyList()

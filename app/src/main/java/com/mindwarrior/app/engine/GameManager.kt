@@ -304,10 +304,10 @@ object GameManager {
         val deltaSeconds  = (activePlaySeconds - user.lastRewardAtActivePlayTime).coerceAtLeast(0L)
         val isFreeze = deltaSeconds < FREEZE_WINDOW_SECONDS
         val nowMillis = NowProvider.nowMillis()
-        val reviewDurationMillis =
-            Counter(user.nextPenaltyTimerSerialized).getTotalSeconds() * 1000L
-        val reviewAtMillisDurationHistory =
-            addReviewDurationHistory(user, nowMillis, reviewDurationMillis)
+        val activePlayMillis =
+            Counter(user.activePlayTimerSerialized).getTotalSeconds() * 1000L
+        val reviewAtMillisActivePlayTimeHistory =
+            addReviewDurationHistory(user, nowMillis, activePlayMillis)
 
         val updatedPausedTimerSerialized = if (wasPaused) Optional.empty() else user.pausedTimerSerialized
         val updatedActivePlayTimerSerialized = if (wasPaused) {
@@ -336,7 +336,7 @@ object GameManager {
                 nextPenaltyTimerSerialized = updatedNextPenaltyTimerSerialized,
                 nextAlertType = nextAlertType,
                 unseenLogsNewestFirst = trimUnseenLogs(newLogs),
-                reviewAtMillisDurationHistory = reviewAtMillisDurationHistory,
+                reviewAtMillisActivePlayTimeHistory = reviewAtMillisActivePlayTimeHistory,
                 pauseIntervalHistory = pauseIntervalHistory
             )
         }
@@ -346,26 +346,21 @@ object GameManager {
         val activeGrumpyCats = badgesManager.countActiveGrumpyCatsOnBoard()
         val isNewDiamond = activeGrumpyCats == 0;
         val messages = mutableListOf<String>(reviewMessage)
-        messages.add(if (newBadge == "c0_removed" && activeGrumpyCats > 0) {
-                grumpyRemovedLogMessage + " " + String.format(grumpyRemainingLogMessage, activeGrumpyCats)
-            } else if (newBadge == "c0_removed" && activeGrumpyCats == 0) {
-                grumpyRemovedLogMessage + " " + achievementsUnblockedLogMessage
-            } else if (activeGrumpyCats > 0) {
-                grumpyBlockingLogMessage
-            } else if (newBadge != null) {
-                newBadgeLogMessage
-            } else {
-                ""
-            })
+        when {
+            newBadge == "c0_removed" && activeGrumpyCats > 0 ->
+                messages.add(grumpyRemovedLogMessage + " " + String.format(grumpyRemainingLogMessage, activeGrumpyCats))
+            newBadge == "c0_removed" && activeGrumpyCats == 0 ->
+                messages.add(grumpyRemovedLogMessage + " " + achievementsUnblockedLogMessage)
+            activeGrumpyCats > 0 ->
+                messages.add(grumpyBlockingLogMessage)
+            newBadge != null ->
+                messages.add(newBadgeLogMessage)
+        }
+        if (isNewDiamond) {
+            messages.add(newDiamondMessage)
+        }
 
-        messages.add(if (isNewDiamond) {
-                newDiamondMessage
-            } else {
-                ""
-            })
-
-        val filteredMessages = messages.filter { it.isNotBlank() };
-        val baseMessage = filteredMessages.joinToString("\n\n")
+        val baseMessage = messages.joinToString("\n\n")
         val newMessage = if (wasPaused) {
             baseMessage + "\n\n" + resumeMessage
         } else {
@@ -386,7 +381,7 @@ object GameManager {
             lastRewardAtActivePlayTime = activePlaySeconds,
             unseenLogsNewestFirst = trimUnseenLogs(newLogs),
             badgesSerialized = badgesManager.serialize(),
-            reviewAtMillisDurationHistory = reviewAtMillisDurationHistory,
+            reviewAtMillisActivePlayTimeHistory = reviewAtMillisActivePlayTimeHistory,
             pauseIntervalHistory = pauseIntervalHistory
         )
     }
@@ -409,7 +404,7 @@ object GameManager {
         durationMillis: Long
     ): List<Pair<Long, Long>> {
         val cutoffMillis = nowMillis - WEEK_MILLIS
-        val trimmed = user.reviewAtMillisDurationHistory.filter { it.first >= cutoffMillis }
+        val trimmed = user.reviewAtMillisActivePlayTimeHistory.filter { it.first >= cutoffMillis }
         return trimmed + Pair(nowMillis, durationMillis)
     }
 

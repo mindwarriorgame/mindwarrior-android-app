@@ -52,7 +52,7 @@ class UserStorageTest {
                 Pair(1000L, 2000L),
                 Pair(3000L, 4000L)
             ),
-            reviewAtMillisDurationHistory = listOf(
+            reviewAtMillisActivePlayTimeHistory = listOf(
                 Pair(5000L, 6000L),
                 Pair(7000L, 8000L)
             ),
@@ -94,7 +94,7 @@ class UserStorageTest {
             diamondsSpent = 0,
             badgesSerialized = "",
             pauseIntervalHistory = emptyList(),
-            reviewAtMillisDurationHistory = emptyList(),
+            reviewAtMillisActivePlayTimeHistory = emptyList(),
             pendingNotificationLogsNewestFirst = emptyList(),
             unseenLogsNewestFirst = emptyList(),
             oldLogsNewestFirst = emptyList()
@@ -134,7 +134,7 @@ class UserStorageTest {
         assertEquals(0, loaded.diamondsSpent)
         assertEquals("", loaded.badgesSerialized)
         assertEquals(emptyList<Pair<Long, Long>>(), loaded.pauseIntervalHistory)
-        assertEquals(emptyList<Pair<Long, Long>>(), loaded.reviewAtMillisDurationHistory)
+        assertEquals(emptyList<Pair<Long, Long>>(), loaded.reviewAtMillisActivePlayTimeHistory)
         assertEquals(emptyList<Pair<String, Long>>(), loaded.pendingNotificationLogsNewestFirst)
         assertEquals(emptyList<Pair<String, Long>>(), loaded.unseenLogsNewestFirst)
         assertEquals(1, loaded.oldLogsNewestFirst.size)

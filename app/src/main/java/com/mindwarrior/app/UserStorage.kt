@@ -33,7 +33,8 @@ object UserStorage {
     private const val KEY_DIAMONDS_SPENT = "diamonds_spent"
     private const val KEY_BADGES_SERIALIZED = "badges_serialized"
     private const val KEY_PAUSE_INTERVAL_HISTORY = "pause_interval_history"
-    private const val KEY_REVIEW_AT_MILLIS_DURATION_HISTORY = "review_at_millis_duration_history"
+    private const val KEY_REVIEW_AT_MILLIS_ACTIVE_PLAY_TIME_HISTORY =
+        "review_at_millis_active_play_time_history"
     private const val KEY_PENDING_NOTIFICATION_LOGS_NEWEST_FIRST =
         "pending_notification_logs_newest_first"
     private const val KEY_UNSEEN_LOGS_NEWEST_FIRST = "unseen_logs_newest_first"
@@ -107,9 +108,9 @@ object UserStorage {
             prefs.getString(KEY_PAUSE_INTERVAL_HISTORY, null),
             defaults.pauseIntervalHistory
         )
-        val reviewAtMillisDurationHistory = deserializeReviewDurationHistory(
-            prefs.getString(KEY_REVIEW_AT_MILLIS_DURATION_HISTORY, null),
-            defaults.reviewAtMillisDurationHistory
+        val reviewAtMillisActivePlayTimeHistory = deserializeReviewDurationHistory(
+            prefs.getString(KEY_REVIEW_AT_MILLIS_ACTIVE_PLAY_TIME_HISTORY, null),
+            defaults.reviewAtMillisActivePlayTimeHistory
         )
         val pendingNotificationLogsNewestFirst = deserializeLogList(
             prefs.getString(KEY_PENDING_NOTIFICATION_LOGS_NEWEST_FIRST, null),
@@ -139,7 +140,7 @@ object UserStorage {
             diamondsSpent = diamondsSpent,
             badgesSerialized = badgesSerialized,
             pauseIntervalHistory = pauseIntervalHistory,
-            reviewAtMillisDurationHistory = reviewAtMillisDurationHistory,
+            reviewAtMillisActivePlayTimeHistory = reviewAtMillisActivePlayTimeHistory,
             pendingNotificationLogsNewestFirst = pendingNotificationLogsNewestFirst,
             unseenLogsNewestFirst = unseenLogsNewestFirst,
             oldLogsNewestFirst = if (isNewUser) {
@@ -209,8 +210,8 @@ object UserStorage {
             serializePauseIntervalHistory(user.pauseIntervalHistory)
         )
         editor.putString(
-            KEY_REVIEW_AT_MILLIS_DURATION_HISTORY,
-            serializeReviewDurationHistory(user.reviewAtMillisDurationHistory)
+            KEY_REVIEW_AT_MILLIS_ACTIVE_PLAY_TIME_HISTORY,
+            serializeReviewDurationHistory(user.reviewAtMillisActivePlayTimeHistory)
         )
         editor.putString(
             KEY_PENDING_NOTIFICATION_LOGS_NEWEST_FIRST,

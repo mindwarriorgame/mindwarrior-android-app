@@ -311,14 +311,15 @@ class GameManagerTest {
         val now = NowProvider.nowMillis()
         val oldEntry = Pair(now - 9L * 24 * 60 * 60 * 1000, 111L)
         val freshEntry = Pair(now - 2L * 24 * 60 * 60 * 1000, 222L)
+        val activeTimer = Counter(null).resume().apply {
+            moveTimeBack(5)
+            getTotalSeconds()
+            pause()
+        }.serialize()
         val user = UserFactory.createUser(Difficulty.BEGINNER).copy(
             badgesSerialized = badgesSerialized,
-            reviewAtMillisDurationHistory = listOf(oldEntry, freshEntry),
-            nextPenaltyTimerSerialized = Counter(null).resume().apply {
-                moveTimeBack(5)
-                getTotalSeconds()
-                pause()
-            }.serialize()
+            reviewAtMillisActivePlayTimeHistory = listOf(oldEntry, freshEntry),
+            activePlayTimerSerialized = activeTimer
         )
 
         val updated = GameManager.onReviewCompleted(
@@ -334,11 +335,11 @@ class GameManagerTest {
             "GRUMPY_BLOCKING"
         )
 
-        assertTrue(updated.reviewAtMillisDurationHistory.any { it == freshEntry })
-        assertFalse(updated.reviewAtMillisDurationHistory.any { it == oldEntry })
+        assertTrue(updated.reviewAtMillisActivePlayTimeHistory.any { it == freshEntry })
+        assertFalse(updated.reviewAtMillisActivePlayTimeHistory.any { it == oldEntry })
         assertEquals(
-            Counter(user.nextPenaltyTimerSerialized).getTotalSeconds() * 1000L,
-            updated.reviewAtMillisDurationHistory.last().second
+            Counter(user.activePlayTimerSerialized).getTotalSeconds() * 1000L,
+            updated.reviewAtMillisActivePlayTimeHistory.last().second
         )
     }
 
