@@ -392,8 +392,12 @@ object GameManager {
         }
         val elapsedSeconds = Counter(pausedTimerSerialized.get()).getTotalSeconds()
         val startMillis = nowMillis - elapsedSeconds * 1000L
-        return user.pauseIntervalHistory + Pair(startMillis, nowMillis)
+        val cutoffMillis = nowMillis - WEEK_MILLIS
+        val trimmed = user.pauseIntervalHistory.filter { it.second >= cutoffMillis }
+        return trimmed + Pair(startMillis, nowMillis)
     }
+
+    private const val WEEK_MILLIS = 7L * 24 * 60 * 60 * 1000
 
     private fun handleAutoSleepEvent(user: User): User {
         val nextSleepEventAtMillis = Optional.of(

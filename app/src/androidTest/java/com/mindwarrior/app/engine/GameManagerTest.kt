@@ -336,6 +336,26 @@ class GameManagerTest {
     }
 
     @Test
+    fun onResumeDropsOldPauseIntervals() {
+        val nowMillis = NowProvider.nowMillis()
+        val oldInterval = Pair(nowMillis - 9L * 24 * 60 * 60 * 1000, nowMillis - 8L * 24 * 60 * 60 * 1000)
+        val freshInterval = Pair(nowMillis - 2L * 24 * 60 * 60 * 1000, nowMillis - 1L * 24 * 60 * 60 * 1000)
+        val pausedTimer = Optional.of(Counter(null).resume().apply {
+            moveTimeBack(5)
+            getTotalSeconds()
+        }.serialize())
+        val user = UserFactory.createUser(Difficulty.BEGINNER).copy(
+            pausedTimerSerialized = pausedTimer,
+            pauseIntervalHistory = listOf(oldInterval, freshInterval)
+        )
+
+        val updated = GameManager.onResume(user, "test")
+
+        assertTrue(updated.pauseIntervalHistory.contains(freshInterval))
+        assertFalse(updated.pauseIntervalHistory.contains(oldInterval))
+    }
+
+    @Test
     fun onUnseenLogsObservedTrimsOldLogsToHundred() {
         val now = NowProvider.nowMillis()
         val unseen = List(5) { idx -> Pair("new-$idx", now - idx) }
