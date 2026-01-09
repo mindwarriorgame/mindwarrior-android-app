@@ -88,13 +88,15 @@ object GameManager {
             return user
         }
         val nowMillis = NowProvider.nowMillis()
+        val pauseIntervalHistory = addEntityToPausedInterval(user, nowMillis)
         return user.copy(
             pausedTimerSerialized = Optional.empty(),
             nextPenaltyTimerSerialized = Counter(user.nextPenaltyTimerSerialized).resume().serialize(),
             activePlayTimerSerialized = Counter(user.activePlayTimerSerialized).resume().serialize(),
             unseenLogsNewestFirst = trimUnseenLogs(
                 listOf(Pair(logMessage, nowMillis)) + user.unseenLogsNewestFirst
-            )
+            ),
+            pauseIntervalHistory = pauseIntervalHistory
         )
     }
 
@@ -310,6 +312,11 @@ object GameManager {
             user.activePlayTimerSerialized
         }
         val updatedNextPenaltyTimerSerialized = resetCounter.serialize()
+        val pauseIntervalHistory = if (wasPaused) {
+            addEntityToPausedInterval(user, nowMillis)
+        } else {
+            user.pauseIntervalHistory
+        }
 
         if (isFreeze) {
             val baseMessage = reviewMessage + "\n\n" + freezeMessage
@@ -325,6 +332,7 @@ object GameManager {
                 nextPenaltyTimerSerialized = updatedNextPenaltyTimerSerialized,
                 nextAlertType = nextAlertType,
                 unseenLogsNewestFirst = trimUnseenLogs(newLogs),
+                pauseIntervalHistory = pauseIntervalHistory
             )
         }
 
@@ -372,8 +380,19 @@ object GameManager {
             // lastRewardAt in any case (only if freeze then don't to avoid resetting freeze timer)
             lastRewardAtActivePlayTime = activePlaySeconds,
             unseenLogsNewestFirst = trimUnseenLogs(newLogs),
-            badgesSerialized = badgesManager.serialize()
+            badgesSerialized = badgesManager.serialize(),
+            pauseIntervalHistory = pauseIntervalHistory
         )
+    }
+
+    private fun addEntityToPausedInterval(user: User, nowMillis: Long): List<Pair<Long, Long>> {
+        val pausedTimerSerialized = user.pausedTimerSerialized
+        if (!pausedTimerSerialized.isPresent) {
+            return user.pauseIntervalHistory
+        }
+        val elapsedSeconds = Counter(pausedTimerSerialized.get()).getTotalSeconds()
+        val startMillis = nowMillis - elapsedSeconds * 1000L
+        return user.pauseIntervalHistory + Pair(startMillis, nowMillis)
     }
 
     private fun handleAutoSleepEvent(user: User): User {
