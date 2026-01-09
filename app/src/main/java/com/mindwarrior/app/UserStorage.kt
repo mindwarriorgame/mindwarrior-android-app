@@ -33,6 +33,7 @@ object UserStorage {
     private const val KEY_DIAMONDS_SPENT = "diamonds_spent"
     private const val KEY_BADGES_SERIALIZED = "badges_serialized"
     private const val KEY_PAUSE_INTERVAL_HISTORY = "pause_interval_history"
+    private const val KEY_REVIEW_AT_MILLIS_DURATION_HISTORY = "review_at_millis_duration_history"
     private const val KEY_PENDING_NOTIFICATION_LOGS_NEWEST_FIRST =
         "pending_notification_logs_newest_first"
     private const val KEY_UNSEEN_LOGS_NEWEST_FIRST = "unseen_logs_newest_first"
@@ -106,6 +107,10 @@ object UserStorage {
             prefs.getString(KEY_PAUSE_INTERVAL_HISTORY, null),
             defaults.pauseIntervalHistory
         )
+        val reviewAtMillisDurationHistory = deserializeReviewDurationHistory(
+            prefs.getString(KEY_REVIEW_AT_MILLIS_DURATION_HISTORY, null),
+            defaults.reviewAtMillisDurationHistory
+        )
         val pendingNotificationLogsNewestFirst = deserializeLogList(
             prefs.getString(KEY_PENDING_NOTIFICATION_LOGS_NEWEST_FIRST, null),
             defaults.pendingNotificationLogsNewestFirst
@@ -134,6 +139,7 @@ object UserStorage {
             diamondsSpent = diamondsSpent,
             badgesSerialized = badgesSerialized,
             pauseIntervalHistory = pauseIntervalHistory,
+            reviewAtMillisDurationHistory = reviewAtMillisDurationHistory,
             pendingNotificationLogsNewestFirst = pendingNotificationLogsNewestFirst,
             unseenLogsNewestFirst = unseenLogsNewestFirst,
             oldLogsNewestFirst = if (isNewUser) {
@@ -201,6 +207,10 @@ object UserStorage {
         editor.putString(
             KEY_PAUSE_INTERVAL_HISTORY,
             serializePauseIntervalHistory(user.pauseIntervalHistory)
+        )
+        editor.putString(
+            KEY_REVIEW_AT_MILLIS_DURATION_HISTORY,
+            serializeReviewDurationHistory(user.reviewAtMillisDurationHistory)
         )
         editor.putString(
             KEY_PENDING_NOTIFICATION_LOGS_NEWEST_FIRST,
@@ -291,6 +301,19 @@ object UserStorage {
         return array.toString()
     }
 
+    private fun serializeReviewDurationHistory(
+        intervals: List<Pair<Long, Long>>
+    ): String {
+        val array = JSONArray()
+        for (interval in intervals) {
+            val item = JSONObject()
+            item.put("atMillis", interval.first)
+            item.put("durationMillis", interval.second)
+            array.put(item)
+        }
+        return array.toString()
+    }
+
     fun isTimerForegroundEnabledDevice(context: Context): Boolean {
         val deviceContext = if (Build.VERSION.SDK_INT >= 24) {
             context.createDeviceProtectedStorageContext()
@@ -351,6 +374,28 @@ object UserStorage {
                 val start = item.optLong("startMillis", 0L)
                 val end = item.optLong("endMillis", 0L)
                 intervals.add(Pair(start, end))
+            }
+            intervals
+        } catch (ex: JSONException) {
+            fallback
+        }
+    }
+
+    private fun deserializeReviewDurationHistory(
+        raw: String?,
+        fallback: List<Pair<Long, Long>>
+    ): List<Pair<Long, Long>> {
+        if (raw.isNullOrBlank()) {
+            return fallback
+        }
+        return try {
+            val array = JSONArray(raw)
+            val intervals = ArrayList<Pair<Long, Long>>(array.length())
+            for (index in 0 until array.length()) {
+                val item = array.optJSONObject(index) ?: continue
+                val atMillis = item.optLong("atMillis", 0L)
+                val durationMillis = item.optLong("durationMillis", 0L)
+                intervals.add(Pair(atMillis, durationMillis))
             }
             intervals
         } catch (ex: JSONException) {

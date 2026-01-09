@@ -304,6 +304,10 @@ object GameManager {
         val deltaSeconds  = (activePlaySeconds - user.lastRewardAtActivePlayTime).coerceAtLeast(0L)
         val isFreeze = deltaSeconds < FREEZE_WINDOW_SECONDS
         val nowMillis = NowProvider.nowMillis()
+        val reviewDurationMillis =
+            Counter(user.nextPenaltyTimerSerialized).getTotalSeconds() * 1000L
+        val reviewAtMillisDurationHistory =
+            addReviewDurationHistory(user, nowMillis, reviewDurationMillis)
 
         val updatedPausedTimerSerialized = if (wasPaused) Optional.empty() else user.pausedTimerSerialized
         val updatedActivePlayTimerSerialized = if (wasPaused) {
@@ -332,6 +336,7 @@ object GameManager {
                 nextPenaltyTimerSerialized = updatedNextPenaltyTimerSerialized,
                 nextAlertType = nextAlertType,
                 unseenLogsNewestFirst = trimUnseenLogs(newLogs),
+                reviewAtMillisDurationHistory = reviewAtMillisDurationHistory,
                 pauseIntervalHistory = pauseIntervalHistory
             )
         }
@@ -381,6 +386,7 @@ object GameManager {
             lastRewardAtActivePlayTime = activePlaySeconds,
             unseenLogsNewestFirst = trimUnseenLogs(newLogs),
             badgesSerialized = badgesManager.serialize(),
+            reviewAtMillisDurationHistory = reviewAtMillisDurationHistory,
             pauseIntervalHistory = pauseIntervalHistory
         )
     }
@@ -395,6 +401,16 @@ object GameManager {
         val cutoffMillis = nowMillis - WEEK_MILLIS
         val trimmed = user.pauseIntervalHistory.filter { it.second >= cutoffMillis }
         return trimmed + Pair(startMillis, nowMillis)
+    }
+
+    private fun addReviewDurationHistory(
+        user: User,
+        nowMillis: Long,
+        durationMillis: Long
+    ): List<Pair<Long, Long>> {
+        val cutoffMillis = nowMillis - WEEK_MILLIS
+        val trimmed = user.reviewAtMillisDurationHistory.filter { it.first >= cutoffMillis }
+        return trimmed + Pair(nowMillis, durationMillis)
     }
 
     private const val WEEK_MILLIS = 7L * 24 * 60 * 60 * 1000

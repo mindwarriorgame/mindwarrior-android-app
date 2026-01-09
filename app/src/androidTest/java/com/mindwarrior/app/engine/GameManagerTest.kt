@@ -303,6 +303,46 @@ class GameManagerTest {
     }
 
     @Test
+    fun onReviewCompletedAppendsReviewDurationHistoryAndTrimsOld() {
+        val badgesSerialized = buildBadgesSerialized(
+            board = listOf(Pair("s0", false)),
+            badgesState = mapOf("StarBadgeCounter" to "0,3")
+        )
+        val now = NowProvider.nowMillis()
+        val oldEntry = Pair(now - 9L * 24 * 60 * 60 * 1000, 111L)
+        val freshEntry = Pair(now - 2L * 24 * 60 * 60 * 1000, 222L)
+        val user = UserFactory.createUser(Difficulty.BEGINNER).copy(
+            badgesSerialized = badgesSerialized,
+            reviewAtMillisDurationHistory = listOf(oldEntry, freshEntry),
+            nextPenaltyTimerSerialized = Counter(null).resume().apply {
+                moveTimeBack(5)
+                getTotalSeconds()
+                pause()
+            }.serialize()
+        )
+
+        val updated = GameManager.onReviewCompleted(
+            user,
+            "REVIEW",
+            "REWARD",
+            "NO_REWARD",
+            "RESUME",
+            "NEW_BADGE",
+            "GRUMPY_REMOVED",
+            "REMAINING %d",
+            "UNBLOCKED",
+            "GRUMPY_BLOCKING"
+        )
+
+        assertTrue(updated.reviewAtMillisDurationHistory.any { it == freshEntry })
+        assertFalse(updated.reviewAtMillisDurationHistory.any { it == oldEntry })
+        assertEquals(
+            Counter(user.nextPenaltyTimerSerialized).getTotalSeconds() * 1000L,
+            updated.reviewAtMillisDurationHistory.last().second
+        )
+    }
+
+    @Test
     fun onReviewCompletedUnpausesWhenPaused() {
         val badgesSerialized = buildBadgesSerialized(
             board = listOf(Pair("s0", false)),
