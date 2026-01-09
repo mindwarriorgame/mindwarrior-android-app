@@ -58,6 +58,8 @@ class ProgressGraphView @JvmOverloads constructor(
     private var thresholdValue: Float = 0f
     private var minY: Float = 0f
     private var maxY: Float = 1f
+    private var rangeStartMillis: Long = 0L
+    private var rangeEndMillis: Long = 0L
 
     fun setData(
         points: List<ProgressPoint>,
@@ -65,7 +67,9 @@ class ProgressGraphView @JvmOverloads constructor(
         meanValue: Float,
         thresholdValue: Float,
         minY: Float,
-        maxY: Float
+        maxY: Float,
+        rangeStartMillis: Long,
+        rangeEndMillis: Long
     ) {
         this.points = points
         this.sleepIntervals = sleepIntervals
@@ -73,6 +77,8 @@ class ProgressGraphView @JvmOverloads constructor(
         this.thresholdValue = thresholdValue
         this.minY = minY
         this.maxY = max(maxY, minY + 1f)
+        this.rangeStartMillis = rangeStartMillis
+        this.rangeEndMillis = rangeEndMillis
         invalidate()
     }
 
@@ -114,11 +120,9 @@ class ProgressGraphView @JvmOverloads constructor(
     }
 
     private fun drawLine(canvas: Canvas, chart: RectF) {
-        val minX = points.first().x
-        val maxX = points.last().x
         val path = Path()
         points.forEachIndexed { index, point ->
-            val x = mapX(point.x, minX, maxX, chart)
+            val x = mapX(point.x, rangeStartMillis, rangeEndMillis, chart)
             val y = mapY(point.y, chart)
             if (index == 0) {
                 path.moveTo(x, y)
@@ -130,10 +134,8 @@ class ProgressGraphView @JvmOverloads constructor(
     }
 
     private fun drawPoints(canvas: Canvas, chart: RectF) {
-        val minX = points.first().x
-        val maxX = points.last().x
         points.forEach { point ->
-            val x = mapX(point.x, minX, maxX, chart)
+            val x = mapX(point.x, rangeStartMillis, rangeEndMillis, chart)
             val y = mapY(point.y, chart)
             canvas.drawCircle(x, y, 6f, pointPaint)
         }
@@ -148,11 +150,9 @@ class ProgressGraphView @JvmOverloads constructor(
     }
 
     private fun drawSleepIntervals(canvas: Canvas, chart: RectF) {
-        val minX = points.first().x
-        val maxX = points.last().x
         sleepIntervals.forEach { interval ->
-            val startX = mapX(interval.startMillis, minX, maxX, chart)
-            val endX = mapX(interval.endMillis, minX, maxX, chart)
+            val startX = mapX(interval.startMillis, rangeStartMillis, rangeEndMillis, chart)
+            val endX = mapX(interval.endMillis, rangeStartMillis, rangeEndMillis, chart)
             if (endX <= chart.left || startX >= chart.right) return@forEach
             canvas.drawRect(
                 max(chart.left, startX),

@@ -3,6 +3,7 @@ package com.mindwarrior.app
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.mindwarrior.app.databinding.ActivityProgressBinding
+import com.mindwarrior.app.engine.DifficultyHelper
 import kotlin.math.max
 import kotlin.math.min
 
@@ -20,9 +21,14 @@ class ProgressActivity : AppCompatActivity() {
 
         val points = buildPointsFromHistory(user.reviewAtMillisActivePlayTimeHistory, start, now)
         val sleepIntervals = buildPauseIntervals(user.pauseIntervalHistory, start, now)
-        val mean = if (points.isEmpty()) 0f else points.map { it.y }.average().toFloat()
-        val threshold = 30f
-        val maxY = if (points.isEmpty()) threshold else max(points.maxOf { it.y }, threshold)
+        val mean = median(points.map { it.y })
+        val threshold =
+            DifficultyHelper.getReviewFrequencyMillis(user.difficulty) / 60_000f
+        val maxY = if (points.isEmpty()) {
+            max(mean, threshold)
+        } else {
+            max(max(points.maxOf { it.y }, threshold), mean)
+        }
 
         binding.progressGraph.setData(
             points = points,
@@ -30,7 +36,9 @@ class ProgressActivity : AppCompatActivity() {
             meanValue = mean,
             thresholdValue = threshold,
             minY = 5f,
-            maxY = maxY
+            maxY = maxY,
+            rangeStartMillis = start,
+            rangeEndMillis = now
         )
 
         binding.progressClose.setOnClickListener {
@@ -74,6 +82,19 @@ class ProgressActivity : AppCompatActivity() {
                     TimeInterval(clippedStart, clippedEnd)
                 }
             }
+    }
+
+    private fun median(values: List<Float>): Float {
+        if (values.isEmpty()) {
+            return 0f
+        }
+        val sorted = values.sorted()
+        val mid = sorted.size / 2
+        return if (sorted.size % 2 == 1) {
+            sorted[mid]
+        } else {
+            (sorted[mid - 1] + sorted[mid]) / 2f
+        }
     }
 
     companion object {
