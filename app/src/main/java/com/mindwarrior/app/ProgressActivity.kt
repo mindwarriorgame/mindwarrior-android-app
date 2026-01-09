@@ -30,13 +30,14 @@ class ProgressActivity : AppCompatActivity() {
         } else {
             max(max(points.maxOf { it.y }, threshold), mean)
         }
+        val minY = if (points.isEmpty()) 5f else min(5f, points.minOf { it.y })
 
         binding.progressGraph.setData(
             points = points,
             sleepIntervals = sleepIntervals,
             meanValue = mean,
             thresholdValue = threshold,
-            minY = 5f,
+            minY = minY,
             maxY = maxY,
             rangeStartMillis = start,
             rangeEndMillis = now
@@ -73,7 +74,10 @@ class ProgressActivity : AppCompatActivity() {
         val filtered = history
             .filter { it.first in startMillis..endMillis }
             .sortedBy { it.first }
-        if (filtered.size < 2) {
+        if (filtered.size == 1) {
+            return listOf(ProgressPoint(filtered[0].first, 0f))
+        }
+        if (filtered.isEmpty()) {
             return emptyList()
         }
         val points = mutableListOf<ProgressPoint>()
