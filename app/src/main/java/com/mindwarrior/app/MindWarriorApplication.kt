@@ -46,7 +46,7 @@ class MindWarriorApplication : Application() {
             getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         val contentIntent = PendingIntent.getActivity(
             this,
-            NOTIFICATION_ID,
+            OneOffAlertController.NOTIFICATION_ID,
             Intent(this, MainActivity::class.java).apply {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
             },
@@ -64,7 +64,7 @@ class MindWarriorApplication : Application() {
             .setDefaults(NotificationCompat.DEFAULT_SOUND or NotificationCompat.DEFAULT_VIBRATE)
             .build()
 
-        notificationManager.notify(NOTIFICATION_ID, notification)
+        notificationManager.notify(OneOffAlertController.NOTIFICATION_ID, notification)
     }
 
     private fun loadAppIcon(): Bitmap? {
@@ -78,7 +78,4 @@ class MindWarriorApplication : Application() {
         return bitmap
     }
 
-    companion object {
-        private const val NOTIFICATION_ID = 1002
-    }
 }

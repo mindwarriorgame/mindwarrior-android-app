@@ -16,6 +16,7 @@ import com.mindwarrior.app.engine.User
 
 object OneOffAlertController {
     const val CHANNEL_ID = "battle_timer_channel"
+    const val NOTIFICATION_ID = 1002
     private const val CHANNEL_NAME = "Battle Timer"
 
     fun restart(context: Context) {
@@ -85,5 +86,11 @@ object OneOffAlertController {
         channel.setSound(soundUri, attributes)
         channel.enableVibration(true)
         notificationManager.createNotificationChannel(channel)
+    }
+
+    fun clearNotification(context: Context) {
+        val notificationManager =
+            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.cancel(NOTIFICATION_ID)
     }
 }

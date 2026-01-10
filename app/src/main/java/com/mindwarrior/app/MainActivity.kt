@@ -65,6 +65,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        OneOffAlertController.clearNotification(this)
         viewModel.startTickers()
         viewModel.refreshTimerDisplay()
         viewModel.startTimerFlagChecker()
