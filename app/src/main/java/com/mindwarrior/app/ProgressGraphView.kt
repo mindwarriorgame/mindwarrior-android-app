@@ -81,6 +81,8 @@ class ProgressGraphView @JvmOverloads constructor(
     private val rightEdgeEffect = EdgeEffect(context)
     private val topEdgeEffect = EdgeEffect(context)
     private val bottomEdgeEffect = EdgeEffect(context)
+    private var zoomedIn = false
+    private var zoomChangedListener: ((Boolean) -> Unit)? = null
     private val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
 
     fun setData(
@@ -105,6 +107,7 @@ class ProgressGraphView @JvmOverloads constructor(
         zoomStartMillis = null
         zoomScaleY = 1f
         zoomMinY = null
+        updateZoomState()
         invalidate()
     }
 
@@ -349,6 +352,28 @@ class ProgressGraphView @JvmOverloads constructor(
         }
     }
 
+    fun resetZoom() {
+        zoomScale = 1f
+        zoomStartMillis = null
+        zoomScaleY = 1f
+        zoomMinY = null
+        updateZoomState()
+        invalidate()
+    }
+
+    fun setOnZoomChangedListener(listener: ((Boolean) -> Unit)?) {
+        zoomChangedListener = listener
+        updateZoomState()
+    }
+
+    private fun updateZoomState() {
+        val isZoomed = zoomScale > MIN_ZOOM || zoomScaleY > MIN_ZOOM
+        if (isZoomed != zoomedIn) {
+            zoomedIn = isZoomed
+            zoomChangedListener?.invoke(isZoomed)
+        }
+    }
+
     private inner class ScaleListener : ScaleGestureDetector.SimpleOnScaleGestureListener() {
         override fun onScale(detector: ScaleGestureDetector): Boolean {
             val scaleX = if (detector.previousSpanX > 0f) {
@@ -391,14 +416,15 @@ class ProgressGraphView @JvmOverloads constructor(
             var newStart = focusMillis - (newSpan * focusRatio).toLong()
             val maxStart = (rangeEndMillis - newSpan).coerceAtLeast(rangeStartMillis)
             newStart = newStart.coerceIn(rangeStartMillis, maxStart)
-            zoomStartMillis = newStart
+            zoomStartMillis = if (zoomScale == MIN_ZOOM) null else newStart
             zoomScaleY = newScaleY
             val baseSpanY = (maxY - minY).coerceAtLeast(1f)
             val newSpanY = (baseSpanY / zoomScaleY).coerceAtLeast(0.1f)
             var newMinY = focusValueY - newSpanY * focusRatioY
             val maxMinY = (maxY - newSpanY).coerceAtLeast(minY)
             newMinY = newMinY.coerceIn(minY, maxMinY)
-            zoomMinY = newMinY
+            zoomMinY = if (zoomScaleY == MIN_ZOOM) null else newMinY
+            updateZoomState()
             invalidate()
             return true
         }

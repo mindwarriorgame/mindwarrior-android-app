@@ -1,6 +1,7 @@
 package com.mindwarrior.app
 
 import android.os.Bundle
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.mindwarrior.app.databinding.ActivityProgressBinding
 import com.mindwarrior.app.engine.Counter
@@ -42,6 +43,14 @@ class ProgressActivity : AppCompatActivity() {
             rangeStartMillis = start,
             rangeEndMillis = now
         )
+
+        binding.progressResetZoom.visibility = View.INVISIBLE
+        binding.progressResetZoom.setOnClickListener {
+            binding.progressGraph.resetZoom()
+        }
+        binding.progressGraph.setOnZoomChangedListener { zoomed ->
+            binding.progressResetZoom.visibility = if (zoomed) View.VISIBLE else View.INVISIBLE
+        }
 
         val totalSeconds = Counter(user.activePlayTimerSerialized).getTotalSeconds()
         val days = totalSeconds / 86_400
