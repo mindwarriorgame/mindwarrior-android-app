@@ -12,6 +12,12 @@ class ShopActivity : AppCompatActivity() {
         binding = ActivityShopBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        val user = UserStorage.getUser(this)
+        binding.shopAvailableDiamonds.text = getString(
+            R.string.shop_available_diamonds,
+            user.diamonds
+        )
+
         binding.shopClose.setOnClickListener {
             finish()
         }

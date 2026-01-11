@@ -24,18 +24,20 @@ class WebViewActivity : AppCompatActivity() {
         val isFormulaMode = intent.getBooleanExtra(EXTRA_IS_FORMULA, false)
 
         val loader = AssetWebViewLoader(assets)
-        loader.loadInto(
-            binding.webview,
-            AssetWebViewLoader.Config(
-                baseUrl = (baseUrlExtra ?: DEFAULT_ASSET_PAGE_URL) +
-                    "&ts=" + (NowProvider.nowMillis() / 1000),
-                assetPath = assetPathExtra ?: DEFAULT_ASSET_PATH,
-                replacements = AssetWebViewLoader.defaultReplacements(),
-                injectedScript = buildLocalStorageRestoreScript(),
-                javascriptInterfaceName = JS_INTERFACE_NAME,
-                javascriptInterface = WebViewBridge(isReviewMode, isFormulaMode)
-            )
+        val config = AssetWebViewLoader.Config(
+            baseUrl = (baseUrlExtra ?: DEFAULT_ASSET_PAGE_URL) +
+                "&ts=" + (NowProvider.nowMillis() / 1000),
+            assetPath = assetPathExtra ?: DEFAULT_ASSET_PATH,
+            replacements = AssetWebViewLoader.defaultReplacements(),
+            injectedScript = buildLocalStorageRestoreScript(),
+            javascriptInterfaceName = JS_INTERFACE_NAME,
+            javascriptInterface = WebViewBridge(isReviewMode, isFormulaMode)
         )
+        loader.configure(binding.webview, config)
+        val restored = savedInstanceState?.let { binding.webview.restoreState(it) }
+        if (restored == null) {
+            loader.loadContent(binding.webview, config)
+        }
     }
 
     override fun onBackPressed() {
@@ -44,6 +46,11 @@ class WebViewActivity : AppCompatActivity() {
         } else {
             super.onBackPressed()
         }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        binding.webview.saveState(outState)
     }
 
     private inner class WebViewBridge(

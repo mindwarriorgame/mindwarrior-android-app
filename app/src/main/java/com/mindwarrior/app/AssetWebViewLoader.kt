@@ -17,7 +17,7 @@ class AssetWebViewLoader(private val assets: AssetManager) {
     )
 
     @SuppressLint("SetJavaScriptEnabled")
-    fun loadInto(webView: WebView, config: Config) {
+    fun configure(webView: WebView, config: Config) {
         webView.settings.javaScriptEnabled = true
         webView.settings.domStorageEnabled = true
         if (config.javascriptInterface != null && config.javascriptInterfaceName != null) {
@@ -27,6 +27,9 @@ class AssetWebViewLoader(private val assets: AssetManager) {
             )
         }
         webView.webViewClient = WebViewClient()
+    }
+
+    fun loadContent(webView: WebView, config: Config) {
         webView.loadDataWithBaseURL(
             config.baseUrl,
             loadHtml(config.assetPath, config.replacements, config.injectedScript),
@@ -34,6 +37,11 @@ class AssetWebViewLoader(private val assets: AssetManager) {
             "UTF-8",
             null
         )
+    }
+
+    fun loadInto(webView: WebView, config: Config) {
+        configure(webView, config)
+        loadContent(webView, config)
     }
 
     private fun loadHtml(

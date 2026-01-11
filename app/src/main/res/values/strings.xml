@@ -58,6 +58,7 @@
     <string name="shop_item_prevent_attack_title">Prevent grumpy cat attack (single use)</string>
     <string name="shop_item_prevent_attack_description">Block the next attack once.</string>
     <string name="shop_item_prevent_attack_price">Price: 💎 35</string>
+    <string name="shop_available_diamonds">Available diamonds to spend: %1$d</string>
     <string name="shop_buy_now">Buy now</string>
     <string name="shop_close">Close</string>
     <string name="timer_notification_title">Battle Timer</string>

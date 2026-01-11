@@ -36,19 +36,29 @@
                 android:textColor="@color/menu_text"
                 android:textSize="22sp" />
 
-            <TextView
-                android:id="@+id/shop_subtitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:text="@string/shop_subtitle"
-                android:textAlignment="center"
-                android:textColor="@color/menu_text"
-                android:textSize="13sp" />
+        <TextView
+            android:id="@+id/shop_subtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="@string/shop_subtitle"
+            android:textAlignment="center"
+            android:textColor="@color/menu_text"
+            android:textSize="13sp" />
 
-            <LinearLayout
-                android:id="@+id/shop_item_next_achievement"
-                android:layout_width="match_parent"
+        <TextView
+            android:id="@+id/shop_available_diamonds"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/shop_available_diamonds"
+            android:textAlignment="center"
+            android:textColor="@color/menu_text"
+            android:textSize="13sp" />
+
+        <LinearLayout
+            android:id="@+id/shop_item_next_achievement"
+            android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:background="@drawable/log_item_bg"
