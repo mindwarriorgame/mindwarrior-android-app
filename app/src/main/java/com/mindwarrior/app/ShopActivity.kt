@@ -61,7 +61,9 @@ class ShopActivity : AppCompatActivity() {
             binding.shopItemPreventAttackPrice,
             R.string.shop_item_prevent_attack_price,
             repellerPrice,
-            user.diamonds
+            user.diamonds,
+            user.hasExpeller,
+            R.string.shop_expel_item_owned
         )
 
         binding.shopItemNextAchievementBuy.setOnClickListener {
@@ -92,6 +94,24 @@ class ShopActivity : AppCompatActivity() {
                 }
                 .setNegativeButton(android.R.string.cancel, null)
                 .show()
+        }
+
+        binding.shopItemPreventAttackBuy.setOnClickListener {
+            val currentUser = UserStorage.getUser(this)
+            val currentBasePrice = SHOP_BASE_PRICES.getOrElse(currentUser.difficulty.ordinal) {
+                SHOP_BASE_PRICES.last()
+            }
+            val currentRepellerPrice = (currentBasePrice * 1.5f).toInt()
+            val canBuy = !currentUser.hasExpeller && currentUser.diamonds >= currentRepellerPrice
+            if (!canBuy) {
+                return@setOnClickListener
+            }
+            val updated = GameManager.onBuyExpeller(currentUser)
+            if (updated == currentUser) {
+                return@setOnClickListener
+            }
+            UserStorage.upsertUser(this, updated)
+            finish()
         }
 
         binding.shopItemExpelGrumpyBuy.setOnClickListener {

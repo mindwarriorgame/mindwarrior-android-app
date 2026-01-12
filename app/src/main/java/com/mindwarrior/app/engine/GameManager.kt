@@ -421,6 +421,14 @@ object GameManager {
         return applyShopPurchase(updated, shopBasePriceFor(user))
     }
 
+    fun onBuyExpeller(user: User): User {
+        if (user.hasExpeller) {
+            return user
+        }
+        val updated = user.copy(hasExpeller = true)
+        return applyShopPurchase(updated, shopRepellerPriceFor(user))
+    }
+
     private fun applyShopPurchase(user: User, price: Int): User {
         val charge = price.coerceAtLeast(0)
         return user.copy(
@@ -433,6 +441,10 @@ object GameManager {
         return SHOP_BASE_PRICES.getOrElse(user.difficulty.ordinal) {
             SHOP_BASE_PRICES.last()
         }
+    }
+
+    private fun shopRepellerPriceFor(user: User): Int {
+        return (shopBasePriceFor(user) * 1.5f).toInt()
     }
 
     private fun addEntityToPausedInterval(user: User, nowMillis: Long): List<Pair<Long, Long>> {

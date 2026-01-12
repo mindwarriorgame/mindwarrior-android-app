@@ -65,6 +65,7 @@
     <string name="shop_confirm_title">Confirm purchase</string>
     <string name="shop_confirm_expel_grumpy">Are you sure you want to expel the grumpy cat for %1$d diamonds?</string>
     <string name="shop_confirm_next_achievement">Are you sure you want to unlock the next achievement for %1$d diamonds?</string>
+    <string name="shop_expel_item_owned">Repeller already owned</string>
     <string name="shop_buy_now">Buy now</string>
     <string name="shop_close">Close</string>
     <string name="timer_notification_title">Battle Timer</string>
