@@ -421,11 +421,11 @@ object GameManager {
         return applyShopPurchase(updated, shopBasePriceFor(user))
     }
 
-    fun onBuyExpeller(user: User): User {
-        if (user.hasExpeller) {
+    fun onBuyRepeller(user: User): User {
+        if (user.hasRepeller) {
             return user
         }
-        val updated = user.copy(hasExpeller = true)
+        val updated = user.copy(hasRepeller = true)
         return applyShopPurchase(updated, shopRepellerPriceFor(user))
     }
 

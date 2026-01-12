@@ -62,8 +62,8 @@ class ShopActivity : AppCompatActivity() {
             R.string.shop_item_prevent_attack_price,
             repellerPrice,
             user.diamonds,
-            user.hasExpeller,
-            R.string.shop_expel_item_owned
+            user.hasRepeller,
+            R.string.shop_repeller_owned
         )
 
         binding.shopItemNextAchievementBuy.setOnClickListener {
@@ -102,11 +102,11 @@ class ShopActivity : AppCompatActivity() {
                 SHOP_BASE_PRICES.last()
             }
             val currentRepellerPrice = (currentBasePrice * 1.5f).toInt()
-            val canBuy = !currentUser.hasExpeller && currentUser.diamonds >= currentRepellerPrice
+            val canBuy = !currentUser.hasRepeller && currentUser.diamonds >= currentRepellerPrice
             if (!canBuy) {
                 return@setOnClickListener
             }
-            val updated = GameManager.onBuyExpeller(currentUser)
+            val updated = GameManager.onBuyRepeller(currentUser)
             if (updated == currentUser) {
                 return@setOnClickListener
             }

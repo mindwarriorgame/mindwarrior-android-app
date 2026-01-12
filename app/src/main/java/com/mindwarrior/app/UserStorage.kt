@@ -31,7 +31,8 @@ object UserStorage {
     private const val KEY_LOCAL_STORAGE = "local_storage_snapshot"
     private const val KEY_DIAMONDS = "diamonds"
     private const val KEY_DIAMONDS_SPENT = "diamonds_spent"
-    private const val KEY_HAS_EXPELLER = "has_expeller"
+    private const val KEY_HAS_REPELLER = "has_repeller"
+    private const val LEGACY_KEY_HAS_REPELLER = "has_expeller"
     private const val KEY_BADGES_SERIALIZED = "badges_serialized"
     private const val KEY_PAUSE_INTERVAL_HISTORY = "pause_interval_history"
     private const val KEY_REVIEW_AT_MILLIS_ACTIVE_PLAY_TIME_HISTORY =
@@ -103,7 +104,11 @@ object UserStorage {
         }
         val diamonds = prefs.getInt(KEY_DIAMONDS, defaults.diamonds)
         val diamondsSpent = prefs.getInt(KEY_DIAMONDS_SPENT, defaults.diamondsSpent)
-        val hasExpeller = prefs.getBoolean(KEY_HAS_EXPELLER, defaults.hasExpeller)
+        val hasRepeller = if (prefs.contains(KEY_HAS_REPELLER)) {
+            prefs.getBoolean(KEY_HAS_REPELLER, defaults.hasRepeller)
+        } else {
+            prefs.getBoolean(LEGACY_KEY_HAS_REPELLER, defaults.hasRepeller)
+        }
         val badgesSerialized = prefs.getString(KEY_BADGES_SERIALIZED, defaults.badgesSerialized)
             ?: defaults.badgesSerialized
         val pauseIntervalHistory = deserializePauseIntervalHistory(
@@ -140,7 +145,7 @@ object UserStorage {
             localStorageSnapshot = localStorageOptional,
             diamonds = diamonds,
             diamondsSpent = diamondsSpent,
-            hasExpeller = hasExpeller,
+            hasRepeller = hasRepeller,
             badgesSerialized = badgesSerialized,
             pauseIntervalHistory = pauseIntervalHistory,
             reviewAtMillisActivePlayTimeHistory = reviewAtMillisActivePlayTimeHistory,
@@ -207,7 +212,7 @@ object UserStorage {
         }
         editor.putInt(KEY_DIAMONDS, user.diamonds)
         editor.putInt(KEY_DIAMONDS_SPENT, user.diamondsSpent)
-        editor.putBoolean(KEY_HAS_EXPELLER, user.hasExpeller)
+        editor.putBoolean(KEY_HAS_REPELLER, user.hasRepeller)
         editor.putString(KEY_BADGES_SERIALIZED, user.badgesSerialized)
         editor.putString(
             KEY_PAUSE_INTERVAL_HISTORY,
