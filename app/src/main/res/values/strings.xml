@@ -62,6 +62,8 @@
     <string name="shop_insufficient_diamonds">Need 💎 %1$d more</string>
     <string name="shop_grumpy_blocking">Blocked by grumpy cat</string>
     <string name="shop_no_grumpy_to_expel">No grumpy cat to expel</string>
+    <string name="shop_confirm_title">Confirm purchase</string>
+    <string name="shop_confirm_expel_grumpy">Are you sure you want to expel the grumpy cat for %1$d diamonds?</string>
     <string name="shop_buy_now">Buy now</string>
     <string name="shop_close">Close</string>
     <string name="timer_notification_title">Battle Timer</string>

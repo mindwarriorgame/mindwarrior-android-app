@@ -1,10 +1,12 @@
 package com.mindwarrior.app
 
 import android.os.Bundle
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.mindwarrior.app.badges.BadgesManager
 import com.mindwarrior.app.databinding.ActivityShopBinding
+import com.mindwarrior.app.engine.GameManager
 
 class ShopActivity : AppCompatActivity() {
     private lateinit var binding: ActivityShopBinding
@@ -61,6 +63,40 @@ class ShopActivity : AppCompatActivity() {
             repellerPrice,
             user.diamonds
         )
+
+        binding.shopItemExpelGrumpyBuy.setOnClickListener {
+            val currentUser = UserStorage.getUser(this)
+            val currentBasePrice = SHOP_BASE_PRICES.getOrElse(currentUser.difficulty.ordinal) {
+                SHOP_BASE_PRICES.last()
+            }
+            val currentBadgesManager =
+                BadgesManager(currentUser.difficulty.ordinal, currentUser.badgesSerialized)
+            val currentHasGrumpyCat = currentBadgesManager.countActiveGrumpyCatsOnBoard() > 0
+            val canBuy = currentHasGrumpyCat && currentUser.diamonds >= currentBasePrice
+            if (!canBuy) {
+                return@setOnClickListener
+            }
+            AlertDialog.Builder(this)
+                .setTitle(R.string.shop_confirm_title)
+                .setMessage(getString(R.string.shop_confirm_expel_grumpy, currentBasePrice))
+                .setPositiveButton(android.R.string.ok) { _, _ ->
+                    val updated = GameManager.onShooGrumpyCat(
+                        currentUser,
+                        getString(R.string.log_grumpy_removed)
+                    )
+                    if (updated == currentUser) {
+                        return@setPositiveButton
+                    }
+                    val charged = updated.copy(
+                        diamonds = (currentUser.diamonds - currentBasePrice).coerceAtLeast(0),
+                        diamondsSpent = currentUser.diamondsSpent + currentBasePrice
+                    )
+                    UserStorage.upsertUser(this, charged)
+                    finish()
+                }
+                .setNegativeButton(android.R.string.cancel, null)
+                .show()
+        }
 
         binding.shopClose.setOnClickListener {
             finish()
