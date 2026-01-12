@@ -64,6 +64,36 @@ class ShopActivity : AppCompatActivity() {
             user.diamonds
         )
 
+        binding.shopItemNextAchievementBuy.setOnClickListener {
+            val currentUser = UserStorage.getUser(this)
+            val currentBasePrice = SHOP_BASE_PRICES.getOrElse(currentUser.difficulty.ordinal) {
+                SHOP_BASE_PRICES.last()
+            }
+            val currentBadgesManager =
+                BadgesManager(currentUser.difficulty.ordinal, currentUser.badgesSerialized)
+            val currentHasGrumpyCat = currentBadgesManager.countActiveGrumpyCatsOnBoard() > 0
+            val canBuy = !currentHasGrumpyCat && currentUser.diamonds >= currentBasePrice
+            if (!canBuy) {
+                return@setOnClickListener
+            }
+            AlertDialog.Builder(this)
+                .setTitle(R.string.shop_confirm_title)
+                .setMessage(getString(R.string.shop_confirm_next_achievement, currentBasePrice))
+                .setPositiveButton(android.R.string.ok) { _, _ ->
+                    val updated = GameManager.onForceNextAchievement(
+                        currentUser,
+                        getString(R.string.log_new_badge)
+                    )
+                    if (updated == currentUser) {
+                        return@setPositiveButton
+                    }
+                    UserStorage.upsertUser(this, updated)
+                    finish()
+                }
+                .setNegativeButton(android.R.string.cancel, null)
+                .show()
+        }
+
         binding.shopItemExpelGrumpyBuy.setOnClickListener {
             val currentUser = UserStorage.getUser(this)
             val currentBasePrice = SHOP_BASE_PRICES.getOrElse(currentUser.difficulty.ordinal) {
@@ -87,11 +117,7 @@ class ShopActivity : AppCompatActivity() {
                     if (updated == currentUser) {
                         return@setPositiveButton
                     }
-                    val charged = updated.copy(
-                        diamonds = (currentUser.diamonds - currentBasePrice).coerceAtLeast(0),
-                        diamondsSpent = currentUser.diamondsSpent + currentBasePrice
-                    )
-                    UserStorage.upsertUser(this, charged)
+                    UserStorage.upsertUser(this, updated)
                     finish()
                 }
                 .setNegativeButton(android.R.string.cancel, null)

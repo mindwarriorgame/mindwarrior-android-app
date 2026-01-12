@@ -10,6 +10,7 @@ import java.net.URLEncoder
 object GameManager {
     const val MAX_UNSEEN_LOGS = 10
     const val MAX_OLD_LOGS = 100
+    private val SHOP_BASE_PRICES = listOf(10, 20, 30, 40, 50, 60)
 
     fun onDifficultyChanged(
         user: User,
@@ -394,12 +395,44 @@ object GameManager {
         val badgesManager = BadgesManager(user.difficulty.ordinal, user.badgesSerialized)
         badgesManager.onShooCat(activePlaySeconds)
         val nowMillis = NowProvider.nowMillis()
-        return user.copy(
+        val updated = user.copy(
             badgesSerialized = badgesManager.serialize(),
             unseenLogsNewestFirst = trimUnseenLogs(
                 listOf(Pair(logMessage, nowMillis)) + user.unseenLogsNewestFirst
             )
         )
+        return applyShopPurchase(updated, shopBasePriceFor(user))
+    }
+
+    fun onForceNextAchievement(
+        user: User,
+        logMessage: String
+    ): User {
+        val activePlaySeconds = Counter(user.activePlayTimerSerialized).getTotalSeconds()
+        val badgesManager = BadgesManager(user.difficulty.ordinal, user.badgesSerialized)
+        badgesManager.onForceBadgeOpen(activePlaySeconds)
+        val nowMillis = NowProvider.nowMillis()
+        val updated = user.copy(
+            badgesSerialized = badgesManager.serialize(),
+            unseenLogsNewestFirst = trimUnseenLogs(
+                listOf(Pair(logMessage, nowMillis)) + user.unseenLogsNewestFirst
+            )
+        )
+        return applyShopPurchase(updated, shopBasePriceFor(user))
+    }
+
+    private fun applyShopPurchase(user: User, price: Int): User {
+        val charge = price.coerceAtLeast(0)
+        return user.copy(
+            diamonds = (user.diamonds - charge).coerceAtLeast(0),
+            diamondsSpent = user.diamondsSpent + charge
+        )
+    }
+
+    private fun shopBasePriceFor(user: User): Int {
+        return SHOP_BASE_PRICES.getOrElse(user.difficulty.ordinal) {
+            SHOP_BASE_PRICES.last()
+        }
     }
 
     private fun addEntityToPausedInterval(user: User, nowMillis: Long): List<Pair<Long, Long>> {
