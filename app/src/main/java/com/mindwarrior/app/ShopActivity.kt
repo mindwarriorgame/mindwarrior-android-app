@@ -3,6 +3,7 @@ package com.mindwarrior.app
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import com.mindwarrior.app.badges.BadgesManager
 import com.mindwarrior.app.databinding.ActivityShopBinding
 
 class ShopActivity : AppCompatActivity() {
@@ -18,6 +19,8 @@ class ShopActivity : AppCompatActivity() {
             SHOP_BASE_PRICES.last()
         }
         val repellerPrice = (basePrice * 1.5f).toInt()
+        val badgesManager = BadgesManager(user.difficulty.ordinal, user.badgesSerialized)
+        val hasGrumpyCat = badgesManager.countActiveGrumpyCatsOnBoard() > 0
         binding.shopAvailableDiamonds.text = getString(
             R.string.shop_available_diamonds,
             user.diamonds
@@ -39,7 +42,8 @@ class ShopActivity : AppCompatActivity() {
             binding.shopItemNextAchievementPrice,
             R.string.shop_item_next_achievement_price,
             basePrice,
-            user.diamonds
+            user.diamonds,
+            hasGrumpyCat
         )
         updateBuyState(
             binding.shopItemExpelGrumpyBuy,
@@ -70,17 +74,18 @@ class ShopActivity : AppCompatActivity() {
         priceView: android.widget.TextView,
         priceResId: Int,
         price: Int,
-        diamonds: Int
+        diamonds: Int,
+        blocked: Boolean = false
     ) {
         val needed = (price - diamonds).coerceAtLeast(0)
-        val canBuy = needed == 0
+        val canBuy = needed == 0 && !blocked
         button.isEnabled = canBuy
         button.alpha = if (canBuy) 1f else 0.5f
         val priceText = getString(priceResId, price)
-        priceView.text = if (canBuy) {
-            priceText
-        } else {
-            priceText + " · " + getString(R.string.shop_insufficient_diamonds, needed)
+        priceView.text = when {
+            canBuy -> priceText
+            blocked -> priceText + " · " + getString(R.string.shop_grumpy_blocking)
+            else -> priceText + " · " + getString(R.string.shop_insufficient_diamonds, needed)
         }
         val colorRes = if (canBuy) R.color.menu_text else R.color.legend_red
         priceView.setTextColor(ContextCompat.getColor(this, colorRes))
