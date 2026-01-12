@@ -386,6 +386,22 @@ object GameManager {
         )
     }
 
+    fun onShooGrumpyCat(
+        user: User,
+        logMessage: String
+    ): User {
+        val activePlaySeconds = Counter(user.activePlayTimerSerialized).getTotalSeconds()
+        val badgesManager = BadgesManager(user.difficulty.ordinal, user.badgesSerialized)
+        badgesManager.onShooCat(activePlaySeconds)
+        val nowMillis = NowProvider.nowMillis()
+        return user.copy(
+            badgesSerialized = badgesManager.serialize(),
+            unseenLogsNewestFirst = trimUnseenLogs(
+                listOf(Pair(logMessage, nowMillis)) + user.unseenLogsNewestFirst
+            )
+        )
+    }
+
     private fun addEntityToPausedInterval(user: User, nowMillis: Long): List<Pair<Long, Long>> {
         val pausedTimerSerialized = user.pausedTimerSerialized
         if (!pausedTimerSerialized.isPresent) {
