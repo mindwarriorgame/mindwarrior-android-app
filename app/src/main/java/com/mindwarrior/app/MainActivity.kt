@@ -41,6 +41,7 @@ class MainActivity : AppCompatActivity() {
     private var unseenLogDialogShowing = false
     private var lastProgressLevel = 0
     private var lastProgressHasGrumpyCat = false
+    private var lastProgressHasRepeller = false
     private val unseenTimeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
     private val unseenDayFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
     private var labGlowActive = false
@@ -367,6 +368,10 @@ class MainActivity : AppCompatActivity() {
             lastProgressHasGrumpyCat = hasGrumpyCat
             updateProgressButtonText()
         }
+        viewModel.progressHasRepeller.observe(this) { hasRepeller ->
+            lastProgressHasRepeller = hasRepeller
+            updateProgressButtonText()
+        }
         viewModel.difficultyLabel.observe(this) { label ->
             binding.menuDifficulty.text = label
         }
@@ -438,7 +443,12 @@ class MainActivity : AppCompatActivity() {
         } else {
             ""
         }
-        binding.progressButton.text = levelText + suffix
+        val repellerSuffix = if (lastProgressHasRepeller) {
+            " " + getString(R.string.shop_item_prevent_attack_icon)
+        } else {
+            ""
+        }
+        binding.progressButton.text = levelText + suffix + repellerSuffix
     }
 
     private fun showUnseenLogDialog(logs: List<Pair<String, Long>>) {

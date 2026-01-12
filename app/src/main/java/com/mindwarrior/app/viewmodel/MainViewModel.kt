@@ -49,6 +49,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _progressHasGrumpyCat = MutableLiveData<Boolean>()
     val progressHasGrumpyCat: LiveData<Boolean> = _progressHasGrumpyCat
 
+    private val _progressHasRepeller = MutableLiveData<Boolean>()
+    val progressHasRepeller: LiveData<Boolean> = _progressHasRepeller
+
     private val _difficultyLabel = MutableLiveData<String>()
     val difficultyLabel: LiveData<String> = _difficultyLabel
 
@@ -293,6 +296,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         val manager = BadgesManager(user.difficulty.ordinal, user.badgesSerialized)
         _progressLevel.value = manager.getLevel().coerceAtLeast(0)
         _progressHasGrumpyCat.value = manager.countActiveGrumpyCatsOnBoard() > 0
+        _progressHasRepeller.value = user.hasRepeller
     }
 
     companion object {
