@@ -121,7 +121,10 @@
     <string name="difficulty_medium">Средняя</string>
     <string name="difficulty_hard">Сложная</string>
     <string name="difficulty_export">Экспорт</string>
-    <string name="difficulty_done">Готово</string>
+    <string name="difficulty_done">Изменить</string>
+    <string name="difficulty_confirm_title">Изменить сложность?</string>
+    <string name="difficulty_confirm_message">Смена сложности сбросит игру и все очки. Продолжить?</string>
+    <string name="difficulty_confirm_action">Изменить</string>
     <string name="difficulty_info_beginner">Новичок 🌱🛡️\nКороткие битвы, мягкий темп, много передышек.</string>
     <string name="difficulty_info_easy">Лёгкая 🙂🗺️\nПлавная разминка с мягкими целями и длинными таймерами.</string>
     <string name="difficulty_info_medium">Средняя ⚔️🔥\nСбалансированный вызов: меньше времени, строже наказания.</string>

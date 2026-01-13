@@ -121,7 +121,10 @@
     <string name="difficulty_medium">Mittel</string>
     <string name="difficulty_hard">Schwer</string>
     <string name="difficulty_export">Export</string>
-    <string name="difficulty_done">Fertig</string>
+    <string name="difficulty_done">Ändern</string>
+    <string name="difficulty_confirm_title">Schwierigkeit ändern?</string>
+    <string name="difficulty_confirm_message">Das Ändern der Schwierigkeit setzt das Spiel und alle Punkte zurück. Fortfahren?</string>
+    <string name="difficulty_confirm_action">Ändern</string>
     <string name="difficulty_info_beginner">Anfänger 🌱🛡️\nKurze Kämpfe, sanftes Tempo, viel Spielraum.</string>
     <string name="difficulty_info_easy">Einfach 🙂🗺️\nSanftes Warm-up mit großzügigen Zielen.</string>
     <string name="difficulty_info_medium">Mittel ⚔️🔥\nAusgewogene Herausforderung mit engeren Fenstern.</string>

@@ -121,7 +121,10 @@
     <string name="difficulty_medium">Media</string>
     <string name="difficulty_hard">Difícil</string>
     <string name="difficulty_export">Exportar</string>
-    <string name="difficulty_done">Listo</string>
+    <string name="difficulty_done">Cambiar</string>
+    <string name="difficulty_confirm_title">¿Cambiar dificultad?</string>
+    <string name="difficulty_confirm_message">Cambiar la dificultad reiniciará el juego y todas las puntuaciones. ¿Continuar?</string>
+    <string name="difficulty_confirm_action">Cambiar</string>
     <string name="difficulty_info_beginner">Principiante 🌱🛡️\nBatallas cortas, ritmo suave, mucho margen.</string>
     <string name="difficulty_info_easy">Fácil 🙂🗺️\nCalentamiento estable con objetivos indulgentes.</string>
     <string name="difficulty_info_medium">Media ⚔️🔥\nReto equilibrado con ventanas más ajustadas.</string>

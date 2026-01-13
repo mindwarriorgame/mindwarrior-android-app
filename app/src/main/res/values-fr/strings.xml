@@ -121,7 +121,10 @@
     <string name="difficulty_medium">Moyen</string>
     <string name="difficulty_hard">Difficile</string>
     <string name="difficulty_export">Export</string>
-    <string name="difficulty_done">Terminé</string>
+    <string name="difficulty_done">Changer</string>
+    <string name="difficulty_confirm_title">Changer la difficulté ?</string>
+    <string name="difficulty_confirm_message">Changer la difficulté réinitialisera le jeu et tous les scores. Continuer ?</string>
+    <string name="difficulty_confirm_action">Changer</string>
     <string name="difficulty_info_beginner">Débutant 🌱🛡️\nCombats courts, rythme doux, beaucoup de marge.</string>
     <string name="difficulty_info_easy">Facile 🙂🗺️\nÉchauffement progressif avec objectifs indulgents.</string>
     <string name="difficulty_info_medium">Moyen ⚔️🔥\nDéfi équilibré, fenêtres plus courtes, pénalités plus sévères.</string>

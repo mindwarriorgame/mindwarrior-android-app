@@ -1,6 +1,7 @@
 package com.mindwarrior.app
 
 import android.os.Bundle
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.mindwarrior.app.databinding.ActivityDifficultyBinding
 import com.mindwarrior.app.notifications.OneOffAlertController
@@ -15,15 +16,16 @@ class DifficultyActivity : AppCompatActivity() {
         binding = ActivityDifficultyBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        var current = UserStorage.getUser(this).difficulty
-        when (current) {
+        var currentDifficulty = UserStorage.getUser(this).difficulty
+        var pendingDifficulty = currentDifficulty
+        when (currentDifficulty) {
             Difficulty.BEGINNER -> binding.difficultyBeginner.isChecked = true
             Difficulty.EASY -> binding.difficultyEasy.isChecked = true
             Difficulty.MEDIUM -> binding.difficultyMedium.isChecked = true
             Difficulty.HARD -> binding.difficultyHard.isChecked = true
             Difficulty.EXPORT -> binding.difficultyExport.isChecked = true
         }
-        updateDifficultyInfo(current)
+        updateDifficultyInfo(currentDifficulty)
 
         binding.difficultyGroup.setOnCheckedChangeListener { _, checkedId ->
             val selected = when (checkedId) {
@@ -34,22 +36,36 @@ class DifficultyActivity : AppCompatActivity() {
                 R.id.difficulty_export -> Difficulty.EXPORT
                 else -> Difficulty.BEGINNER
             }
-            if (selected != current) {
-                val user = UserStorage.getUser(this)
-                val message = getString(
-                    R.string.log_difficulty_changed,
-                    getString(user.difficulty.labelRes),
-                    getString(selected.labelRes)
-                )
-                UserStorage.upsertUser(this, GameManager.onDifficultyChanged(user, selected, message))
-                OneOffAlertController.restart(this)
-                current = selected
-            }
+            pendingDifficulty = selected
             updateDifficultyInfo(selected)
         }
 
         binding.doneButton.setOnClickListener {
-            finish()
+            if (pendingDifficulty == currentDifficulty) {
+                finish()
+                return@setOnClickListener
+            }
+
+            AlertDialog.Builder(this)
+                .setTitle(R.string.difficulty_confirm_title)
+                .setMessage(R.string.difficulty_confirm_message)
+                .setPositiveButton(R.string.difficulty_confirm_action) { _, _ ->
+                    val user = UserStorage.getUser(this)
+                    val message = getString(
+                        R.string.log_difficulty_changed,
+                        getString(user.difficulty.labelRes),
+                        getString(pendingDifficulty.labelRes)
+                    )
+                    UserStorage.upsertUser(
+                        this,
+                        GameManager.onDifficultyChanged(user, pendingDifficulty, message)
+                    )
+                    OneOffAlertController.restart(this)
+                    currentDifficulty = pendingDifficulty
+                    finish()
+                }
+                .setNegativeButton(android.R.string.cancel, null)
+                .show()
         }
     }
 
