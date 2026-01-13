@@ -24,8 +24,9 @@ class WebViewActivity : AppCompatActivity() {
         val isFormulaMode = intent.getBooleanExtra(EXTRA_IS_FORMULA, false)
 
         val loader = AssetWebViewLoader(assets)
+        val langCode = LanguageManager.getCurrentLanguageTag(this)
         val config = AssetWebViewLoader.Config(
-            baseUrl = (baseUrlExtra ?: DEFAULT_ASSET_PAGE_URL) +
+            baseUrl = appendLangParam(baseUrlExtra ?: DEFAULT_ASSET_PAGE_URL, langCode) +
                 "&ts=" + (NowProvider.nowMillis() / 1000),
             assetPath = assetPathExtra ?: DEFAULT_ASSET_PATH,
             replacements = AssetWebViewLoader.defaultReplacements(),
@@ -136,6 +137,28 @@ class WebViewActivity : AppCompatActivity() {
             })();
             </script>
         """.trimIndent()
+    }
+
+    private fun appendLangParam(url: String, langCode: String): String {
+        if (langCode.isBlank()) {
+            return url
+        }
+        var updated = url
+        if (!updated.contains("lang=")) {
+            updated = if (updated.contains("?")) {
+                "$updated&lang=$langCode"
+            } else {
+                "$updated?lang=$langCode"
+            }
+        }
+        if (!updated.contains("lang_code=")) {
+            updated = if (updated.contains("?")) {
+                "$updated&lang_code=$langCode"
+            } else {
+                "$updated?lang_code=$langCode"
+            }
+        }
+        return updated
     }
 
     companion object {

@@ -33,6 +33,7 @@ class MindWarriorApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        LanguageManager.init(this)
         NowProvider.init(this)
         UserStorage.observeUserChanges(this, updater)
     }

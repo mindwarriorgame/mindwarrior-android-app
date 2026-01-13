@@ -52,6 +52,11 @@ class MainActivity : AppCompatActivity() {
     private var labGlowActive = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        if (LanguageManager.shouldShowLanguagePrompt(this)) {
+            startActivity(android.content.Intent(this, LanguageSelectionActivity::class.java))
+            finish()
+            return
+        }
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -67,6 +72,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         bindViewModel()
+        refreshDifficultyMenuLabel()
     }
 
     override fun onResume() {
@@ -75,6 +81,7 @@ class MainActivity : AppCompatActivity() {
         viewModel.startTickers()
         viewModel.refreshTimerDisplay()
         viewModel.startTimerFlagChecker()
+        refreshDifficultyMenuLabel()
     }
 
     override fun onPause() {
@@ -212,10 +219,11 @@ class MainActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
             val user = UserStorage.getUser(this)
+            val langCode = LanguageManager.getCurrentLanguageTag(this)
             val baseUrl = GameManager.buildBoardWebViewUrl(
                 baseUrl = "file:///android_asset/miniapp-frontend/board.html",
                 user = user,
-                langCode = "en",
+                langCode = langCode,
                 env = "prod"
             )
             val intent = android.content.Intent(this, WebViewActivity::class.java)
@@ -225,10 +233,11 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.labButton.setOnClickListener {
+            val langCode = LanguageManager.getCurrentLanguageTag(this)
             val intent = android.content.Intent(this, WebViewActivity::class.java)
             intent.putExtra(
                 WebViewActivity.EXTRA_BASE_URL,
-                "file:///android_asset/miniapp-frontend/index.html?formula=1"
+                "file:///android_asset/miniapp-frontend/index.html?formula=1&lang=$langCode&lang_code=$langCode"
             )
             intent.putExtra(
                 WebViewActivity.EXTRA_ASSET_PATH,
@@ -242,10 +251,11 @@ class MainActivity : AppCompatActivity() {
             if (!ensureFormulaAvailable()) {
                 return@setOnClickListener
             }
+            val langCode = LanguageManager.getCurrentLanguageTag(this)
             val intent = android.content.Intent(this, WebViewActivity::class.java)
             intent.putExtra(
                 WebViewActivity.EXTRA_BASE_URL,
-                "file:///android_asset/miniapp-frontend/index.html?review=1&next_review_prompt_minutes=1,2,3,4,5"
+                "file:///android_asset/miniapp-frontend/index.html?review=1&next_review_prompt_minutes=1,2,3,4,5&lang=$langCode&lang_code=$langCode"
             )
             intent.putExtra(
                 WebViewActivity.EXTRA_ASSET_PATH,
@@ -451,6 +461,12 @@ class MainActivity : AppCompatActivity() {
             ""
         }
         binding.progressButton.text = levelText + suffix
+    }
+
+    private fun refreshDifficultyMenuLabel() {
+        val user = UserStorage.getUser(this)
+        val difficultyLabel = getString(user.difficulty.labelRes)
+        binding.menuDifficulty.text = getString(R.string.menu_difficulty, difficultyLabel)
     }
 
     private fun updateDiamondsButtonText() {
