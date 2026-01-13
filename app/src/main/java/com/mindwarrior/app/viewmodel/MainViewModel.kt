@@ -18,8 +18,18 @@ import java.util.Locale
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val handler = Handler(Looper.getMainLooper())
-    private val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
-    private val dayFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
+    private val timeFormat by lazy {
+        SimpleDateFormat(
+            getApplication<Application>().getString(R.string.time_format_hhmm),
+            Locale.getDefault()
+        )
+    }
+    private val dayFormat by lazy {
+        SimpleDateFormat(
+            getApplication<Application>().getString(R.string.time_format_yyyy_mm_dd_hhmm),
+            Locale.getDefault()
+        )
+    }
     private val logItems = mutableListOf<LogItem>()
     private var tickersRunning = false
     private var timerFlagNotified = false
@@ -257,14 +267,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         val now = NowProvider.nowMillis()
         val diff = now - timeMillis
         return if (diff < DAY_MILLIS) {
-            val relative = when {
-                diff < 10_000L -> "now"
-                diff < 30_000L -> "10s ago"
-                diff < 60_000L -> "30s ago"
-                diff < 3_600_000L -> "${(diff / 60_000).coerceAtLeast(1)}m ago"
-                else -> "${diff / 3_600_000}h ago"
-            }
-            "$relative · ${timeFormat.format(timeMillis)}"
+            val relative = formatRelativeTime(diff)
+            appString(R.string.relative_time_with_clock, relative, timeFormat.format(timeMillis))
         } else {
             dayFormat.format(timeMillis)
         }
@@ -275,7 +279,24 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         val hours = totalSeconds / 3600
         val minutes = (totalSeconds % 3600) / 60
         val seconds = totalSeconds % 60
-        return String.format(Locale.getDefault(), "%02d:%02d:%02d", hours, minutes, seconds)
+        return appString(R.string.time_format_hms, hours, minutes, seconds)
+    }
+
+    private fun formatRelativeTime(diff: Long): String {
+        return when {
+            diff < 10_000L -> appString(R.string.relative_time_now)
+            diff < 30_000L -> appString(R.string.relative_time_seconds_10)
+            diff < 60_000L -> appString(R.string.relative_time_seconds_30)
+            diff < 3_600_000L -> appString(
+                R.string.relative_time_minutes_ago,
+                (diff / 60_000).coerceAtLeast(1)
+            )
+            else -> appString(R.string.relative_time_hours_ago, diff / 3_600_000)
+        }
+    }
+
+    private fun appString(resId: Int, vararg args: Any): String {
+        return getApplication<Application>().getString(resId, *args)
     }
 
     private fun refreshFreezeTimerDisplay(user: com.mindwarrior.app.engine.User) {

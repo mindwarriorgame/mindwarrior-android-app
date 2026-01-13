@@ -42,8 +42,12 @@ class MainActivity : AppCompatActivity() {
     private var lastProgressLevel = 0
     private var lastProgressHasGrumpyCat = false
     private var lastProgressHasRepeller = false
-    private val unseenTimeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
-    private val unseenDayFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
+    private val unseenTimeFormat by lazy {
+        SimpleDateFormat(getString(R.string.time_format_hhmm), Locale.getDefault())
+    }
+    private val unseenDayFormat by lazy {
+        SimpleDateFormat(getString(R.string.time_format_yyyy_mm_dd_hhmm), Locale.getDefault())
+    }
     private var labGlowActive = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -271,7 +275,7 @@ class MainActivity : AppCompatActivity() {
                 viewModel.refreshTimerDisplay()
                 Toast.makeText(
                     this,
-                    "Time moved forward by $minutes minutes",
+                    getString(R.string.debug_time_travel_toast, minutes),
                     Toast.LENGTH_SHORT
                 ).show()
             }
@@ -308,7 +312,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun showFormulaRequiredDialog() {
         AlertDialog.Builder(this)
-            .setMessage("To start the game, 🧪 button to enter your Formula first")
+            .setMessage(getString(R.string.formula_required_message))
             .setPositiveButton(android.R.string.ok, null)
             .show()
     }
@@ -482,7 +486,7 @@ class MainActivity : AppCompatActivity() {
             })
         }
         AlertDialog.Builder(this)
-            .setTitle("New events")
+            .setTitle(getString(R.string.unseen_logs_title))
             .setView(content)
             .setPositiveButton(android.R.string.ok) { _, _ ->
                 viewModel.markUnseenLogsObserved(nLogsObserved)
@@ -497,16 +501,23 @@ class MainActivity : AppCompatActivity() {
         val now = NowProvider.nowMillis()
         val diff = now - timeMillis
         return if (diff < DAY_MILLIS) {
-            val relative = when {
-                diff < 10_000L -> "now"
-                diff < 30_000L -> "10s ago"
-                diff < 60_000L -> "30s ago"
-                diff < 3_600_000L -> "${(diff / 60_000).coerceAtLeast(1)}m ago"
-                else -> "${diff / 3_600_000}h ago"
-            }
-            "$relative · ${unseenTimeFormat.format(timeMillis)}"
+            val relative = formatRelativeTime(diff)
+            getString(R.string.relative_time_with_clock, relative, unseenTimeFormat.format(timeMillis))
         } else {
             unseenDayFormat.format(timeMillis)
+        }
+    }
+
+    private fun formatRelativeTime(diff: Long): String {
+        return when {
+            diff < 10_000L -> getString(R.string.relative_time_now)
+            diff < 30_000L -> getString(R.string.relative_time_seconds_10)
+            diff < 60_000L -> getString(R.string.relative_time_seconds_30)
+            diff < 3_600_000L -> getString(
+                R.string.relative_time_minutes_ago,
+                (diff / 60_000).coerceAtLeast(1)
+            )
+            else -> getString(R.string.relative_time_hours_ago, diff / 3_600_000)
         }
     }
 

@@ -188,12 +188,14 @@ object GameManager {
         user: User,
         reminderMessage: String,
         penaltyMessage: String,
-        grumpyCatMessage: String
+        grumpyCatMessage: String,
+        sleepPausedMessage: String,
+        sleepResumedMessage: String
     ): User {
         if (user.nextSleepEventAtMillis.isPresent &&
             user.nextSleepEventAtMillis.get() < NowProvider.nowMillis()
         ) {
-            return handleAutoSleepEvent(user)
+            return handleAutoSleepEvent(user, sleepPausedMessage, sleepResumedMessage)
         }
 
         if (user.pausedTimerSerialized.isPresent) {
@@ -471,7 +473,11 @@ object GameManager {
 
     private const val WEEK_MILLIS = 7L * 24 * 60 * 60 * 1000
 
-    private fun handleAutoSleepEvent(user: User): User {
+    private fun handleAutoSleepEvent(
+        user: User,
+        sleepPausedMessage: String,
+        sleepResumedMessage: String
+    ): User {
         val nextSleepEventAtMillis = Optional.of(
             SleepUtils.calculateNextSleepEventMillisAt(
                 NowProvider.nowMillis(),
@@ -488,7 +494,7 @@ object GameManager {
                 nextPenaltyTimerSerialized = Counter(user.nextPenaltyTimerSerialized).pause().serialize(),
                 nextSleepEventAtMillis = nextSleepEventAtMillis,
                 pendingNotificationLogsNewestFirst = listOf(
-                    Pair("💤 Time to sleep. The game is automatically paused ⏸️", NowProvider.nowMillis())
+                    Pair(sleepPausedMessage, NowProvider.nowMillis())
                 ) + user.pendingNotificationLogsNewestFirst
             )
         }
@@ -501,7 +507,7 @@ object GameManager {
                 nextPenaltyTimerSerialized = Counter(user.nextPenaltyTimerSerialized).resume().serialize(),
                 nextSleepEventAtMillis = nextSleepEventAtMillis,
                 pendingNotificationLogsNewestFirst = listOf(
-                    Pair("☀️ Good morning! The game is resumed ▶️", NowProvider.nowMillis())
+                    Pair(sleepResumedMessage, NowProvider.nowMillis())
                 ) + user.pendingNotificationLogsNewestFirst
             )
         }

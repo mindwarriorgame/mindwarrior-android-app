@@ -152,7 +152,9 @@ object UserStorage {
             pendingNotificationLogsNewestFirst = pendingNotificationLogsNewestFirst,
             unseenLogsNewestFirst = unseenLogsNewestFirst,
             oldLogsNewestFirst = if (isNewUser) {
-                listOf(Pair(WELCOME_MESSAGE, NowProvider.nowMillis()))
+                listOf(
+                    Pair(context.getString(R.string.log_welcome_message), NowProvider.nowMillis())
+                )
             } else {
                 oldLogsNewestFirst
             }
@@ -162,7 +164,9 @@ object UserStorage {
             user,
             context.getString(R.string.log_prompt_reminder),
             context.getString(R.string.log_prompt_penalty),
-            context.getString(R.string.log_grumpy_sneaked_in)
+            context.getString(R.string.log_grumpy_sneaked_in),
+            context.getString(R.string.log_sleep_started),
+            context.getString(R.string.log_sleep_resumed)
         )
         if (updatedUser == user && !isNewUser) {
             return user
@@ -416,8 +420,5 @@ object UserStorage {
     interface UserUpdateListener {
         fun onUserUpdated(user: User)
     }
-
-    private const val WELCOME_MESSAGE =
-        "👋 Welcome to MindWarrior game! 🥷 Tap 🧪 to enter your Formula of Firm Resolution and start playing!"
 
 }

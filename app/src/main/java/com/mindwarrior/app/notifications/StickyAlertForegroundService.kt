@@ -99,7 +99,7 @@ class StickyAlertForegroundService : Service() {
         val hours = totalSeconds / 3600
         val minutes = (totalSeconds % 3600) / 60
         val seconds = totalSeconds % 60
-        return String.format("%02d:%02d:%02d", hours, minutes, seconds)
+        return getString(R.string.time_format_hms, hours, minutes, seconds)
     }
 
     private fun createContentIntent(): PendingIntent {
@@ -116,7 +116,6 @@ class StickyAlertForegroundService : Service() {
     companion object {
         private const val NOTIFICATION_ID = 2002
         private const val STICKY_CHANNEL_ID_V2 = "battle_timer_sticky_v2"
-        private const val STICKY_CHANNEL_NAME = "Battle Timer (Persistent)"
     }
 
     private fun ensureStickyNotificationChannel() {
@@ -127,7 +126,7 @@ class StickyAlertForegroundService : Service() {
 
         val channel = NotificationChannel(
             STICKY_CHANNEL_ID_V2,
-            STICKY_CHANNEL_NAME,
+            getString(R.string.notification_channel_battle_timer_persistent),
             NotificationManager.IMPORTANCE_DEFAULT
         )
         channel.setSound(null, null)

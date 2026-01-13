@@ -17,7 +17,9 @@ class BootReceiver : BroadcastReceiver() {
                 user,
                 context.getString(com.mindwarrior.app.R.string.log_prompt_reminder),
                 context.getString(com.mindwarrior.app.R.string.log_prompt_penalty),
-                context.getString(com.mindwarrior.app.R.string.log_grumpy_sneaked_in)
+                context.getString(com.mindwarrior.app.R.string.log_grumpy_sneaked_in),
+                context.getString(com.mindwarrior.app.R.string.log_sleep_started),
+                context.getString(com.mindwarrior.app.R.string.log_sleep_resumed)
             )
             if (updatedUser != user) {
                 UserStorage.upsertUser(context, updatedUser)

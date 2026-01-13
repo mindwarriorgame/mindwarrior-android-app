@@ -83,7 +83,10 @@ class ProgressGraphView @JvmOverloads constructor(
     private val bottomEdgeEffect = EdgeEffect(context)
     private var zoomedIn = false
     private var zoomChangedListener: ((Boolean) -> Unit)? = null
-    private val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
+    private val timeFormat = SimpleDateFormat(
+        context.getString(R.string.time_format_hhmm),
+        Locale.getDefault()
+    )
 
     fun setData(
         points: List<ProgressPoint>,
@@ -206,7 +209,12 @@ class ProgressGraphView @JvmOverloads constructor(
         val span = (maxX - minX).coerceAtLeast(0L)
         val startLabel = "-" + formatDuration(span)
         val endLabel = formatRelativeDayLabelWithTime(maxX)
-        canvas.drawText("Minutes between reviews", chart.left, chart.top - 8f, textPaint)
+        canvas.drawText(
+            context.getString(R.string.progress_graph_minutes_between_reviews),
+            chart.left,
+            chart.top - 8f,
+            textPaint
+        )
         canvas.drawText(startLabel, chart.left, height - 24f, textPaint)
         val textWidth = textPaint.measureText(endLabel)
         canvas.drawText(endLabel, chart.right - textWidth, height - 24f, textPaint)
@@ -281,11 +289,16 @@ class ProgressGraphView @JvmOverloads constructor(
         val hours = (absMillis % DAY_MILLIS) / HOUR_MILLIS
         val minutes = (absMillis % HOUR_MILLIS) / MINUTE_MILLIS
         return when {
-            days > 0 && hours > 0 -> "${days}d ${hours}h"
-            days > 0 -> "${days}d"
-            hours > 0 && minutes > 0 -> "${hours}h ${minutes}m"
-            hours > 0 -> "${hours}h"
-            else -> "${minutes}m"
+            days > 0 && hours > 0 ->
+                context.getString(R.string.duration_days_hours, days, hours)
+            days > 0 ->
+                context.getString(R.string.duration_days_only, days)
+            hours > 0 && minutes > 0 ->
+                context.getString(R.string.duration_hours_minutes, hours, minutes)
+            hours > 0 ->
+                context.getString(R.string.duration_hours_only, hours)
+            else ->
+                context.getString(R.string.duration_minutes_only, minutes)
         }
     }
 
@@ -294,11 +307,15 @@ class ProgressGraphView @JvmOverloads constructor(
         val targetStart = startOfDayMillis(millis)
         val diffDays = ((nowStart - targetStart) / DAY_MILLIS).coerceAtLeast(0L)
         val dayLabel = when (diffDays) {
-            0L -> "today"
-            1L -> "yesterday"
-            else -> "${diffDays} days ago"
+            0L -> context.getString(R.string.relative_day_today)
+            1L -> context.getString(R.string.relative_day_yesterday)
+            else -> context.getString(R.string.relative_day_days_ago, diffDays)
         }
-        return dayLabel + " " + timeFormat.format(Date(millis))
+        return context.getString(
+            R.string.relative_day_with_time,
+            dayLabel,
+            timeFormat.format(Date(millis))
+        )
     }
 
     private fun startOfDayMillis(millis: Long): Long {
