@@ -47,6 +47,7 @@ class UserStorageTest {
             localStorageSnapshot = Optional.of("{\"a\":\"b\"}"),
             diamonds = 12,
             diamondsSpent = 3,
+            hasRepeller = true,
             badgesSerialized = "{\"board\":[]}",
             pauseIntervalHistory = listOf(
                 Pair(1000L, 2000L),
@@ -92,6 +93,7 @@ class UserStorageTest {
             localStorageSnapshot = Optional.empty(),
             diamonds = 0,
             diamondsSpent = 0,
+            hasRepeller = false,
             badgesSerialized = "",
             pauseIntervalHistory = emptyList(),
             reviewAtMillisActivePlayTimeHistory = emptyList(),
@@ -138,7 +140,10 @@ class UserStorageTest {
         assertEquals(emptyList<Pair<String, Long>>(), loaded.pendingNotificationLogsNewestFirst)
         assertEquals(emptyList<Pair<String, Long>>(), loaded.unseenLogsNewestFirst)
         assertEquals(1, loaded.oldLogsNewestFirst.size)
-        assertEquals(WELCOME_MESSAGE, loaded.oldLogsNewestFirst.first().first)
+        assertEquals(
+            context.getString(R.string.log_welcome_message),
+            loaded.oldLogsNewestFirst.first().first
+        )
     }
 
     @Test
@@ -226,8 +231,6 @@ class UserStorageTest {
         private const val KEY_NEXT_ALERT_TYPE = "next_alert_type"
         private const val KEY_PENDING_NOTIFICATION_LOGS_NEWEST_FIRST =
             "pending_notification_logs_newest_first"
-        private const val WELCOME_MESSAGE =
-            "👋 Welcome to MindWarrior game! 🥷 Tap 🧪 to enter your Formula of Firm Resolution and start playing!"
     }
 
     private fun waitForAlertType(

@@ -244,15 +244,14 @@ object GameManager {
             if (newBadge == "c0" && user.hasRepeller) {
                 badgesManager = BadgesManager(user.difficulty.ordinal, user.badgesSerialized)
                 updatedUser = user.copy(
-                    hasRepeller = false,
-                    unseenLogsNewestFirst = trimUnseenLogs(
-                        listOf(Pair(repellerUsedMessage, nowMillis)) + user.unseenLogsNewestFirst
-                    )
+                    hasRepeller = false
                 )
-                newBadge = null
+                newBadge = "repeller"
             }
             val prefix = if (newBadge == "c0") {
                 "$grumpyCatMessage\n\n"
+            } else if (newBadge == "repeller") {
+                "$repellerUsedMessage\n\n"
             } else {
                 ""
             }
