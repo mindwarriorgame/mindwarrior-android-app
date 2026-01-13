@@ -190,7 +190,8 @@ object GameManager {
         penaltyMessage: String,
         grumpyCatMessage: String,
         sleepPausedMessage: String,
-        sleepResumedMessage: String
+        sleepResumedMessage: String,
+        repellerUsedMessage: String
     ): User {
         if (user.nextSleepEventAtMillis.isPresent &&
             user.nextSleepEventAtMillis.get() < NowProvider.nowMillis()
@@ -233,14 +234,29 @@ object GameManager {
         if (user.nextAlertType == AlertType.Penalty
             && (penaltyTimerStartedAtMillis + penaltyThreshold) < NowProvider.nowMillis()
         ) {
-            val badgesManager = BadgesManager(user.difficulty.ordinal, user.badgesSerialized)
-            val newBadge = badgesManager.onPenalty(activePlaySeconds)
+            var updatedUser = user
+
+            val nowMillis = NowProvider.nowMillis()
+            var badgesManager = BadgesManager(user.difficulty.ordinal, user.badgesSerialized)
+
+            var newBadge = badgesManager.onPenalty(activePlaySeconds)
+
+            if (newBadge == "c0" && user.hasRepeller) {
+                badgesManager = BadgesManager(user.difficulty.ordinal, user.badgesSerialized)
+                updatedUser = user.copy(
+                    hasRepeller = false,
+                    unseenLogsNewestFirst = trimUnseenLogs(
+                        listOf(Pair(repellerUsedMessage, nowMillis)) + user.unseenLogsNewestFirst
+                    )
+                )
+                newBadge = null
+            }
             val prefix = if (newBadge == "c0") {
                 "$grumpyCatMessage\n\n"
             } else {
                 ""
             }
-            return user.copy(
+            return updatedUser.copy(
                 nextAlertType = if (DifficultyHelper.hasNudge(user.difficulty)) {
                     AlertType.Reminder
                 } else {
@@ -249,8 +265,8 @@ object GameManager {
                 nextPenaltyTimerSerialized = Counter(null).resume().serialize(),
                 badgesSerialized = badgesManager.serialize(),
                 pendingNotificationLogsNewestFirst = listOf(
-                    Pair(prefix + penaltyMessage, NowProvider.nowMillis())
-                ) + user.pendingNotificationLogsNewestFirst
+                    Pair(prefix + penaltyMessage, nowMillis)
+                ) + updatedUser.pendingNotificationLogsNewestFirst
             )
         }
 

@@ -166,7 +166,8 @@ object UserStorage {
             context.getString(R.string.log_prompt_penalty),
             context.getString(R.string.log_grumpy_sneaked_in),
             context.getString(R.string.log_sleep_started),
-            context.getString(R.string.log_sleep_resumed)
+            context.getString(R.string.log_sleep_resumed),
+            context.getString(R.string.log_repeller_used)
         )
         if (updatedUser == user && !isNewUser) {
             return user

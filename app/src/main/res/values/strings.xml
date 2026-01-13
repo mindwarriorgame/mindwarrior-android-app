@@ -18,6 +18,7 @@
     <string name="unseen_logs_title">New events</string>
     <string name="log_sleep_started">💤 Time to sleep. The game is automatically paused ⏸️</string>
     <string name="log_sleep_resumed">☀️ Good morning! The game is resumed ▶️</string>
+    <string name="log_repeller_used">🧄 Grumpy cat repeller activated.</string>
     <string name="log_welcome_message">👋 Welcome to MindWarrior game! 🥷 Tap 🧪 to enter your Formula of Firm Resolution and start playing!</string>
     <string name="notification_channel_battle_timer">Battle Timer</string>
     <string name="notification_channel_battle_timer_persistent">Battle Timer (Persistent)</string>
