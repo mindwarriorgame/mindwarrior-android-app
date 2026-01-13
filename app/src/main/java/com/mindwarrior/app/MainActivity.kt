@@ -42,6 +42,7 @@ class MainActivity : AppCompatActivity() {
     private var lastProgressLevel = 0
     private var lastProgressHasGrumpyCat = false
     private var lastProgressHasRepeller = false
+    private var lastDiamondsCount = 0
     private val unseenTimeFormat by lazy {
         SimpleDateFormat(getString(R.string.time_format_hhmm), Locale.getDefault())
     }
@@ -362,7 +363,8 @@ class MainActivity : AppCompatActivity() {
             binding.reviewButton.alpha = if (enabled) 1f else 0.5f
         }
         viewModel.diamonds.observe(this) { count ->
-            binding.diamondsButton.text = getString(R.string.diamonds_button, count)
+            lastDiamondsCount = count
+            updateDiamondsButtonText()
         }
         viewModel.progressLevel.observe(this) { level ->
             lastProgressLevel = level
@@ -375,6 +377,7 @@ class MainActivity : AppCompatActivity() {
         viewModel.progressHasRepeller.observe(this) { hasRepeller ->
             lastProgressHasRepeller = hasRepeller
             updateProgressButtonText()
+            updateDiamondsButtonText()
         }
         viewModel.difficultyLabel.observe(this) { label ->
             binding.menuDifficulty.text = label
@@ -447,12 +450,17 @@ class MainActivity : AppCompatActivity() {
         } else {
             ""
         }
+        binding.progressButton.text = levelText + suffix
+    }
+
+    private fun updateDiamondsButtonText() {
+        val baseText = getString(R.string.diamonds_button, lastDiamondsCount)
         val repellerSuffix = if (lastProgressHasRepeller) {
             " " + getString(R.string.shop_item_prevent_attack_icon)
         } else {
             ""
         }
-        binding.progressButton.text = levelText + suffix + repellerSuffix
+        binding.diamondsButton.text = baseText + repellerSuffix
     }
 
     private fun showUnseenLogDialog(logs: List<Pair<String, Long>>) {
