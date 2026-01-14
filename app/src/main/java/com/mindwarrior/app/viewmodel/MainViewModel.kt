@@ -1,11 +1,16 @@
 package com.mindwarrior.app.viewmodel
 
 import android.app.Application
+import android.content.Context
+import android.content.res.Configuration
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.os.LocaleList
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.mindwarrior.app.LanguageManager
 import com.mindwarrior.app.R
 import com.mindwarrior.app.LogItem
 import com.mindwarrior.app.NowProvider
@@ -133,8 +138,21 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun formatDifficultyLabel(difficulty: com.mindwarrior.app.engine.Difficulty): String {
-        val label = getApplication<Application>().getString(difficulty.labelRes)
-        return getApplication<Application>().getString(R.string.menu_difficulty, label)
+        val localizedContext = getLocalizedContext()
+        val label = localizedContext.getString(difficulty.labelRes)
+        return localizedContext.getString(R.string.menu_difficulty, label)
+    }
+
+    private fun getLocalizedContext(): Context {
+        val app = getApplication<Application>()
+        val tag = LanguageManager.getCurrentLanguageTag(app)
+        val locale = Locale.forLanguageTag(tag)
+        val config = Configuration(app.resources.configuration)
+        config.setLocale(locale)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            config.setLocales(LocaleList(locale))
+        }
+        return app.createConfigurationContext(config)
     }
 
     fun startTickers() {
