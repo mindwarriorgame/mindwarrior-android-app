@@ -80,6 +80,7 @@ class MainActivity : AppCompatActivity() {
         OneOffAlertController.clearNotification(this)
         viewModel.startTickers()
         viewModel.refreshTimerDisplay()
+        viewModel.refreshLocalizedLogs()
         viewModel.startTimerFlagChecker()
         refreshDifficultyMenuLabel()
     }
@@ -477,23 +478,23 @@ class MainActivity : AppCompatActivity() {
         binding.diamondsButton.text = baseText + repellerSuffix
     }
 
-    private fun showUnseenLogDialog(logs: List<Pair<String, Long>>) {
+    private fun showUnseenLogDialog(logs: List<UnseenLogItem>) {
         if (unseenLogDialogShowing) return
         unseenLogDialogShowing = true
-        val nLogsObserved = logs.size
+        val observedLogs = logs
         val content = ScrollView(this).apply {
             isFillViewport = true
             val padding = resources.getDimensionPixelSize(R.dimen.unseen_log_padding)
             setPadding(padding, padding, padding, padding)
             addView(LinearLayout(context).apply {
                 orientation = LinearLayout.VERTICAL
-                logs.forEachIndexed { index, (message, timestampMillis) ->
+                logs.forEachIndexed { index, logItem ->
                     val item = LayoutInflater.from(context)
                         .inflate(R.layout.item_log, this, false)
                     val timeView = item.findViewById<android.widget.TextView>(R.id.log_time)
                     val messageView = item.findViewById<android.widget.TextView>(R.id.log_message)
-                    timeView.text = formatUnseenTimeLabel(timestampMillis)
-                    messageView.text = message
+                    timeView.text = formatUnseenTimeLabel(logItem.timestampMillis)
+                    messageView.text = logItem.translatedMessage
                     val params = LinearLayout.LayoutParams(
                         LinearLayout.LayoutParams.MATCH_PARENT,
                         LinearLayout.LayoutParams.WRAP_CONTENT
@@ -507,16 +508,20 @@ class MainActivity : AppCompatActivity() {
                 }
             })
         }
-        AlertDialog.Builder(this)
+        val dialog = AlertDialog.Builder(this)
             .setTitle(getString(R.string.unseen_logs_title))
             .setView(content)
             .setPositiveButton(android.R.string.ok) { _, _ ->
-                viewModel.markUnseenLogsObserved(nLogsObserved)
+                viewModel.markUnseenLogsObserved(observedLogs)
                 unseenLogDialogShowing = false
             }
-            .setOnDismissListener { unseenLogDialogShowing = false }
+            .setOnDismissListener {
+                viewModel.markUnseenLogsObserved(observedLogs)
+                unseenLogDialogShowing = false
+            }
             .setCancelable(false)
-            .show()
+            .create()
+        dialog.show()
     }
 
     private fun formatUnseenTimeLabel(timeMillis: Long): String {

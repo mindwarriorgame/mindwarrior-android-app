@@ -15,6 +15,7 @@ import com.mindwarrior.app.LanguageManager
 import com.mindwarrior.app.R
 import com.mindwarrior.app.LogItem
 import com.mindwarrior.app.NowProvider
+import com.mindwarrior.app.UnseenLogItem
 import com.mindwarrior.app.UserStorage
 import com.mindwarrior.app.badges.BadgesManager
 import com.mindwarrior.app.engine.Counter
@@ -91,8 +92,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _timerFlagEvent = MutableLiveData<Long>()
     val timerFlagEvent: LiveData<Long> = _timerFlagEvent
 
-    private val _unseenLogsEvent = MutableLiveData<List<Pair<String, Long>>>()
-    val unseenLogsEvent: LiveData<List<Pair<String, Long>>> = _unseenLogsEvent
+    private val _unseenLogsEvent = MutableLiveData<List<UnseenLogItem>>()
+    val unseenLogsEvent: LiveData<List<UnseenLogItem>> = _unseenLogsEvent
 
     private val userListener = object : UserStorage.UserUpdateListener {
         override fun onUserUpdated(user: com.mindwarrior.app.engine.User) {
@@ -193,6 +194,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         refreshFreezeTimerDisplay(user)
     }
 
+    fun refreshLocalizedLogs() {
+        val user = UserStorage.getUser(getApplication())
+        updateLogsFromUser(user)
+        refreshLogLabels()
+    }
+
     fun addLog(message: String) {
         val now = NowProvider.nowMillis()
         val translated = LogMessageCodec.translate(getApplication(), message)
@@ -224,9 +231,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         timerFlagNotified = false
     }
 
-    fun markUnseenLogsObserved(nLogsObserved: Int) {
+    fun markUnseenLogsObserved(observedLogs: List<UnseenLogItem>) {
         val user = UserStorage.getUser(getApplication())
-        val updated = GameManager.onUnseenLogsObserved(user, nLogsObserved)
+        val rawLogs = observedLogs.map { Pair(it.rawMessage, it.timestampMillis) }
+        val updated = GameManager.onUnseenLogsObserved(user, rawLogs)
         if (updated != user) {
             UserStorage.upsertUser(getApplication(), updated)
         }
@@ -278,13 +286,15 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private fun updateUnseenLogsFromUser(user: com.mindwarrior.app.engine.User) {
         val newLogs = user.unseenLogsNewestFirst
         val currentTag = LanguageManager.getCurrentLanguageTag(getApplication())
-        if (newLogs == lastUnseenLogsSnapshot && currentTag == lastUnseenLogsLocaleTag) return
+        if (newLogs == lastUnseenLogsSnapshot) return
         lastUnseenLogsSnapshot = newLogs.toList()
         lastUnseenLogsLocaleTag = currentTag
-        if (newLogs.isNotEmpty()) {
-            _unseenLogsEvent.value = newLogs.map { (message, timestampMillis) ->
-                Pair(LogMessageCodec.translate(getApplication(), message), timestampMillis)
-            }
+        _unseenLogsEvent.value = newLogs.map { (message, timestampMillis) ->
+            UnseenLogItem(
+                rawMessage = message,
+                translatedMessage = LogMessageCodec.translate(getApplication(), message),
+                timestampMillis = timestampMillis
+            )
         }
     }
 

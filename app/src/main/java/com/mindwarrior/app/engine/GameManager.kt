@@ -200,6 +200,39 @@ object GameManager {
         )
     }
 
+    fun onUnseenLogsObserved(user: User, observedLogs: List<Pair<String, Long>>): User {
+        if (user.unseenLogsNewestFirst.isEmpty() || observedLogs.isEmpty()) {
+            return user
+        }
+
+        val remainingObserved = observedLogs.toMutableList()
+        val toMove = mutableListOf<Pair<String, Long>>()
+        val remainingUnseen = mutableListOf<Pair<String, Long>>()
+
+        for (entry in user.unseenLogsNewestFirst) {
+            val idx = remainingObserved.indexOf(entry)
+            if (idx >= 0) {
+                remainingObserved.removeAt(idx)
+                toMove.add(entry)
+            } else {
+                remainingUnseen.add(entry)
+            }
+        }
+
+        if (toMove.isEmpty()) {
+            return user
+        }
+
+        val mergedLogs = (toMove + user.oldLogsNewestFirst)
+            .sortedByDescending { it.second }
+            .take(MAX_OLD_LOGS)
+
+        return user.copy(
+            unseenLogsNewestFirst = remainingUnseen,
+            oldLogsNewestFirst = mergedLogs
+        )
+    }
+
     private fun trimUnseenLogs(logs: List<Pair<String, Long>>): List<Pair<String, Long>> {
         return if (logs.size > MAX_UNSEEN_LOGS) logs.take(MAX_UNSEEN_LOGS) else logs
     }
