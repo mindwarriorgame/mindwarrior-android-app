@@ -72,11 +72,7 @@ class WebViewActivity : AppCompatActivity() {
                 updated = GameManager.onLocalStorageUpdated(
                     updated,
                     Optional.of(result),
-                    isFormulaMode,
-                    getString(R.string.log_new_badge),
-                    getString(R.string.log_game_started),
-                    getString(R.string.log_formula_updated),
-                    getString(R.string.log_grumpy_blocking)
+                    isFormulaMode
                 )
             }
             if (isReviewMode) {
@@ -84,20 +80,10 @@ class WebViewActivity : AppCompatActivity() {
                     DifficultyHelper.getReviewFrequencyMillis(updated.difficulty) / 60_000L
                 val hours = (totalMinutes / 60).toInt()
                 val minutes = (totalMinutes % 60).toInt()
-                val reviewMessage = getString(R.string.log_review_completed, hours, minutes)
-                val rewardMessage = getString(R.string.log_review_reward)
-                val noRewardMessage = getString(R.string.log_review_no_reward)
                 updated = GameManager.onReviewCompleted(
                     updated,
-                    reviewMessage,
-                    rewardMessage,
-                    noRewardMessage,
-                    getString(R.string.log_game_resumed),
-                    getString(R.string.log_new_badge),
-                    getString(R.string.log_grumpy_removed),
-                    getString(R.string.log_grumpy_remaining),
-                    getString(R.string.log_achievements_unblocked),
-                    getString(R.string.log_grumpy_expelling)
+                    hours,
+                    minutes
                 )
             }
             if (updated != user) {

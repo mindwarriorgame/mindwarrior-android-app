@@ -1,5 +1,7 @@
 package com.mindwarrior.app.engine
 
+import com.mindwarrior.app.LogMessageCodec
+import com.mindwarrior.app.LogMessageKeys
 import com.mindwarrior.app.NowProvider
 import com.mindwarrior.app.badges.BadgesManager
 import com.mindwarrior.app.badges.BoardSerializer
@@ -14,9 +16,13 @@ object GameManager {
 
     fun onDifficultyChanged(
         user: User,
-        newDifficulty: Difficulty,
-        logMessage: String
+        newDifficulty: Difficulty
     ): User {
+        val logMessage = LogMessageCodec.encode(
+            LogMessageKeys.DIFFICULTY_CHANGED,
+            user.difficulty.id,
+            newDifficulty.id
+        )
         val newUser = UserFactory.createUser(newDifficulty).copy(
             localStorageSnapshot = user.localStorageSnapshot,
             timerForegroundEnabled = user.timerForegroundEnabled,
@@ -44,8 +50,7 @@ object GameManager {
         user: User,
         draftEnabled: Boolean,
         draftStartMinutes: Int,
-        draftEndMinutes: Int,
-        logMessage: String
+        draftEndMinutes: Int
     ): User {
         val nextSleepEventAtMillis = if (draftEnabled) {
             Optional.of(
@@ -58,6 +63,15 @@ object GameManager {
         } else {
             Optional.empty()
         }
+        val logMessage = if (draftEnabled) {
+            LogMessageCodec.encode(
+                LogMessageKeys.SLEEP_SCHEDULE_ENABLED,
+                draftStartMinutes.toString(),
+                draftEndMinutes.toString()
+            )
+        } else {
+            LogMessageCodec.encode(LogMessageKeys.SLEEP_SCHEDULE_DISABLED)
+        }
         return user.copy(
             nextSleepEventAtMillis = nextSleepEventAtMillis,
             sleepStartMinutes = draftStartMinutes,
@@ -69,7 +83,7 @@ object GameManager {
 
     }
 
-    fun onPaused(user: User, logMessage: String): User {
+    fun onPaused(user: User): User {
         if (user.pausedTimerSerialized.isPresent) {
             return user;
         }
@@ -79,12 +93,13 @@ object GameManager {
             nextPenaltyTimerSerialized = Counter(user.nextPenaltyTimerSerialized).pause().serialize(),
             activePlayTimerSerialized = Counter(user.activePlayTimerSerialized).pause().serialize(),
             unseenLogsNewestFirst = trimUnseenLogs(
-                listOf(Pair(logMessage, nowMillis)) + user.unseenLogsNewestFirst
+                listOf(Pair(LogMessageCodec.encode(LogMessageKeys.GAME_PAUSED), nowMillis)) +
+                    user.unseenLogsNewestFirst
             )
         )
     }
 
-    fun onResume(user: User, logMessage: String): User {
+    fun onResume(user: User): User {
         if (!user.pausedTimerSerialized.isPresent) {
             return user
         }
@@ -95,7 +110,8 @@ object GameManager {
             nextPenaltyTimerSerialized = Counter(user.nextPenaltyTimerSerialized).resume().serialize(),
             activePlayTimerSerialized = Counter(user.activePlayTimerSerialized).resume().serialize(),
             unseenLogsNewestFirst = trimUnseenLogs(
-                listOf(Pair(logMessage, nowMillis)) + user.unseenLogsNewestFirst
+                listOf(Pair(LogMessageCodec.encode(LogMessageKeys.GAME_RESUMED), nowMillis)) +
+                    user.unseenLogsNewestFirst
             ),
             pauseIntervalHistory = pauseIntervalHistory
         )
@@ -104,11 +120,7 @@ object GameManager {
     fun onLocalStorageUpdated(
         user: User,
         localStorate: Optional<String>,
-        triggeredByFormulaEditor: Boolean,
-        newBadgeLogMessage: String = "",
-        gameStartedLogMessage: String = "",
-        formulaUpdatedLogMessage: String = "",
-        grumpyBlockingLogMessage: String = ""
+        triggeredByFormulaEditor: Boolean
     ): User {
         val userOldLocalStorage = user.localStorageSnapshot
         var updatedUser = user.copy(localStorageSnapshot = localStorate)
@@ -133,14 +145,26 @@ object GameManager {
         updatedUser = updatedUser.copy(badgesSerialized = manager.serialize())
         val nowMillis = NowProvider.nowMillis()
         val baseLogMessage = if (isGameStarted) {
-            gameStartedLogMessage
+            LogMessageCodec.encode(LogMessageKeys.GAME_STARTED)
         } else {
-            formulaUpdatedLogMessage
+            LogMessageCodec.encode(LogMessageKeys.FORMULA_UPDATED)
         }
         val mergedLog = if (newBadge != null) {
-            listOf(Pair("$newBadgeLogMessage\n\n$baseLogMessage", nowMillis))
+            listOf(
+                Pair(
+                    LogMessageCodec.encode(LogMessageKeys.NEW_BADGE) + "\n\n" + baseLogMessage,
+                    nowMillis
+                )
+            )
         } else if (manager.countActiveGrumpyCatsOnBoard() > 0) {
-            listOf(Pair("$grumpyBlockingLogMessage\n\n$baseLogMessage", nowMillis))
+            listOf(
+                Pair(
+                    LogMessageCodec.encode(LogMessageKeys.GRUMPY_BLOCKING) +
+                        "\n\n" +
+                        baseLogMessage,
+                    nowMillis
+                )
+            )
         } else {
             listOf(Pair(baseLogMessage, nowMillis))
         }
@@ -185,18 +209,12 @@ object GameManager {
     }
 
     fun evaluateAlerts(
-        user: User,
-        reminderMessage: String,
-        penaltyMessage: String,
-        grumpyCatMessage: String,
-        sleepPausedMessage: String,
-        sleepResumedMessage: String,
-        repellerUsedMessage: String
+        user: User
     ): User {
         if (user.nextSleepEventAtMillis.isPresent &&
             user.nextSleepEventAtMillis.get() < NowProvider.nowMillis()
         ) {
-            return handleAutoSleepEvent(user, sleepPausedMessage, sleepResumedMessage)
+            return handleAutoSleepEvent(user)
         }
 
         if (user.pausedTimerSerialized.isPresent) {
@@ -217,7 +235,7 @@ object GameManager {
                 val badgesManager = BadgesManager(user.difficulty.ordinal, user.badgesSerialized)
                 val newBadge = badgesManager.onPrompt(activePlaySeconds)
                 val prefix = if (newBadge == "c0") {
-                    "$grumpyCatMessage\n\n"
+                    LogMessageCodec.encode(LogMessageKeys.GRUMPY_SNEAKED_IN) + "\n\n"
                 } else {
                     ""
                 }
@@ -225,7 +243,10 @@ object GameManager {
                     nextAlertType = AlertType.Penalty,
                     badgesSerialized = badgesManager.serialize(),
                     pendingNotificationLogsNewestFirst = listOf(
-                        Pair(prefix + reminderMessage, NowProvider.nowMillis())
+                        Pair(
+                            prefix + LogMessageCodec.encode(LogMessageKeys.PROMPT_REMINDER),
+                            NowProvider.nowMillis()
+                        )
                     ) + user.pendingNotificationLogsNewestFirst
                 )
             }
@@ -249,9 +270,9 @@ object GameManager {
                 newBadge = "repeller"
             }
             val prefix = if (newBadge == "c0") {
-                "$grumpyCatMessage\n\n"
+                LogMessageCodec.encode(LogMessageKeys.GRUMPY_SNEAKED_IN) + "\n\n"
             } else if (newBadge == "repeller") {
-                "$repellerUsedMessage\n\n"
+                LogMessageCodec.encode(LogMessageKeys.REPELLER_USED) + "\n\n"
             } else {
                 ""
             }
@@ -264,7 +285,7 @@ object GameManager {
                 nextPenaltyTimerSerialized = Counter(null).resume().serialize(),
                 badgesSerialized = badgesManager.serialize(),
                 pendingNotificationLogsNewestFirst = listOf(
-                    Pair(prefix + penaltyMessage, nowMillis)
+                    Pair(prefix + LogMessageCodec.encode(LogMessageKeys.PROMPT_PENALTY), nowMillis)
                 ) + updatedUser.pendingNotificationLogsNewestFirst
             )
         }
@@ -301,15 +322,8 @@ object GameManager {
 
     fun onReviewCompleted(
         user: User,
-        reviewMessage: String,
-        newDiamondMessage: String,
-        freezeMessage: String,
-        resumeMessage: String,
-        newBadgeLogMessage: String,
-        grumpyRemovedLogMessage: String,
-        grumpyRemainingLogMessage: String,
-        achievementsUnblockedLogMessage: String,
-        grumpyBlockingLogMessage: String
+        reviewHours: Int,
+        reviewMinutes: Int
     ): User {
         val wasPaused = user.pausedTimerSerialized.isPresent
         val resetCounter = Counter(null).resume()
@@ -341,9 +355,13 @@ object GameManager {
         }
 
         if (isFreeze) {
-            val baseMessage = reviewMessage + "\n\n" + freezeMessage
+            val baseMessage = LogMessageCodec.encode(
+                LogMessageKeys.REVIEW_COMPLETED,
+                reviewHours.toString(),
+                reviewMinutes.toString()
+            ) + "\n\n" + LogMessageCodec.encode(LogMessageKeys.REVIEW_NO_REWARD)
             val newMessage = if (wasPaused) {
-                baseMessage + "\n\n" + resumeMessage
+                baseMessage + "\n\n" + LogMessageCodec.encode(LogMessageKeys.GAME_RESUMED)
             } else {
                 baseMessage
             }
@@ -363,24 +381,35 @@ object GameManager {
         val newBadge = badgesManager.onReview(activePlaySeconds)
         val activeGrumpyCats = badgesManager.countActiveGrumpyCatsOnBoard()
         val isNewDiamond = activeGrumpyCats == 0;
-        val messages = mutableListOf<String>(reviewMessage)
+        val messages = mutableListOf<String>(
+            LogMessageCodec.encode(
+                LogMessageKeys.REVIEW_COMPLETED,
+                reviewHours.toString(),
+                reviewMinutes.toString()
+            )
+        )
         when {
             newBadge == "c0_removed" && activeGrumpyCats > 0 ->
-                messages.add(grumpyRemovedLogMessage + " " + String.format(grumpyRemainingLogMessage, activeGrumpyCats))
+                messages.add(
+                    LogMessageCodec.encode(
+                        LogMessageKeys.GRUMPY_REMOVED_WITH_REMAINING,
+                        activeGrumpyCats.toString()
+                    )
+                )
             newBadge == "c0_removed" && activeGrumpyCats == 0 ->
-                messages.add(grumpyRemovedLogMessage + " " + achievementsUnblockedLogMessage)
+                messages.add(LogMessageCodec.encode(LogMessageKeys.GRUMPY_REMOVED_WITH_UNBLOCKED))
             activeGrumpyCats > 0 ->
-                messages.add(grumpyBlockingLogMessage)
+                messages.add(LogMessageCodec.encode(LogMessageKeys.GRUMPY_BLOCKING))
             newBadge != null ->
-                messages.add(newBadgeLogMessage)
+                messages.add(LogMessageCodec.encode(LogMessageKeys.NEW_BADGE))
         }
         if (isNewDiamond) {
-            messages.add(newDiamondMessage)
+            messages.add(LogMessageCodec.encode(LogMessageKeys.REVIEW_REWARD))
         }
 
         val baseMessage = messages.joinToString("\n\n")
         val newMessage = if (wasPaused) {
-            baseMessage + "\n\n" + resumeMessage
+            baseMessage + "\n\n" + LogMessageCodec.encode(LogMessageKeys.GAME_RESUMED)
         } else {
             baseMessage
         }
@@ -405,8 +434,7 @@ object GameManager {
     }
 
     fun onShooGrumpyCat(
-        user: User,
-        logMessage: String
+        user: User
     ): User {
         val activePlaySeconds = Counter(user.activePlayTimerSerialized).getTotalSeconds()
         val badgesManager = BadgesManager(user.difficulty.ordinal, user.badgesSerialized)
@@ -415,15 +443,16 @@ object GameManager {
         val updated = user.copy(
             badgesSerialized = badgesManager.serialize(),
             unseenLogsNewestFirst = trimUnseenLogs(
-                listOf(Pair(logMessage, nowMillis)) + user.unseenLogsNewestFirst
+                listOf(
+                    Pair(LogMessageCodec.encode(LogMessageKeys.GRUMPY_REMOVED), nowMillis)
+                ) + user.unseenLogsNewestFirst
             )
         )
         return applyShopPurchase(updated, shopBasePriceFor(user))
     }
 
     fun onForceNextAchievement(
-        user: User,
-        logMessage: String
+        user: User
     ): User {
         val activePlaySeconds = Counter(user.activePlayTimerSerialized).getTotalSeconds()
         val badgesManager = BadgesManager(user.difficulty.ordinal, user.badgesSerialized)
@@ -432,7 +461,8 @@ object GameManager {
         val updated = user.copy(
             badgesSerialized = badgesManager.serialize(),
             unseenLogsNewestFirst = trimUnseenLogs(
-                listOf(Pair(logMessage, nowMillis)) + user.unseenLogsNewestFirst
+                listOf(Pair(LogMessageCodec.encode(LogMessageKeys.NEW_BADGE), nowMillis)) +
+                    user.unseenLogsNewestFirst
             )
         )
         return applyShopPurchase(updated, shopBasePriceFor(user))
@@ -489,9 +519,7 @@ object GameManager {
     private const val WEEK_MILLIS = 7L * 24 * 60 * 60 * 1000
 
     private fun handleAutoSleepEvent(
-        user: User,
-        sleepPausedMessage: String,
-        sleepResumedMessage: String
+        user: User
     ): User {
         val nextSleepEventAtMillis = Optional.of(
             SleepUtils.calculateNextSleepEventMillisAt(
@@ -509,7 +537,10 @@ object GameManager {
                 nextPenaltyTimerSerialized = Counter(user.nextPenaltyTimerSerialized).pause().serialize(),
                 nextSleepEventAtMillis = nextSleepEventAtMillis,
                 pendingNotificationLogsNewestFirst = listOf(
-                    Pair(sleepPausedMessage, NowProvider.nowMillis())
+                    Pair(
+                        LogMessageCodec.encode(LogMessageKeys.SLEEP_STARTED),
+                        NowProvider.nowMillis()
+                    )
                 ) + user.pendingNotificationLogsNewestFirst
             )
         }
@@ -522,7 +553,10 @@ object GameManager {
                 nextPenaltyTimerSerialized = Counter(user.nextPenaltyTimerSerialized).resume().serialize(),
                 nextSleepEventAtMillis = nextSleepEventAtMillis,
                 pendingNotificationLogsNewestFirst = listOf(
-                    Pair(sleepResumedMessage, NowProvider.nowMillis())
+                    Pair(
+                        LogMessageCodec.encode(LogMessageKeys.SLEEP_RESUMED),
+                        NowProvider.nowMillis()
+                    )
                 ) + user.pendingNotificationLogsNewestFirst
             )
         }

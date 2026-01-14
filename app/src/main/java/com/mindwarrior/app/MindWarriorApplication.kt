@@ -42,6 +42,7 @@ class MindWarriorApplication : Application() {
         if (message.isBlank()) {
             return
         }
+        val translated = LogMessageCodec.translate(this, message)
         OneOffAlertController.ensureNotificationChannel(this)
         val notificationManager =
             getSystemService(NOTIFICATION_SERVICE) as NotificationManager
@@ -57,8 +58,8 @@ class MindWarriorApplication : Application() {
             .setSmallIcon(R.drawable.ic_notification)
             .setLargeIcon(loadAppIcon())
             .setContentTitle(getString(R.string.app_name))
-            .setContentText(message)
-            .setStyle(NotificationCompat.BigTextStyle().bigText(message))
+            .setContentText(translated)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(translated))
             .setContentIntent(contentIntent)
             .setAutoCancel(true)
             .setPriority(NotificationCompat.PRIORITY_HIGH)

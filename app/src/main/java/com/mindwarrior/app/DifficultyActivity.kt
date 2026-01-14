@@ -51,14 +51,9 @@ class DifficultyActivity : AppCompatActivity() {
                 .setMessage(R.string.difficulty_confirm_message)
                 .setPositiveButton(R.string.difficulty_confirm_action) { _, _ ->
                     val user = UserStorage.getUser(this)
-                    val message = getString(
-                        R.string.log_difficulty_changed,
-                        getString(user.difficulty.labelRes),
-                        getString(pendingDifficulty.labelRes)
-                    )
                     UserStorage.upsertUser(
                         this,
-                        GameManager.onDifficultyChanged(user, pendingDifficulty, message)
+                        GameManager.onDifficultyChanged(user, pendingDifficulty)
                     )
                     OneOffAlertController.restart(this)
                     currentDifficulty = pendingDifficulty

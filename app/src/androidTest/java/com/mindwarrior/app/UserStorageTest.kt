@@ -141,7 +141,7 @@ class UserStorageTest {
         assertEquals(emptyList<Pair<String, Long>>(), loaded.unseenLogsNewestFirst)
         assertEquals(1, loaded.oldLogsNewestFirst.size)
         assertEquals(
-            context.getString(R.string.log_welcome_message),
+            LogMessageCodec.encode(LogMessageKeys.WELCOME_MESSAGE),
             loaded.oldLogsNewestFirst.first().first
         )
     }

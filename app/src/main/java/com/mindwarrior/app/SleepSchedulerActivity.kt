@@ -56,21 +56,11 @@ class SleepSchedulerActivity : AppCompatActivity() {
                 finish()
                 return@setOnClickListener
             }
-            val message = if (draftEnabled) {
-                getString(
-                    R.string.log_sleep_schedule_enabled,
-                    formatMinutes(draftStartMinutes),
-                    formatMinutes(draftEndMinutes)
-                )
-            } else {
-                getString(R.string.log_sleep_schedule_disabled)
-            }
             UserStorage.upsertUser(this, GameManager.onSleepScheduleChanged(
                 currentUser,
                 draftEnabled,
                 draftStartMinutes,
-                draftEndMinutes,
-                message
+                draftEndMinutes
             ))
             finish()
         }

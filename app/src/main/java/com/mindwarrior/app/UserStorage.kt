@@ -153,7 +153,10 @@ object UserStorage {
             unseenLogsNewestFirst = unseenLogsNewestFirst,
             oldLogsNewestFirst = if (isNewUser) {
                 listOf(
-                    Pair(context.getString(R.string.log_welcome_message), NowProvider.nowMillis())
+                    Pair(
+                        LogMessageCodec.encode(LogMessageKeys.WELCOME_MESSAGE),
+                        NowProvider.nowMillis()
+                    )
                 )
             } else {
                 oldLogsNewestFirst
@@ -161,13 +164,7 @@ object UserStorage {
         )
 
         val updatedUser = GameManager.evaluateAlerts(
-            user,
-            context.getString(R.string.log_prompt_reminder),
-            context.getString(R.string.log_prompt_penalty),
-            context.getString(R.string.log_grumpy_sneaked_in),
-            context.getString(R.string.log_sleep_started),
-            context.getString(R.string.log_sleep_resumed),
-            context.getString(R.string.log_repeller_used)
+            user
         )
         if (updatedUser == user && !isNewUser) {
             return user

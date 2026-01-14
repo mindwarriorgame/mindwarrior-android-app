@@ -83,8 +83,7 @@ class ShopActivity : AppCompatActivity() {
                 .setMessage(getString(R.string.shop_confirm_next_achievement, currentBasePrice))
                 .setPositiveButton(android.R.string.ok) { _, _ ->
                     val updated = GameManager.onForceNextAchievement(
-                        currentUser,
-                        getString(R.string.log_new_badge)
+                        currentUser
                     )
                     if (updated == currentUser) {
                         return@setPositiveButton
@@ -131,8 +130,7 @@ class ShopActivity : AppCompatActivity() {
                 .setMessage(getString(R.string.shop_confirm_expel_grumpy, currentBasePrice))
                 .setPositiveButton(android.R.string.ok) { _, _ ->
                     val updated = GameManager.onShooGrumpyCat(
-                        currentUser,
-                        getString(R.string.log_grumpy_removed)
+                        currentUser
                     )
                     if (updated == currentUser) {
                         return@setPositiveButton

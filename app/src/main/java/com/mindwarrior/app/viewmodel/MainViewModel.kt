@@ -10,6 +10,7 @@ import android.os.LocaleList
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.mindwarrior.app.LogMessageCodec
 import com.mindwarrior.app.LanguageManager
 import com.mindwarrior.app.R
 import com.mindwarrior.app.LogItem
@@ -42,6 +43,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private var lastLogLabelUpdateMillis = 0L
     private var lastOldLogsSnapshot: List<Pair<String, Long>> = emptyList()
     private var lastUnseenLogsSnapshot: List<Pair<String, Long>> = emptyList()
+    private var lastOldLogsLocaleTag: String? = null
+    private var lastUnseenLogsLocaleTag: String? = null
 
     private val _timerText = MutableLiveData<String>()
     val timerText: LiveData<String> = _timerText
@@ -192,7 +195,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun addLog(message: String) {
         val now = NowProvider.nowMillis()
-        logItems.add(0, LogItem(newLogId(), now, formatTimeLabel(now), message))
+        val translated = LogMessageCodec.translate(getApplication(), message)
+        logItems.add(0, LogItem(newLogId(), now, formatTimeLabel(now), translated))
         logItems.sortByDescending { it.timestampMillis }
         if (logItems.size > MAX_LOG_ITEMS) {
             logItems.subList(MAX_LOG_ITEMS, logItems.size).clear()
@@ -250,14 +254,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun updateLogsFromUser(user: com.mindwarrior.app.engine.User) {
         val newLogs = user.oldLogsNewestFirst
-        if (newLogs == lastOldLogsSnapshot) return
+        val currentTag = LanguageManager.getCurrentLanguageTag(getApplication())
+        if (newLogs == lastOldLogsSnapshot && currentTag == lastOldLogsLocaleTag) return
         lastOldLogsSnapshot = newLogs.toList()
+        lastOldLogsLocaleTag = currentTag
         val items = newLogs.map { (message, timestampMillis) ->
+            val translated = LogMessageCodec.translate(getApplication(), message)
             LogItem(
                 id = generateLogId(message, timestampMillis),
                 timestampMillis = timestampMillis,
                 timeLabel = formatTimeLabel(timestampMillis),
-                message = message
+                message = translated
             )
         }.sortedByDescending { it.timestampMillis }
         logItems.clear()
@@ -270,10 +277,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun updateUnseenLogsFromUser(user: com.mindwarrior.app.engine.User) {
         val newLogs = user.unseenLogsNewestFirst
-        if (newLogs == lastUnseenLogsSnapshot) return
+        val currentTag = LanguageManager.getCurrentLanguageTag(getApplication())
+        if (newLogs == lastUnseenLogsSnapshot && currentTag == lastUnseenLogsLocaleTag) return
         lastUnseenLogsSnapshot = newLogs.toList()
+        lastUnseenLogsLocaleTag = currentTag
         if (newLogs.isNotEmpty()) {
-            _unseenLogsEvent.value = newLogs
+            _unseenLogsEvent.value = newLogs.map { (message, timestampMillis) ->
+                Pair(LogMessageCodec.translate(getApplication(), message), timestampMillis)
+            }
         }
     }
 

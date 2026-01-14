@@ -397,11 +397,9 @@ class MainActivity : AppCompatActivity() {
     private fun updateUserPausedState(paused: Boolean) {
         val user = UserStorage.getUser(this)
         if (paused) {
-            val message = getString(R.string.log_game_paused)
-            UserStorage.upsertUser(this, GameManager.onPaused(user, message))
+            UserStorage.upsertUser(this, GameManager.onPaused(user))
         } else {
-            val message = getString(R.string.log_game_resumed)
-            UserStorage.upsertUser(this, GameManager.onResume(user, message))
+            UserStorage.upsertUser(this, GameManager.onResume(user))
         }
         OneOffAlertController.restart(this)
     }
@@ -424,7 +422,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun addTimerLog() {
-        viewModel.addLog(getString(R.string.timer_flag_log))
+        viewModel.addLog(LogMessageCodec.encode(LogMessageKeys.TIMER_FLAG))
     }
 
     private fun updateLabGlow(hasFormula: Boolean) {

@@ -1,6 +1,8 @@
 package com.mindwarrior.app.engine
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.mindwarrior.app.LogMessageCodec
+import com.mindwarrior.app.LogMessageKeys
 import com.mindwarrior.app.NowProvider
 import com.mindwarrior.app.badges.BadgesManager
 import java.util.Optional
@@ -15,12 +17,14 @@ import org.json.JSONObject
 
 @RunWith(AndroidJUnit4::class)
 class GameManagerTest {
+    private val reviewHours = 0
+    private val reviewMinutes = 0
 
     @Test
     fun onPausedKeepsPausedUserUnchanged() {
         val user = UserFactory.createUser(Difficulty.EASY)
 
-        val updated = GameManager.onPaused(user, "test")
+        val updated = GameManager.onPaused(user)
 
         assertEquals(user, updated)
         assertTrue(updated.pausedTimerSerialized.isPresent)
@@ -36,7 +40,7 @@ class GameManagerTest {
             nextPenaltyTimerSerialized = review
         )
 
-        val updated = GameManager.onPaused(user, "test")
+        val updated = GameManager.onPaused(user)
 
         assertTrue(updated.pausedTimerSerialized.isPresent)
         assertFalse(Counter(updated.activePlayTimerSerialized).isActive())
@@ -47,7 +51,7 @@ class GameManagerTest {
     fun onResumeUnpausesWhenPaused() {
         val user = UserFactory.createUser(Difficulty.EASY)
 
-        val updated = GameManager.onResume(user, "test")
+        val updated = GameManager.onResume(user)
 
         assertFalse(updated.pausedTimerSerialized.isPresent)
         assertTrue(Counter(updated.activePlayTimerSerialized).isActive())
@@ -62,11 +66,7 @@ class GameManagerTest {
         val updated = GameManager.onLocalStorageUpdated(
             user,
             storage,
-            true,
-            "",
-            "",
-            "",
-            ""
+            true
         )
 
         assertTrue(updated.localStorageSnapshot.isPresent)
@@ -89,20 +89,13 @@ class GameManagerTest {
 
         val updated = GameManager.onReviewCompleted(
             user,
-            "REVIEW",
-            "REWARD",
-            "NO_REWARD",
-            "RESUME",
-            "NEW_BADGE",
-            "GRUMPY_REMOVED",
-            "REMAINING %d",
-            "UNBLOCKED",
-            "GRUMPY_BLOCKING"
+            reviewHours,
+            reviewMinutes
         )
 
         assertEquals(1, updated.diamonds)
         assertEquals(
-            "REVIEW\n\nREWARD\n\nRESUME",
+            joinLogs(log(LogMessageKeys.REVIEW_COMPLETED, reviewHours.toString(), reviewMinutes.toString()), log(LogMessageKeys.REVIEW_REWARD), log(LogMessageKeys.GAME_RESUMED)),
             updated.unseenLogsNewestFirst.first().first
         )
     }
@@ -122,19 +115,12 @@ class GameManagerTest {
 
         val updated = GameManager.onReviewCompleted(
             user,
-            "REVIEW",
-            "REWARD",
-            "NO_REWARD",
-            "RESUME",
-            "NEW_BADGE",
-            "GRUMPY_REMOVED",
-            "REMAINING %d",
-            "UNBLOCKED",
-            "GRUMPY_BLOCKING"
+            reviewHours,
+            reviewMinutes
         )
 
         assertEquals(
-            "REVIEW\n\nNEW_BADGE\n\nREWARD",
+            joinLogs(log(LogMessageKeys.REVIEW_COMPLETED, reviewHours.toString(), reviewMinutes.toString()), log(LogMessageKeys.NEW_BADGE), log(LogMessageKeys.REVIEW_REWARD)),
             updated.unseenLogsNewestFirst.first().first
         )
     }
@@ -154,20 +140,13 @@ class GameManagerTest {
 
         val updated = GameManager.onReviewCompleted(
             user,
-            "REVIEW",
-            "REWARD",
-            "NO_REWARD",
-            "RESUME",
-            "NEW_BADGE",
-            "GRUMPY_REMOVED",
-            "REMAINING %d",
-            "UNBLOCKED",
-            "GRUMPY_BLOCKING"
+            reviewHours,
+            reviewMinutes
         )
 
         assertEquals(0, updated.diamonds)
         assertEquals(
-            "REVIEW\n\nGRUMPY_BLOCKING\n\nRESUME",
+            joinLogs(log(LogMessageKeys.REVIEW_COMPLETED, reviewHours.toString(), reviewMinutes.toString()), log(LogMessageKeys.GRUMPY_BLOCKING), log(LogMessageKeys.GAME_RESUMED)),
             updated.unseenLogsNewestFirst.first().first
         )
     }
@@ -188,20 +167,13 @@ class GameManagerTest {
 
         val updated = GameManager.onReviewCompleted(
             user,
-            "REVIEW",
-            "REWARD",
-            "NO_REWARD",
-            "RESUME",
-            "NEW_BADGE",
-            "GRUMPY_REMOVED",
-            "REMAINING %d",
-            "UNBLOCKED",
-            "GRUMPY_BLOCKING"
+            reviewHours,
+            reviewMinutes
         )
 
         assertEquals(0, updated.diamonds)
         assertEquals(
-            "REVIEW\n\nGRUMPY_REMOVED REMAINING 1",
+            joinLogs(log(LogMessageKeys.REVIEW_COMPLETED, reviewHours.toString(), reviewMinutes.toString()), log(LogMessageKeys.GRUMPY_REMOVED_WITH_REMAINING, "1")),
             updated.unseenLogsNewestFirst.first().first
         )
     }
@@ -222,20 +194,13 @@ class GameManagerTest {
 
         val updated = GameManager.onReviewCompleted(
             user,
-            "REVIEW",
-            "REWARD",
-            "NO_REWARD",
-            "RESUME",
-            "NEW_BADGE",
-            "GRUMPY_REMOVED",
-            "REMAINING %d",
-            "UNBLOCKED",
-            "GRUMPY_BLOCKING"
+            reviewHours,
+            reviewMinutes
         )
 
         assertEquals(1, updated.diamonds)
         assertEquals(
-            "REVIEW\n\nGRUMPY_REMOVED UNBLOCKED\n\nREWARD",
+            joinLogs(log(LogMessageKeys.REVIEW_COMPLETED, reviewHours.toString(), reviewMinutes.toString()), log(LogMessageKeys.GRUMPY_REMOVED_WITH_UNBLOCKED), log(LogMessageKeys.REVIEW_REWARD)),
             updated.unseenLogsNewestFirst.first().first
         )
     }
@@ -258,19 +223,12 @@ class GameManagerTest {
 
         val updated = GameManager.onReviewCompleted(
             user,
-            "REVIEW",
-            "REWARD",
-            "NO_REWARD",
-            "RESUME",
-            "NEW_BADGE",
-            "GRUMPY_REMOVED",
-            "REMAINING %d",
-            "UNBLOCKED",
-            "GRUMPY_BLOCKING"
+            reviewHours,
+            reviewMinutes
         )
 
         assertEquals(10, updated.unseenLogsNewestFirst.size)
-        assertEquals("REVIEW\n\nREWARD", updated.unseenLogsNewestFirst.first().first)
+        assertEquals(joinLogs(log(LogMessageKeys.REVIEW_COMPLETED, reviewHours.toString(), reviewMinutes.toString()), log(LogMessageKeys.REVIEW_REWARD)), updated.unseenLogsNewestFirst.first().first)
     }
 
     @Test
@@ -288,15 +246,8 @@ class GameManagerTest {
 
         val updated = GameManager.onReviewCompleted(
             user,
-            "REVIEW",
-            "REWARD",
-            "NO_REWARD",
-            "RESUME",
-            "NEW_BADGE",
-            "GRUMPY_REMOVED",
-            "REMAINING %d",
-            "UNBLOCKED",
-            "GRUMPY_BLOCKING"
+            reviewHours,
+            reviewMinutes
         )
 
         assertEquals(activePlaySeconds, updated.lastRewardAtActivePlayTime)
@@ -324,15 +275,8 @@ class GameManagerTest {
 
         val updated = GameManager.onReviewCompleted(
             user,
-            "REVIEW",
-            "REWARD",
-            "NO_REWARD",
-            "RESUME",
-            "NEW_BADGE",
-            "GRUMPY_REMOVED",
-            "REMAINING %d",
-            "UNBLOCKED",
-            "GRUMPY_BLOCKING"
+            reviewHours,
+            reviewMinutes
         )
 
         assertTrue(updated.reviewAtMillisActivePlayTimeHistory.any { it == freshEntry })
@@ -360,15 +304,8 @@ class GameManagerTest {
 
         val updated = GameManager.onReviewCompleted(
             user,
-            "REVIEW",
-            "REWARD",
-            "FREEZE",
-            "RESUME",
-            "NEW_BADGE",
-            "GRUMPY_REMOVED",
-            "REMAINING %d",
-            "UNBLOCKED",
-            "GRUMPY_BLOCKING"
+            reviewHours,
+            reviewMinutes
         )
 
         assertTrue(updated.pausedTimerSerialized.isEmpty)
@@ -390,7 +327,7 @@ class GameManagerTest {
             pauseIntervalHistory = listOf(oldInterval, freshInterval)
         )
 
-        val updated = GameManager.onResume(user, "test")
+        val updated = GameManager.onResume(user)
 
         assertTrue(updated.pauseIntervalHistory.contains(freshInterval))
         assertFalse(updated.pauseIntervalHistory.contains(oldInterval))
@@ -440,7 +377,7 @@ class GameManagerTest {
             pausedTimerSerialized = Optional.empty()
         )
 
-        val updated = GameManager.onDifficultyChanged(user, Difficulty.HARD, "test")
+        val updated = GameManager.onDifficultyChanged(user, Difficulty.HARD)
 
         assertEquals(Difficulty.HARD, updated.difficulty)
         assertFalse(updated.pausedTimerSerialized.isPresent)
@@ -450,7 +387,7 @@ class GameManagerTest {
     fun onDifficultyChangedKeepsPausedWhenPaused() {
         val user = UserFactory.createUser(Difficulty.EASY)
 
-        val updated = GameManager.onDifficultyChanged(user, Difficulty.HARD, "test")
+        val updated = GameManager.onDifficultyChanged(user, Difficulty.HARD)
 
         assertEquals(Difficulty.HARD, updated.difficulty)
         assertTrue(updated.pausedTimerSerialized.isPresent)
@@ -462,7 +399,7 @@ class GameManagerTest {
     fun onSleepScheduleChangedUpdatesFields() {
         val user = UserFactory.createUser(Difficulty.EASY)
 
-        val updated = GameManager.onSleepScheduleChanged(user, true, 22 * 60, 6 * 60, "")
+        val updated = GameManager.onSleepScheduleChanged(user, true, 22 * 60, 6 * 60)
 
         assertTrue(updated.nextSleepEventAtMillis.isPresent)
         assertEquals(22 * 60, updated.sleepStartMinutes)
@@ -527,7 +464,7 @@ class GameManagerTest {
 
         assertEquals(AlertType.Penalty, updated.nextAlertType)
         val message = updated.pendingNotificationLogsNewestFirst.first().first
-        assertTrue(message.startsWith("REMINDER"))
+        assertTrue(message.startsWith(log(LogMessageKeys.PROMPT_REMINDER)))
     }
 
     @Test
@@ -542,7 +479,7 @@ class GameManagerTest {
         val updated = runEvaluateAlerts(user)
 
         val message = updated.pendingNotificationLogsNewestFirst.first().first
-        assertTrue(message.startsWith("GRUMPY\n\nPENALTY"))
+        assertTrue(message.startsWith(joinLogs(log(LogMessageKeys.GRUMPY_SNEAKED_IN), log(LogMessageKeys.PROMPT_PENALTY))))
         val manager = BadgesManager(updated.difficulty.ordinal, updated.badgesSerialized)
         assertTrue(manager.countActiveGrumpyCatsOnBoard() > 0)
     }
@@ -558,11 +495,11 @@ class GameManagerTest {
             hasRepeller = true
         )
 
-        val updated = runEvaluateAlerts(user, repellerMessage = "REPELLER_USED")
+        val updated = runEvaluateAlerts(user)
 
         assertFalse(updated.hasRepeller)
         val message = updated.pendingNotificationLogsNewestFirst.first().first
-        assertTrue(message.startsWith("REPELLER_USED\n\nPENALTY"))
+        assertTrue(message.startsWith(joinLogs(log(LogMessageKeys.REPELLER_USED), log(LogMessageKeys.PROMPT_PENALTY))))
         val manager = BadgesManager(updated.difficulty.ordinal, updated.badgesSerialized)
         assertEquals(0, manager.countActiveGrumpyCatsOnBoard())
     }
@@ -578,7 +515,7 @@ class GameManagerTest {
 
         val updated = runEvaluateAlerts(user)
 
-        assertEquals(updated.pendingNotificationLogsNewestFirst[0].first, "GRUMPY\n\nPENALTY")
+        assertEquals(joinLogs(log(LogMessageKeys.GRUMPY_SNEAKED_IN), log(LogMessageKeys.PROMPT_PENALTY)), updated.pendingNotificationLogsNewestFirst[0].first)
         assertEquals(updated.nextAlertType, AlertType.Penalty)
     }
 
@@ -788,23 +725,15 @@ class GameManagerTest {
         }.serialize()
     }
 
-    private fun runEvaluateAlerts(
-        user: User,
-        reminder: String = "REMINDER",
-        penalty: String = "PENALTY",
-        grumpy: String = "GRUMPY",
-        sleepPaused: String = "SLEEP_PAUSED",
-        sleepResumed: String = "SLEEP_RESUMED",
-        repellerMessage: String = "REPELLER_USED"
-    ): User {
-        return GameManager.evaluateAlerts(
-            user,
-            reminder,
-            penalty,
-            grumpy,
-            sleepPaused,
-            sleepResumed,
-            repellerMessage
-        )
+    private fun runEvaluateAlerts(user: User): User {
+        return GameManager.evaluateAlerts(user)
+    }
+
+    private fun log(key: String, vararg args: String): String {
+        return LogMessageCodec.encode(key, *args)
+    }
+
+    private fun joinLogs(vararg entries: String): String {
+        return entries.joinToString("\n\n")
     }
 }
