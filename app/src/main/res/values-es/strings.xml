@@ -13,7 +13,6 @@
     <string name="relative_time_minutes_ago">hace %1$d min</string>
     <string name="relative_time_hours_ago">hace %1$d h</string>
     <string name="relative_time_with_clock">%1$s · %2$s</string>
-    <string name="debug_time_travel_toast">Tiempo adelantado %1$d min</string>
     <string name="formula_required_message">Para empezar, toca 🧪 y escribe tu Fórmula</string>
     <string name="unseen_logs_title">Nuevos eventos</string>
     <string name="log_sleep_started">💤 Hora de dormir. El juego se pausó automáticamente ⏸️</string>
@@ -38,7 +37,6 @@
     <string name="menu_progress">📈 Ver progreso</string>
     <string name="menu_difficulty">💪 Dificultad: %1$s</string>
     <string name="menu_settings">⚙️ Ajustes</string>
-    <string name="menu_debug">⏩ Depurar tiempo</string>
     <string name="language_select_title">Elige tu idioma</string>
     <string name="language_select_subtitle">Puedes cambiarlo luego en Ajustes.</string>
     <string name="language_label_english">🇺🇸 English</string>
@@ -46,10 +44,6 @@
     <string name="language_label_french">🇫🇷 Français</string>
     <string name="language_label_german">🇩🇪 Deutsch</string>
     <string name="language_label_spanish">🇪🇸 Español</string>
-    <string name="debug_time_travel_title">Adelantar tiempo (minutos)</string>
-    <string name="debug_time_travel_hint">Minutos</string>
-    <string name="debug_time_travel_button">Adelantar</string>
-    <string name="debug_time_travel_invalid">Introduce un número positivo de minutos</string>
     <string name="timer_text">02:14:36</string>
     <string name="pause_button_pause">⏸</string>
     <string name="pause_button_resume">▶️</string>

@@ -13,7 +13,6 @@
     <string name="relative_time_minutes_ago">%1$d м назад</string>
     <string name="relative_time_hours_ago">%1$d ч назад</string>
     <string name="relative_time_with_clock">%1$s · %2$s</string>
-    <string name="debug_time_travel_toast">Время сдвинуто на %1$d мин</string>
     <string name="formula_required_message">Чтобы начать игру, нажмите 🧪 и введите Формулу</string>
     <string name="unseen_logs_title">Новые события</string>
     <string name="log_sleep_started">💤 Время спать. Игра автоматически поставлена на паузу ⏸️</string>
@@ -38,7 +37,6 @@
     <string name="menu_progress">📈 Прогресс</string>
     <string name="menu_difficulty">💪 Сложность: %1$s</string>
     <string name="menu_settings">⚙️ Настройки</string>
-    <string name="menu_debug">⏩ Отладка времени</string>
     <string name="language_select_title">Выберите язык</string>
     <string name="language_select_subtitle">Позже можно изменить в настройках.</string>
     <string name="language_label_english">🇺🇸 English</string>
@@ -46,10 +44,6 @@
     <string name="language_label_french">🇫🇷 Français</string>
     <string name="language_label_german">🇩🇪 Deutsch</string>
     <string name="language_label_spanish">🇪🇸 Español</string>
-    <string name="debug_time_travel_title">Перемотать время (минуты)</string>
-    <string name="debug_time_travel_hint">Минуты</string>
-    <string name="debug_time_travel_button">Сдвинуть</string>
-    <string name="debug_time_travel_invalid">Введите положительное число минут</string>
     <string name="timer_text">02:14:36</string>
     <string name="pause_button_pause">⏸</string>
     <string name="pause_button_resume">▶️</string>

@@ -64,8 +64,8 @@ class StickyAlertForegroundService : Service() {
             .setOnlyAlertOnce(true)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setCategory(NotificationCompat.CATEGORY_SERVICE)
-            .setContentTitle(localizedContext.getString(R.string.timer_notification_title))
-            .setContentText(localizedContext.getString(R.string.timer_notification_loading))
+            .setContentTitle("")
+            .setContentText("")
             .setSound(null)
             .setVibrate(null)
             .setDefaults(0)
@@ -75,20 +75,12 @@ class StickyAlertForegroundService : Service() {
     private fun updateNotification() {
         val localizedContext = getLocalizedContext()
         val user = UserStorage.getUser(this)
-        val paused = user.pausedTimerSerialized.isPresent
         val activePlaySeconds = Counter(user.activePlayTimerSerialized).getTotalSeconds()
         val deltaSeconds = (activePlaySeconds - user.lastRewardAtActivePlayTime).coerceAtLeast(0L)
         val freezeSuffix = if (deltaSeconds < FREEZE_WINDOW_SECONDS) " ❄️" else ""
-        val contentText = if (paused) {
-            localizedContext.getString(R.string.timer_notification_paused) + freezeSuffix
-        } else {
-            val remaining = (GameManager.calculateNextDeadlineAtMillis(user) - NowProvider.nowMillis())
-                .coerceAtLeast(0L)
-            localizedContext.getString(
-                R.string.timer_notification_running,
-                formatRemaining(localizedContext, remaining)
-            ) + freezeSuffix
-        }
+        val remaining = (GameManager.calculateNextDeadlineAtMillis(user) - NowProvider.nowMillis())
+            .coerceAtLeast(0L)
+        val contentText = formatRemaining(localizedContext, remaining) + freezeSuffix
 
         val notification = NotificationCompat.Builder(this, STICKY_CHANNEL_ID_V2)
             .setSmallIcon(R.drawable.ic_notification)
@@ -98,7 +90,7 @@ class StickyAlertForegroundService : Service() {
             .setOnlyAlertOnce(true)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setCategory(NotificationCompat.CATEGORY_SERVICE)
-            .setContentTitle(localizedContext.getString(R.string.timer_notification_title))
+            .setContentTitle("")
             .setContentText(contentText)
             .setSound(null)
             .setVibrate(null)
