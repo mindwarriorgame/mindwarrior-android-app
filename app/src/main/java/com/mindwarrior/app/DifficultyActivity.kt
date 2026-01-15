@@ -1,6 +1,7 @@
 package com.mindwarrior.app
 
 import android.os.Bundle
+import android.graphics.Typeface
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.mindwarrior.app.databinding.ActivityDifficultyBinding
@@ -25,6 +26,7 @@ class DifficultyActivity : AppCompatActivity() {
             Difficulty.HARD -> binding.difficultyHard.isChecked = true
             Difficulty.EXPORT -> binding.difficultyExport.isChecked = true
         }
+        updateDifficultySelectionStyle(binding.difficultyGroup.checkedRadioButtonId)
         updateDifficultyInfo(currentDifficulty)
 
         binding.difficultyGroup.setOnCheckedChangeListener { _, checkedId ->
@@ -37,6 +39,7 @@ class DifficultyActivity : AppCompatActivity() {
                 else -> Difficulty.BEGINNER
             }
             pendingDifficulty = selected
+            updateDifficultySelectionStyle(checkedId)
             updateDifficultyInfo(selected)
         }
 
@@ -73,5 +76,19 @@ class DifficultyActivity : AppCompatActivity() {
             Difficulty.EXPORT -> R.string.difficulty_info_export
         }
         binding.difficultyInfo.text = getString(infoRes)
+    }
+
+    private fun updateDifficultySelectionStyle(selectedId: Int) {
+        val options = listOf(
+            binding.difficultyBeginner,
+            binding.difficultyEasy,
+            binding.difficultyMedium,
+            binding.difficultyHard,
+            binding.difficultyExport
+        )
+        options.forEach { button ->
+            val style = if (button.id == selectedId) Typeface.BOLD else Typeface.NORMAL
+            button.setTypeface(null, style)
+        }
     }
 }

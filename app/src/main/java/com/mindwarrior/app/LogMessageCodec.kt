@@ -35,7 +35,6 @@ object LogMessageKeys {
     const val SLEEP_RESUMED = "sleep_resumed"
     const val REPELLER_USED = "repeller_used"
     const val WELCOME_MESSAGE = "welcome_message"
-    const val TIMER_FLAG = "timer_flag"
 }
 
 object LogMessageCodec {
@@ -117,7 +116,6 @@ object LogMessageCodec {
             LogMessageKeys.SLEEP_RESUMED -> localized.getString(R.string.log_sleep_resumed)
             LogMessageKeys.REPELLER_USED -> localized.getString(R.string.log_repeller_used)
             LogMessageKeys.WELCOME_MESSAGE -> localized.getString(R.string.log_welcome_message)
-            LogMessageKeys.TIMER_FLAG -> localized.getString(R.string.timer_flag_log)
             else -> null
         }
     }

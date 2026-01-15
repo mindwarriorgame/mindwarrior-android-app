@@ -59,10 +59,6 @@
     <string name="sleep_start">Начало сна</string>
     <string name="sleep_end">Конец сна</string>
     <string name="sleep_done">Готово</string>
-    <string name="timer_flag_title">Таймер готов</string>
-    <string name="timer_flag_message">⏰ Таймер завершён!\n⚔️ Окно для следующей битвы открыто.\n📝 Зафиксируйте момент и продолжайте.</string>
-    <string name="timer_flag_done">Готово</string>
-    <string name="timer_flag_log">⏰ Боевой таймер завершён.</string>
     <string name="progress_title">Прогресс за неделю</string>
     <string name="progress_subtitle">Минуты между ревью за последние 7 дней.</string>
     <string name="progress_legend">Интервалы сна выделены серым.</string>
@@ -119,11 +115,11 @@
     <string name="difficulty_confirm_title">Изменить сложность?</string>
     <string name="difficulty_confirm_message">Смена сложности сбросит игру и все очки. Продолжить?</string>
     <string name="difficulty_confirm_action">Изменить</string>
-    <string name="difficulty_info_beginner">Новичок 🌱🛡️\nКороткие битвы, мягкий темп, много передышек.</string>
-    <string name="difficulty_info_easy">Лёгкая 🙂🗺️\nПлавная разминка с мягкими целями и длинными таймерами.</string>
-    <string name="difficulty_info_medium">Средняя ⚔️🔥\nСбалансированный вызов: меньше времени, строже наказания.</string>
-    <string name="difficulty_info_hard">Сложная 💥🧠\nВысокая интенсивность, минимум пауз, ошибки дороже.</string>
-    <string name="difficulty_info_export">Экспорт 📤📊\nБез баланса игры; режим для данных и обмена.</string>
+    <string name="difficulty_info_beginner">Ревью каждые 6 ч.\nНапоминания включены.</string>
+    <string name="difficulty_info_easy">Ревью каждые 3 ч.\nНапоминания включены.</string>
+    <string name="difficulty_info_medium">Ревью каждые 90 мин.\nНапоминания включены.</string>
+    <string name="difficulty_info_hard">Ревью каждые 60 мин.\nНапоминания выключены.</string>
+    <string name="difficulty_info_export">Ревью каждые 45 мин.\nНапоминания выключены.</string>
     <string name="log_review_completed">🎉 Формула успешно проверена! Следующее ревью через %1$d ч %2$d м.</string>
     <string name="log_review_reward">💎 Вы получили алмаз!</string>
     <string name="log_review_no_reward">❄️ Ранние ревью не награждаются.</string>

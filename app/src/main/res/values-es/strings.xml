@@ -59,10 +59,6 @@
     <string name="sleep_start">Inicio de sueño</string>
     <string name="sleep_end">Fin de sueño</string>
     <string name="sleep_done">Listo</string>
-    <string name="timer_flag_title">Temporizador listo</string>
-    <string name="timer_flag_message">⏰ ¡Temporizador completado!\n⚔️ Tu próxima ventana de batalla está abierta.\n📝 Registra el momento y sigue adelante.</string>
-    <string name="timer_flag_done">Listo</string>
-    <string name="timer_flag_log">⏰ Temporizador de batalla completado.</string>
     <string name="progress_title">Progreso semanal</string>
     <string name="progress_subtitle">Minutos entre revisiones en los últimos 7 días.</string>
     <string name="progress_legend">Los intervalos de sueño están en gris.</string>
@@ -119,11 +115,11 @@
     <string name="difficulty_confirm_title">¿Cambiar dificultad?</string>
     <string name="difficulty_confirm_message">Cambiar la dificultad reiniciará el juego y todas las puntuaciones. ¿Continuar?</string>
     <string name="difficulty_confirm_action">Cambiar</string>
-    <string name="difficulty_info_beginner">Principiante 🌱🛡️\nBatallas cortas, ritmo suave, mucho margen.</string>
-    <string name="difficulty_info_easy">Fácil 🙂🗺️\nCalentamiento estable con objetivos indulgentes.</string>
-    <string name="difficulty_info_medium">Media ⚔️🔥\nReto equilibrado con ventanas más ajustadas.</string>
-    <string name="difficulty_info_hard">Difícil 💥🧠\nAlta intensidad, pocas pausas, errores costosos.</string>
-    <string name="difficulty_info_export">Exportar 📤📊\nSin ajuste de juego; modo centrado en datos.</string>
+    <string name="difficulty_info_beginner">Revisión cada 6 h.\nRecordatorios activados.</string>
+    <string name="difficulty_info_easy">Revisión cada 3 h.\nRecordatorios activados.</string>
+    <string name="difficulty_info_medium">Revisión cada 90 min.\nRecordatorios activados.</string>
+    <string name="difficulty_info_hard">Revisión cada 60 min.\nRecordatorios desactivados.</string>
+    <string name="difficulty_info_export">Revisión cada 45 min.\nRecordatorios desactivados.</string>
     <string name="log_review_completed">🎉 ¡Fórmula revisada! Próxima revisión en %1$d h %2$d m.</string>
     <string name="log_review_reward">💎 ¡Has obtenido un diamante!</string>
     <string name="log_review_no_reward">❄️ Las revisiones tempranas no se recompensan.</string>

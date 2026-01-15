@@ -59,10 +59,6 @@
     <string name="sleep_start">Début du sommeil</string>
     <string name="sleep_end">Fin du sommeil</string>
     <string name="sleep_done">Terminé</string>
-    <string name="timer_flag_title">Minuteur prêt</string>
-    <string name="timer_flag_message">⏰ Minuteur terminé !\n⚔️ La prochaine fenêtre de bataille est ouverte.\n📝 Notez le moment et continuez.</string>
-    <string name="timer_flag_done">Terminé</string>
-    <string name="timer_flag_log">⏰ Minuteur de bataille terminé.</string>
     <string name="progress_title">Progrès hebdomadaire</string>
     <string name="progress_subtitle">Minutes entre révisions sur les 7 derniers jours.</string>
     <string name="progress_legend">Les périodes de sommeil sont en gris.</string>
@@ -119,11 +115,11 @@
     <string name="difficulty_confirm_title">Changer la difficulté ?</string>
     <string name="difficulty_confirm_message">Changer la difficulté réinitialisera le jeu et tous les scores. Continuer ?</string>
     <string name="difficulty_confirm_action">Changer</string>
-    <string name="difficulty_info_beginner">Débutant 🌱🛡️\nCombats courts, rythme doux, beaucoup de marge.</string>
-    <string name="difficulty_info_easy">Facile 🙂🗺️\nÉchauffement progressif avec objectifs indulgents.</string>
-    <string name="difficulty_info_medium">Moyen ⚔️🔥\nDéfi équilibré, fenêtres plus courtes, pénalités plus sévères.</string>
-    <string name="difficulty_info_hard">Difficile 💥🧠\nHaute intensité, peu de pauses, erreurs coûteuses.</string>
-    <string name="difficulty_info_export">Export 📤📊\nPas de réglage du gameplay ; mode orienté données.</string>
+    <string name="difficulty_info_beginner">Révision toutes les 6 h.\nRappels activés.</string>
+    <string name="difficulty_info_easy">Révision toutes les 3 h.\nRappels activés.</string>
+    <string name="difficulty_info_medium">Révision toutes les 90 min.\nRappels activés.</string>
+    <string name="difficulty_info_hard">Révision toutes les 60 min.\nRappels désactivés.</string>
+    <string name="difficulty_info_export">Révision toutes les 45 min.\nRappels désactivés.</string>
     <string name="log_review_completed">🎉 Formule révisée ! Prochaine révision dans %1$d h %2$d min.</string>
     <string name="log_review_reward">💎 Vous avez gagné un diamant !</string>
     <string name="log_review_no_reward">❄️ Les révisions précoces ne sont pas récompensées.</string>

@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">MindWarrior</string>
-    <string name="part_a_background">Battle scene background</string>
+    <string name="part_a_background">Background</string>
     <string name="diamonds_button">💎 %1$d</string>
     <string name="progress_button">&#x1F3C6; Lv %1$d</string>
     <string name="grumpy_cat">&#x1F63E;</string>
@@ -19,8 +19,8 @@
     <string name="log_sleep_resumed">☀️ Good morning! The game is resumed ▶️</string>
     <string name="log_repeller_used">🧄 Grumpy cat repeller activated.</string>
     <string name="log_welcome_message">👋 Welcome to MindWarrior game! 🥷 Tap 🧪 to enter your Formula of Firm Resolution and start playing!</string>
-    <string name="notification_channel_battle_timer">Battle Timer</string>
-    <string name="notification_channel_battle_timer_persistent">Battle Timer (Persistent)</string>
+    <string name="notification_channel_battle_timer">Game Timer</string>
+    <string name="notification_channel_battle_timer_persistent">Game Timer (Persistent)</string>
     <string name="progress_graph_minutes_between_reviews">Minutes between reviews</string>
     <string name="duration_days_hours">%1$dd %2$dh</string>
     <string name="duration_days_only">%1$dd</string>
@@ -51,7 +51,7 @@
     <string name="snowflake">❄️</string>
     <string name="snowflake_timer_text">01:35</string>
     <string name="review_button">Review Formula</string>
-    <string name="logs_title">Battle Log</string>
+    <string name="logs_title">Game Log</string>
     <string name="achievements_title">Achievements Board</string>
     <string name="sleep_title">Sleep Scheduler</string>
     <string name="sleep_subtitle">Pause battles during your rest window.</string>
@@ -59,10 +59,6 @@
     <string name="sleep_start">Sleep start time</string>
     <string name="sleep_end">Sleep end time</string>
     <string name="sleep_done">Done</string>
-    <string name="timer_flag_title">Timer ready</string>
-    <string name="timer_flag_message">⏰ Timer complete!\n⚔️ Your next battle window is open.\n📝 Log the moment and keep moving.</string>
-    <string name="timer_flag_done">Done</string>
-    <string name="timer_flag_log">⏰ Battle timer completed.</string>
     <string name="progress_title">Weekly Progress</string>
     <string name="progress_subtitle">Minutes between reviews over the last 7 days.</string>
     <string name="progress_legend">Sleep intervals are shaded in grey.</string>
@@ -119,11 +115,11 @@
     <string name="difficulty_confirm_title">Change difficulty?</string>
     <string name="difficulty_confirm_message">Changing difficulty will reset the game and all scores. Continue?</string>
     <string name="difficulty_confirm_action">Change</string>
-    <string name="difficulty_info_beginner">Beginner 🌱🛡️\nShort battles, gentle pacing, plenty of breathing room.</string>
-    <string name="difficulty_info_easy">Easy 🙂🗺️\nA steady warmup with forgiving goals and longer timers.</string>
-    <string name="difficulty_info_medium">Medium ⚔️🔥\nBalanced challenge with tighter windows and sharper penalties.</string>
-    <string name="difficulty_info_hard">Hard 💥🧠\nHigh intensity, minimal breaks, mistakes cost more.</string>
-    <string name="difficulty_info_export">Export 📤📊\nNo gameplay tuning; data-focused mode for sharing.</string>
+    <string name="difficulty_info_beginner">Review every 6h.\nReminders on.</string>
+    <string name="difficulty_info_easy">Review every 3h.\nReminders on.</string>
+    <string name="difficulty_info_medium">Review every 90m.\nReminders on.</string>
+    <string name="difficulty_info_hard">Review every 60m.\nReminders off.</string>
+    <string name="difficulty_info_export">Review every 45m.\nReminders off.</string>
     <string name="log_review_completed">&#x1F389; You\'ve successfully reviewed the Formula! Next review in %1$d h %2$d m.</string>
     <string name="log_review_reward">&#x1F48E; You\'ve got a diamond!</string>
     <string name="log_review_no_reward">&#x2744;&#xFE0F; Early reviews are not rewarded.</string>

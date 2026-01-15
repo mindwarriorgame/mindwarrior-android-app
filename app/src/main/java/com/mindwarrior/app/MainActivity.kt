@@ -33,8 +33,6 @@ class MainActivity : AppCompatActivity() {
     private val logAdapter = LogAdapter()
     private lateinit var viewModel: MainViewModel
 
-    private var timerFlagDialogShowing = false
-    private var lastTimerFlagEvent = 0L
     private var unseenLogDialogShowing = false
     private var lastProgressLevel = 0
     private var lastProgressHasGrumpyCat = false
@@ -78,14 +76,12 @@ class MainActivity : AppCompatActivity() {
         viewModel.startTickers()
         viewModel.refreshTimerDisplay()
         viewModel.refreshLocalizedLogs()
-        viewModel.startTimerFlagChecker()
         refreshDifficultyMenuLabel()
     }
 
     override fun onPause() {
         super.onPause()
         viewModel.stopTickers()
-        viewModel.stopTimerFlagChecker()
     }
 
     override fun onDestroy() {
@@ -316,11 +312,6 @@ class MainActivity : AppCompatActivity() {
                 binding.logsRecycler.scrollToPosition(0)
             }
         }
-        viewModel.timerFlagEvent.observe(this) { timestamp ->
-            if (timestamp <= lastTimerFlagEvent) return@observe
-            lastTimerFlagEvent = timestamp
-            showTimerFlagDialog()
-        }
         viewModel.unseenLogsEvent.observe(this) { logs ->
             if (logs.isEmpty() || unseenLogDialogShowing) return@observe
             showUnseenLogDialog(logs)
@@ -367,26 +358,6 @@ class MainActivity : AppCompatActivity() {
         OneOffAlertController.restart(this)
     }
 
-
-    private fun showTimerFlagDialog() {
-        if (timerFlagDialogShowing) return
-        timerFlagDialogShowing = true
-        AlertDialog.Builder(this)
-            .setTitle(getString(R.string.timer_flag_title))
-            .setMessage(getString(R.string.timer_flag_message))
-            .setPositiveButton(getString(R.string.timer_flag_done)) { _, _ ->
-                viewModel.clearTimerFlag()
-                addTimerLog()
-                timerFlagDialogShowing = false
-            }
-            .setOnDismissListener { timerFlagDialogShowing = false }
-            .setCancelable(false)
-            .show()
-    }
-
-    private fun addTimerLog() {
-        viewModel.addLog(LogMessageCodec.encode(LogMessageKeys.TIMER_FLAG))
-    }
 
     private fun updateLabGlow(hasFormula: Boolean) {
         labGlowActive = !hasFormula

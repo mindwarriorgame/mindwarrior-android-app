@@ -59,10 +59,6 @@
     <string name="sleep_start">Schlafbeginn</string>
     <string name="sleep_end">Schlafende</string>
     <string name="sleep_done">Fertig</string>
-    <string name="timer_flag_title">Timer bereit</string>
-    <string name="timer_flag_message">⏰ Timer abgeschlossen!\n⚔️ Das nächste Kampffenster ist geöffnet.\n📝 Logge den Moment und mach weiter.</string>
-    <string name="timer_flag_done">Fertig</string>
-    <string name="timer_flag_log">⏰ Kampf-Timer abgeschlossen.</string>
     <string name="progress_title">Wöchentlicher Fortschritt</string>
     <string name="progress_subtitle">Minuten zwischen Reviews der letzten 7 Tage.</string>
     <string name="progress_legend">Schlafintervalle sind grau markiert.</string>
@@ -119,11 +115,11 @@
     <string name="difficulty_confirm_title">Schwierigkeit ändern?</string>
     <string name="difficulty_confirm_message">Das Ändern der Schwierigkeit setzt das Spiel und alle Punkte zurück. Fortfahren?</string>
     <string name="difficulty_confirm_action">Ändern</string>
-    <string name="difficulty_info_beginner">Anfänger 🌱🛡️\nKurze Kämpfe, sanftes Tempo, viel Spielraum.</string>
-    <string name="difficulty_info_easy">Einfach 🙂🗺️\nSanftes Warm-up mit großzügigen Zielen.</string>
-    <string name="difficulty_info_medium">Mittel ⚔️🔥\nAusgewogene Herausforderung mit engeren Fenstern.</string>
-    <string name="difficulty_info_hard">Schwer 💥🧠\nHohe Intensität, kaum Pausen, Fehler zählen mehr.</string>
-    <string name="difficulty_info_export">Export 📤📊\nKein Gameplay-Tuning; datenorientierter Modus.</string>
+    <string name="difficulty_info_beginner">Review alle 6 h.\nErinnerungen an.</string>
+    <string name="difficulty_info_easy">Review alle 3 h.\nErinnerungen an.</string>
+    <string name="difficulty_info_medium">Review alle 90 min.\nErinnerungen an.</string>
+    <string name="difficulty_info_hard">Review alle 60 min.\nErinnerungen aus.</string>
+    <string name="difficulty_info_export">Review alle 45 min.\nErinnerungen aus.</string>
     <string name="log_review_completed">🎉 Formel erfolgreich überprüft! Nächste Prüfung in %1$d h %2$d min.</string>
     <string name="log_review_reward">💎 Du hast einen Diamanten bekommen!</string>
     <string name="log_review_no_reward">❄️ Frühzeitige Reviews werden nicht belohnt.</string>

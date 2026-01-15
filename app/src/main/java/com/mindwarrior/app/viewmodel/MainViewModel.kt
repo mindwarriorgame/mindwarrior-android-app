@@ -39,7 +39,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
     private val logItems = mutableListOf<LogItem>()
     private var tickersRunning = false
-    private var timerFlagNotified = false
     private var logIdSeed = NowProvider.nowMillis()
     private var lastLogLabelUpdateMillis = 0L
     private var lastOldLogsSnapshot: List<Pair<String, Long>> = emptyList()
@@ -89,9 +88,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _logs = MutableLiveData<List<LogItem>>(emptyList())
     val logs: LiveData<List<LogItem>> = _logs
 
-    private val _timerFlagEvent = MutableLiveData<Long>()
-    val timerFlagEvent: LiveData<Long> = _timerFlagEvent
-
     private val _unseenLogsEvent = MutableLiveData<List<UnseenLogItem>>()
     val unseenLogsEvent: LiveData<List<UnseenLogItem>> = _unseenLogsEvent
 
@@ -117,13 +113,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 refreshLogLabels()
             }
             handler.postDelayed(this, 1000L)
-        }
-    }
-
-    private val timerFlagChecker = object : Runnable {
-        override fun run() {
-            checkTimerFlag()
-            handler.postDelayed(this, TIMER_FLAG_POLL_MS)
         }
     }
 
@@ -172,16 +161,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         handler.removeCallbacks(timerTicker)
     }
 
-    fun startTimerFlagChecker() {
-        handler.removeCallbacks(timerFlagChecker)
-        handler.post(timerFlagChecker)
-    }
-
-    fun stopTimerFlagChecker() {
-        handler.removeCallbacks(timerFlagChecker)
-        timerFlagNotified = false
-    }
-
     fun refreshTimerDisplay() {
         val user = UserStorage.getUser(this.getApplication())
         val remainingMillis = Math.max(
@@ -209,26 +188,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             logItems.subList(MAX_LOG_ITEMS, logItems.size).clear()
         }
         _logs.value = logItems.toList()
-    }
-
-    private fun checkTimerFlag() {
-        val prefs = getApplication<Application>()
-            .getSharedPreferences(PREFS_NAME, android.content.Context.MODE_PRIVATE)
-        val isSet = prefs.getBoolean(KEY_TIMER_FLAG, false)
-        if (!isSet) {
-            timerFlagNotified = false
-            return
-        }
-        if (timerFlagNotified) return
-        timerFlagNotified = true
-        _timerFlagEvent.value = NowProvider.nowMillis()
-    }
-
-    fun clearTimerFlag() {
-        val prefs = getApplication<Application>()
-            .getSharedPreferences(PREFS_NAME, android.content.Context.MODE_PRIVATE)
-        prefs.edit().remove(KEY_TIMER_FLAG).apply()
-        timerFlagNotified = false
     }
 
     fun markUnseenLogsObserved(observedLogs: List<UnseenLogItem>) {
@@ -363,9 +322,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         private const val MAX_LOG_ITEMS = 20
         private const val DAY_MILLIS = 24 * 60 * 60 * 1000L
         private const val WARNING_THRESHOLD_MILLIS = 15 * 60 * 1000L
-        private const val TIMER_FLAG_POLL_MS = 100L
-        private const val PREFS_NAME = "mindwarrior_prefs"
-        private const val KEY_TIMER_FLAG = "timer_flag"
         private const val LOG_LABEL_UPDATE_INTERVAL_MS = 10_000L
         private const val FREEZE_WINDOW_SECONDS = 5 * 60L
     }
