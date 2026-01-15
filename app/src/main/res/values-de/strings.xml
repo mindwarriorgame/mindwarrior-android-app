@@ -19,8 +19,8 @@
     <string name="log_sleep_resumed">☀️ Guten Morgen! Das Spiel wurde fortgesetzt ▶️</string>
     <string name="log_repeller_used">🧄 Grummelige-Katze-Abwehr aktiviert.</string>
     <string name="log_welcome_message">👋 Willkommen bei MindWarrior! 🥷 Tippe auf 🧪 und gib deine Entschlossenheits-Formel ein, um zu starten.</string>
-    <string name="notification_channel_battle_timer">Kampf-Timer</string>
-    <string name="notification_channel_battle_timer_persistent">Kampf-Timer (dauerhaft)</string>
+    <string name="notification_channel_review_timer">Kampf-Timer</string>
+    <string name="notification_channel_review_timer_sticky">Kampf-Timer (dauerhaft)</string>
     <string name="progress_graph_minutes_between_reviews">Minuten zwischen Reviews</string>
     <string name="duration_days_hours">%1$dT %2$dStd</string>
     <string name="duration_days_only">%1$dT</string>
@@ -52,7 +52,6 @@
     <string name="snowflake_timer_text">01:35</string>
     <string name="review_button">Formel prüfen</string>
     <string name="logs_title">Kampfprotokoll</string>
-    <string name="achievements_title">Erfolgsübersicht</string>
     <string name="sleep_title">Schlafplaner</string>
     <string name="sleep_subtitle">Kämpfe während der Ruhezeit pausieren.</string>
     <string name="sleep_enabled">Planer aktivieren</string>

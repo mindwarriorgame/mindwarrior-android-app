@@ -19,8 +19,8 @@
     <string name="log_sleep_resumed">☀️ Bonjour ! Le jeu reprend ▶️</string>
     <string name="log_repeller_used">🧄 Répulsif anti-chat grincheux activé.</string>
     <string name="log_welcome_message">👋 Bienvenue sur MindWarrior ! 🥷 Appuyez sur 🧪 et entrez votre Formule de résolution pour commencer.</string>
-    <string name="notification_channel_battle_timer">Minuteur de combat</string>
-    <string name="notification_channel_battle_timer_persistent">Minuteur de combat (persistant)</string>
+    <string name="notification_channel_review_timer">Minuteur de combat</string>
+    <string name="notification_channel_review_timer_sticky">Minuteur de combat (persistant)</string>
     <string name="progress_graph_minutes_between_reviews">Minutes entre révisions</string>
     <string name="duration_days_hours">%1$dj %2$dh</string>
     <string name="duration_days_only">%1$dj</string>
@@ -52,7 +52,6 @@
     <string name="snowflake_timer_text">01:35</string>
     <string name="review_button">Réviser la Formule</string>
     <string name="logs_title">Journal de bataille</string>
-    <string name="achievements_title">Tableau des succès</string>
     <string name="sleep_title">Planificateur de sommeil</string>
     <string name="sleep_subtitle">Mettre les combats en pause pendant le repos.</string>
     <string name="sleep_enabled">Activer le planificateur</string>

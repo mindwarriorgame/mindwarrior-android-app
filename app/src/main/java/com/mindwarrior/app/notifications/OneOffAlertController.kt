@@ -83,7 +83,7 @@ object OneOffAlertController {
             .build()
         val channel = NotificationChannel(
             CHANNEL_ID,
-            context.getString(com.mindwarrior.app.R.string.notification_channel_battle_timer),
+            context.getString(com.mindwarrior.app.R.string.notification_channel_review_timer),
             NotificationManager.IMPORTANCE_HIGH
         )
         channel.setSound(soundUri, attributes)

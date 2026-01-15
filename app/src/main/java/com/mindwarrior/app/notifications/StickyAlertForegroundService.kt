@@ -135,7 +135,7 @@ class StickyAlertForegroundService : Service() {
         val localizedContext = getLocalizedContext()
         val channel = NotificationChannel(
             STICKY_CHANNEL_ID_V2,
-            localizedContext.getString(R.string.notification_channel_battle_timer_persistent),
+            localizedContext.getString(R.string.notification_channel_review_timer_sticky),
             NotificationManager.IMPORTANCE_DEFAULT
         )
         channel.setSound(null, null)

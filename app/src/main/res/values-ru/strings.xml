@@ -19,8 +19,8 @@
     <string name="log_sleep_resumed">☀️ Доброе утро! Игра возобновлена ▶️</string>
     <string name="log_repeller_used">🧄 Репеллент от сердитого кота активирован.</string>
     <string name="log_welcome_message">👋 Добро пожаловать в MindWarrior! 🥷 Нажмите 🧪 и введите Формулу решимости, чтобы начать.</string>
-    <string name="notification_channel_battle_timer">Боевой таймер</string>
-    <string name="notification_channel_battle_timer_persistent">Боевой таймер (постоянный)</string>
+    <string name="notification_channel_review_timer">Боевой таймер</string>
+    <string name="notification_channel_review_timer_sticky">Боевой таймер (постоянный)</string>
     <string name="progress_graph_minutes_between_reviews">Минут между ревью</string>
     <string name="duration_days_hours">%1$dд %2$dч</string>
     <string name="duration_days_only">%1$dд</string>
@@ -52,7 +52,6 @@
     <string name="snowflake_timer_text">01:35</string>
     <string name="review_button">Проверить Формулу</string>
     <string name="logs_title">Журнал битвы</string>
-    <string name="achievements_title">Доска достижений</string>
     <string name="sleep_title">Расписание сна</string>
     <string name="sleep_subtitle">Ставьте битвы на паузу во время отдыха.</string>
     <string name="sleep_enabled">Включить расписание</string>

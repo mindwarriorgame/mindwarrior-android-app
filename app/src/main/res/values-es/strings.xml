@@ -19,8 +19,8 @@
     <string name="log_sleep_resumed">☀️ ¡Buenos días! El juego se reanudó ▶️</string>
     <string name="log_repeller_used">🧄 Repelente del gato gruñón activado.</string>
     <string name="log_welcome_message">👋 ¡Bienvenido a MindWarrior! 🥷 Toca 🧪 e introduce tu Fórmula de resolución para empezar.</string>
-    <string name="notification_channel_battle_timer">Temporizador de batalla</string>
-    <string name="notification_channel_battle_timer_persistent">Temporizador de batalla (persistente)</string>
+    <string name="notification_channel_review_timer">Temporizador de batalla</string>
+    <string name="notification_channel_review_timer_sticky">Temporizador de batalla (persistente)</string>
     <string name="progress_graph_minutes_between_reviews">Minutos entre revisiones</string>
     <string name="duration_days_hours">%1$dd %2$dh</string>
     <string name="duration_days_only">%1$dd</string>
@@ -52,7 +52,6 @@
     <string name="snowflake_timer_text">01:35</string>
     <string name="review_button">Revisar Fórmula</string>
     <string name="logs_title">Registro de batalla</string>
-    <string name="achievements_title">Tablero de logros</string>
     <string name="sleep_title">Programador de sueño</string>
     <string name="sleep_subtitle">Pausa las batallas durante el descanso.</string>
     <string name="sleep_enabled">Activar programador</string>
