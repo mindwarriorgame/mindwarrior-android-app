@@ -13,7 +13,8 @@ class AssetWebViewLoader(private val assets: AssetManager) {
         val replacements: List<Pair<String, String>> = emptyList(),
         val injectedScript: String? = null,
         val javascriptInterfaceName: String? = null,
-        val javascriptInterface: Any? = null
+        val javascriptInterface: Any? = null,
+        val webViewClient: WebViewClient? = null
     )
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -26,7 +27,7 @@ class AssetWebViewLoader(private val assets: AssetManager) {
                 config.javascriptInterfaceName
             )
         }
-        webView.webViewClient = WebViewClient()
+        webView.webViewClient = config.webViewClient ?: WebViewClient()
     }
 
     fun loadContent(webView: WebView, config: Config) {

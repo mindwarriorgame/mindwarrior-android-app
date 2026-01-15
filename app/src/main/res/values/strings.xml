@@ -1,3 +1,13 @@
+<!--good. Now translate into Russian
+
+    "Sleep scheduler" in a sense of "The thing that schedules sleep time for the game"
+    "Review" in a sense of "have a look"
+    "boost" in a sense of "advancement in the game, perks"
+    "grumpy cat" in a sense of "not happy, angry, displeased rather than disgruntled", not sullen or gloomy
+    "background" in a sense of "background image"
+    in shop, "immediately" in a sense "right now"
+    "resolution" in a sense of "determination"
+-->
 <resources>
     <string name="app_name">MindWarrior</string>
     <string name="part_a_background">Background</string>
@@ -13,7 +23,7 @@
     <string name="relative_time_minutes_ago">%1$dm ago</string>
     <string name="relative_time_hours_ago">%1$dh ago</string>
     <string name="relative_time_with_clock">%1$s · %2$s</string>
-    <string name="formula_required_message">To start the game, 🧪 button to enter your Formula first</string>
+    <string name="formula_required_message">To start the game, tap 🧪 button and enter your Formula</string>
     <string name="unseen_logs_title">New events</string>
     <string name="log_sleep_started">💤 Time to sleep. The game is automatically paused ⏸️</string>
     <string name="log_sleep_resumed">☀️ Good morning! The game is resumed ▶️</string>
@@ -38,13 +48,13 @@
     <string name="menu_difficulty">💪 Difficulty: %1$s</string>
     <string name="menu_settings">⚙️ Settings</string>
     <string name="language_select_title">Choose your language</string>
-    <string name="language_select_subtitle">You can change this later in Settings.</string>
+    <string name="language_select_subtitle">You can change the language later in Settings.</string>
     <string name="language_label_english">🇺🇸 English</string>
     <string name="language_label_russian">🇷🇺 Русский</string>
     <string name="language_label_french">🇫🇷 Français</string>
     <string name="language_label_german">🇩🇪 Deutsch</string>
     <string name="language_label_spanish">🇪🇸 Español</string>
-    <string name="timer_text">02:14:36</string>
+    <string name="timer_text" translatable="false">00:00:00</string>
     <string name="pause_button_pause">⏸</string>
     <string name="pause_button_resume">▶️</string>
     <string name="pause_indicator">⏸</string>
@@ -53,13 +63,13 @@
     <string name="review_button">Review Formula</string>
     <string name="logs_title">Game Log</string>
     <string name="sleep_title">Sleep Scheduler</string>
-    <string name="sleep_subtitle">Pause the game during your rest window.</string>
+    <string name="sleep_subtitle">Automatically pauses the game while you are resting.</string>
     <string name="sleep_enabled">Enable scheduler</string>
     <string name="sleep_start">Sleep start time</string>
     <string name="sleep_end">Sleep end time</string>
     <string name="sleep_done">Done</string>
     <string name="progress_title">Weekly Progress</string>
-    <string name="progress_subtitle">Minutes between reviews over the last 7 days.</string>
+    <string name="progress_subtitle">Time (minutes) between reviews of your Formula over the last 7 days.</string>
     <string name="progress_legend">Sleep intervals are shaded in grey.</string>
     <string name="progress_legend_mean">Mean (green)</string>
     <string name="progress_legend_threshold">Threshold (red)</string>
@@ -69,20 +79,20 @@
     <string name="progress_diamonds_total">💎 Diamonds total earned: %1$d</string>
     <string name="progress_close">Close</string>
     <string name="shop_title">Shop</string>
-    <string name="shop_subtitle">Spend diamonds on instant boosts.</string>
+    <string name="shop_subtitle">Spend diamonds on game perks!</string>
     <string name="shop_item_next_achievement_icon">🏆</string>
     <string name="shop_item_next_achievement_title">Next achievement</string>
-    <string name="shop_item_next_achievement_description">Unlock the next badge milestone immediately.</string>
+    <string name="shop_item_next_achievement_description">Open the next achievement now.</string>
     <string name="shop_item_next_achievement_price">Price: 💎 %1$d</string>
     <string name="shop_item_expel_grumpy_icon">🧹</string>
-    <string name="shop_item_expel_grumpy_title">Expel grumpy cat now</string>
-    <string name="shop_item_expel_grumpy_description">Clear the grumpy effect right away.</string>
+    <string name="shop_item_expel_grumpy_title">Expel grumpy cat</string>
+    <string name="shop_item_expel_grumpy_description">Remove the grumpy cat from the board now.</string>
     <string name="shop_item_expel_grumpy_price">Price: 💎 %1$d</string>
     <string name="shop_item_prevent_attack_icon">🧄</string>
     <string name="shop_item_prevent_attack_title">Grumpy cat repeller</string>
-    <string name="shop_item_prevent_attack_description">Block the next attack once.</string>
+    <string name="shop_item_prevent_attack_description">Blocks the next attack of a grumpy cat and pauses the game. One-time use.</string>
     <string name="shop_item_prevent_attack_price">Price: 💎 %1$d</string>
-    <string name="shop_available_diamonds">Available diamonds to spend: 💎 %1$d</string>
+    <string name="shop_available_diamonds">You have 💎 %1$d diamonds.</string>
     <string name="shop_insufficient_diamonds">Need 💎 %1$d more</string>
     <string name="shop_grumpy_blocking">Blocked by grumpy cat</string>
     <string name="shop_no_grumpy_to_expel">No grumpy cat to expel</string>
@@ -98,7 +108,6 @@
     <string name="timer_notification_paused">Paused</string>
     <string name="log_difficulty_changed">💪 The difficulty was changed from %1$s to %2$s. The game has been restarted.</string>
     <string name="settings_title">Settings</string>
-    <string name="settings_subtitle">Toggle the always-on timer banner.</string>
     <string name="settings_timer_foreground">Show timer on lock screen</string>
     <string name="settings_language_title">Language</string>
     <string name="settings_language_dialog_title">Select language</string>

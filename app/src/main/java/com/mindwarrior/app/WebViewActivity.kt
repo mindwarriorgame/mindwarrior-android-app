@@ -1,8 +1,13 @@
 package com.mindwarrior.app
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.util.Base64
 import android.webkit.JavascriptInterface
+import android.webkit.WebResourceRequest
+import android.webkit.WebView
+import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
 import com.mindwarrior.app.databinding.ActivityWebviewBinding
 import com.mindwarrior.app.engine.DifficultyHelper
@@ -32,7 +37,8 @@ class WebViewActivity : AppCompatActivity() {
             replacements = AssetWebViewLoader.defaultReplacements(),
             injectedScript = buildLocalStorageRestoreScript(),
             javascriptInterfaceName = JS_INTERFACE_NAME,
-            javascriptInterface = WebViewBridge(isReviewMode, isFormulaMode)
+            javascriptInterface = WebViewBridge(isReviewMode, isFormulaMode),
+            webViewClient = ExternalLinkWebViewClient()
         )
         loader.configure(binding.webview, config)
         val restored = savedInstanceState?.let { binding.webview.restoreState(it) }
@@ -61,6 +67,31 @@ class WebViewActivity : AppCompatActivity() {
         @JavascriptInterface
         fun close() {
             runOnUiThread { saveLocalStorageAndFinish(isReviewMode, isFormulaMode) }
+        }
+    }
+
+    private inner class ExternalLinkWebViewClient : WebViewClient() {
+        override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
+            val url = request?.url ?: return false
+            return handleExternalUrl(url)
+        }
+
+        override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
+            return url?.let { handleExternalUrl(Uri.parse(it)) } ?: false
+        }
+
+        private fun handleExternalUrl(uri: Uri): Boolean {
+            val scheme = uri.scheme?.lowercase()
+            if (scheme == "file" || scheme == "about" || scheme == "data" || scheme == "javascript") {
+                return false
+            }
+            val intent = Intent(Intent.ACTION_VIEW, uri)
+            return if (intent.resolveActivity(packageManager) != null) {
+                startActivity(intent)
+                true
+            } else {
+                false
+            }
         }
     }
 
