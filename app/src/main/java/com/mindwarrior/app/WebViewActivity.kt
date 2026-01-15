@@ -14,6 +14,7 @@ import com.mindwarrior.app.engine.DifficultyHelper
 import com.mindwarrior.app.engine.GameManager
 import com.mindwarrior.app.NowProvider
 import java.util.Optional
+import android.content.ActivityNotFoundException
 
 class WebViewActivity : AppCompatActivity() {
     private lateinit var binding: ActivityWebviewBinding
@@ -85,11 +86,11 @@ class WebViewActivity : AppCompatActivity() {
             if (scheme == "file" || scheme == "about" || scheme == "data" || scheme == "javascript") {
                 return false
             }
-            val intent = Intent(Intent.ACTION_VIEW, uri)
-            return if (intent.resolveActivity(packageManager) != null) {
+            val intent = Intent(Intent.ACTION_VIEW, uri).addCategory(Intent.CATEGORY_BROWSABLE)
+            return try {
                 startActivity(intent)
                 true
-            } else {
+            } catch (e: ActivityNotFoundException) {
                 false
             }
         }
