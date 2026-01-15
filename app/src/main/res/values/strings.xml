@@ -54,7 +54,7 @@
     <string name="logs_title">Game Log</string>
     <string name="achievements_title">Achievements Board</string>
     <string name="sleep_title">Sleep Scheduler</string>
-    <string name="sleep_subtitle">Pause battles during your rest window.</string>
+    <string name="sleep_subtitle">Pause the game during your rest window.</string>
     <string name="sleep_enabled">Enable scheduler</string>
     <string name="sleep_start">Sleep start time</string>
     <string name="sleep_end">Sleep end time</string>

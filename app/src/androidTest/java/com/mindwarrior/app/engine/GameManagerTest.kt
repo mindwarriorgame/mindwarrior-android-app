@@ -498,10 +498,12 @@ class GameManagerTest {
         val updated = runEvaluateAlerts(user)
 
         assertFalse(updated.hasRepeller)
+        assertTrue(updated.pausedTimerSerialized.isPresent)
         val message = updated.pendingNotificationLogsNewestFirst.first().first
         assertTrue(message.startsWith(joinLogs(log(LogMessageKeys.REPELLER_USED), log(LogMessageKeys.PROMPT_PENALTY))))
         val manager = BadgesManager(updated.difficulty.ordinal, updated.badgesSerialized)
         assertEquals(0, manager.countActiveGrumpyCatsOnBoard())
+        assertEquals(log(LogMessageKeys.GAME_PAUSED), updated.unseenLogsNewestFirst.first().first)
     }
 
     @Test

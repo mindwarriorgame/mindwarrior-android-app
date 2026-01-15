@@ -309,7 +309,7 @@ object GameManager {
             } else {
                 ""
             }
-            return updatedUser.copy(
+            val nextUser = updatedUser.copy(
                 nextAlertType = if (DifficultyHelper.hasNudge(user.difficulty)) {
                     AlertType.Reminder
                 } else {
@@ -321,6 +321,11 @@ object GameManager {
                     Pair(prefix + LogMessageCodec.encode(LogMessageKeys.PROMPT_PENALTY), nowMillis)
                 ) + updatedUser.pendingNotificationLogsNewestFirst
             )
+            return if (newBadge == "repeller") {
+                onPaused(nextUser)
+            } else {
+                nextUser
+            }
         }
 
         return user
