@@ -70,7 +70,7 @@ class MindWarriorApplication : Application() {
     }
 
     private fun loadAppIcon(): Bitmap? {
-        val drawable = AppCompatResources.getDrawable(this, R.drawable.ic_launcher) ?: return null
+        val drawable = AppCompatResources.getDrawable(this, R.mipmap.ic_launcher) ?: return null
         val width = if (drawable.intrinsicWidth > 0) drawable.intrinsicWidth else 108
         val height = if (drawable.intrinsicHeight > 0) drawable.intrinsicHeight else 108
         val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
