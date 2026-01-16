@@ -92,8 +92,9 @@
     <string name="shop_buy_now">Comprar ahora</string>
     <string name="shop_close">Cerrar</string>
     <string name="timer_notification_title">Temporizador de batalla</string>
+    <string name="timer_notification_review_title">Tiempo restante para revisar</string>
     <string name="timer_notification_loading">Cargando temporizador...</string>
-    <string name="timer_notification_running">Tiempo restante: %1$s</string>
+    <string name="timer_notification_running">Tiempo restante para revisar: %1$s</string>
     <string name="timer_notification_paused">En pausa</string>
     <string name="log_difficulty_changed">💪 La dificultad se cambió de %1$s a %2$s. El juego se ha reiniciado.</string>
     <string name="settings_title">Ajustes</string>

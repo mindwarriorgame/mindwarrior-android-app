@@ -47,12 +47,12 @@ class MainActivity : AppCompatActivity() {
     private var labGlowActive = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
         if (LanguageManager.shouldShowLanguagePrompt(this)) {
             startActivity(android.content.Intent(this, LanguageSelectionActivity::class.java))
             finish()
             return
         }
-        super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         viewModel = ViewModelProvider(this)[MainViewModel::class.java]

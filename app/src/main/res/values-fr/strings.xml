@@ -92,8 +92,9 @@
     <string name="shop_buy_now">Acheter maintenant</string>
     <string name="shop_close">Fermer</string>
     <string name="timer_notification_title">Minuteur de combat</string>
+    <string name="timer_notification_review_title">Temps restant avant la révision</string>
     <string name="timer_notification_loading">Chargement du minuteur...</string>
-    <string name="timer_notification_running">Temps restant : %1$s</string>
+    <string name="timer_notification_running">Temps restant avant la révision : %1$s</string>
     <string name="timer_notification_paused">En pause</string>
     <string name="log_difficulty_changed">💪 La difficulté est passée de %1$s à %2$s. Le jeu a été redémarré.</string>
     <string name="settings_title">Paramètres</string>

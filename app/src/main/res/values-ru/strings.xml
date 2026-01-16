@@ -93,8 +93,9 @@
     <string name="shop_buy_now">Купить сейчас</string>
     <string name="shop_close">Закрыть</string>
     <string name="timer_notification_title">Таймер боя</string>
+    <string name="timer_notification_review_title">Время до проверки</string>
     <string name="timer_notification_loading">Загрузка таймера…</string>
-    <string name="timer_notification_running">Осталось времени: %1$s</string>
+    <string name="timer_notification_running">Осталось времени до проверки: %1$s</string>
     <string name="timer_notification_paused">Пауза</string>
     <string name="log_difficulty_changed">💪 Сложность изменена с %1$s на %2$s. Игра была перезапущена.</string>
     <string name="settings_title">Настройки</string>

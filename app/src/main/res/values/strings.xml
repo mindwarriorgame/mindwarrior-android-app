@@ -103,8 +103,9 @@
     <string name="shop_buy_now">Buy now</string>
     <string name="shop_close">Close</string>
     <string name="timer_notification_title">Battle Timer</string>
+    <string name="timer_notification_review_title">Time left for review</string>
     <string name="timer_notification_loading">Loading timer...</string>
-    <string name="timer_notification_running">Time left: %1$s</string>
+    <string name="timer_notification_running">Time left for review: %1$s</string>
     <string name="timer_notification_paused">Paused</string>
     <string name="log_difficulty_changed">💪 The difficulty was changed from %1$s to %2$s. The game has been restarted.</string>
     <string name="settings_title">Settings</string>

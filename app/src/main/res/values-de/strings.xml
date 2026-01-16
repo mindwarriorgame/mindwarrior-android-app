@@ -92,8 +92,9 @@
     <string name="shop_buy_now">Jetzt kaufen</string>
     <string name="shop_close">Schließen</string>
     <string name="timer_notification_title">Kampf-Timer</string>
+    <string name="timer_notification_review_title">Zeit bis zur Überprüfung</string>
     <string name="timer_notification_loading">Timer wird geladen …</string>
-    <string name="timer_notification_running">Verbleibende Zeit: %1$s</string>
+    <string name="timer_notification_running">Zeit bis zur Überprüfung: %1$s</string>
     <string name="timer_notification_paused">Pausiert</string>
     <string name="log_difficulty_changed">💪 Der Schwierigkeitsgrad wurde von %1$s auf %2$s geändert. Das Spiel wurde neu gestartet.</string>
     <string name="settings_title">Einstellungen</string>
