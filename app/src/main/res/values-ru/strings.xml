@@ -1,108 +1,130 @@
-
 <resources>
     <string name="app_name">MindWarrior</string>
     <string name="part_a_background">Фон</string>
     <string name="diamonds_button">💎 %1$d</string>
-    <string name="progress_button">&#x1F3C6; Уровень %1$d</string>
+    <string name="progress_button">&#x1F3C6; Ур. %1$d</string>
     <string name="grumpy_cat">&#x1F63E;</string>
     <string name="time_format_hhmm">HH:mm</string>
     <string name="time_format_yyyy_mm_dd_hhmm">yyyy-MM-dd HH:mm</string>
     <string name="time_format_hms">%1$02d:%2$02d:%3$02d</string>
+
     <string name="relative_time_now">сейчас</string>
-    <string name="relative_time_seconds_10">10 с назад</string>
-    <string name="relative_time_seconds_30">30 с назад</string>
-    <string name="relative_time_minutes_ago">%1$d мин назад</string>
-    <string name="relative_time_hours_ago">%1$d ч назад</string>
+    <string name="relative_time_seconds_10">10с назад</string>
+    <string name="relative_time_seconds_30">30с назад</string>
+    <string name="relative_time_minutes_ago">%1$dм назад</string>
+    <string name="relative_time_hours_ago">%1$dч назад</string>
     <string name="relative_time_with_clock">%1$s · %2$s</string>
+
     <string name="formula_required_message">Чтобы начать игру, нажмите кнопку 🧪 и введите свою Формулу</string>
     <string name="unseen_logs_title">Новые события</string>
     <string name="log_sleep_started">💤 Пора спать. Игра автоматически поставлена на паузу ⏸️</string>
-    <string name="log_sleep_resumed">☀️ Доброе утро! Игра возобновлена ▶️</string>
-    <string name="log_repeller_used">🧄 Отпугиватель сердитого кота активирован.</string>
+    <string name="log_sleep_resumed">☀️ Доброе утро! Игра продолжена ▶️</string>
+    <string name="log_repeller_used">🧄 Активирован отпугиватель злого кота.</string>
     <string name="log_welcome_message">👋 Добро пожаловать в игру MindWarrior! 🥷 Нажмите 🧪, чтобы ввести свою Формулу твёрдой решимости и начать играть!</string>
-    <string name="notification_channel_review_timer">Игровой таймер</string>
-    <string name="notification_channel_review_timer_sticky">Игровой таймер (закреплённый)</string>
-    <string name="progress_graph_minutes_between_reviews">Минут между проверками</string>
-    <string name="duration_days_hours">%1$d д %2$d ч</string>
-    <string name="duration_days_only">%1$d д</string>
-    <string name="duration_hours_minutes">%1$d ч %2$d мин</string>
-    <string name="duration_hours_only">%1$d ч</string>
-    <string name="duration_minutes_only">%1$d мин</string>
+
+    <string name="notification_channel_review_timer">Таймер игры</string>
+    <string name="notification_channel_review_timer_sticky">Таймер игры (закреплённый)</string>
+
+    <string name="progress_graph_minutes_between_reviews">Минут между просмотрами</string>
+
+    <string name="duration_days_hours">%1$dд %2$dч</string>
+    <string name="duration_days_only">%1$dд</string>
+    <string name="duration_hours_minutes">%1$dч %2$dм</string>
+    <string name="duration_hours_only">%1$dч</string>
+    <string name="duration_minutes_only">%1$dм</string>
+
     <string name="relative_day_today">сегодня</string>
     <string name="relative_day_yesterday">вчера</string>
     <string name="relative_day_days_ago">%1$d дн. назад</string>
     <string name="relative_day_with_time">%1$s %2$s</string>
+
     <string name="lab_button">🧪</string>
     <string name="menu_button">Открыть меню</string>
     <string name="menu_sleep">💤 Планировщик сна</string>
-    <string name="menu_progress">📈 Просмотр прогресса</string>
+    <string name="menu_progress">📈 Посмотреть прогресс</string>
     <string name="menu_difficulty">💪 Сложность: %1$s</string>
     <string name="menu_settings">⚙️ Настройки</string>
+
     <string name="language_select_title">Выберите язык</string>
-    <string name="language_select_subtitle">Вы сможете изменить язык позже в настройках.</string>
+    <string name="language_select_subtitle">Язык можно будет изменить позже в настройках.</string>
     <string name="language_label_english">🇺🇸 English</string>
     <string name="language_label_russian">🇷🇺 Русский</string>
     <string name="language_label_french">🇫🇷 Français</string>
     <string name="language_label_german">🇩🇪 Deutsch</string>
     <string name="language_label_spanish">🇪🇸 Español</string>
+
+    <string name="timer_text" translatable="false">00:00:00</string>
     <string name="pause_button_pause">⏸</string>
     <string name="pause_button_resume">▶️</string>
     <string name="pause_indicator">⏸</string>
     <string name="snowflake">❄️</string>
     <string name="snowflake_timer_text">01:35</string>
+
     <string name="review_button">Просмотреть Формулу</string>
     <string name="logs_title">Журнал игры</string>
+
     <string name="sleep_title">Планировщик сна</string>
     <string name="sleep_subtitle">Автоматически ставит игру на паузу, пока вы отдыхаете.</string>
     <string name="sleep_enabled">Включить планировщик</string>
     <string name="sleep_start">Время начала сна</string>
     <string name="sleep_end">Время окончания сна</string>
     <string name="sleep_done">Готово</string>
+
     <string name="progress_title">Прогресс за неделю</string>
-    <string name="progress_subtitle">Время (в минутах) между проверками вашей Формулы за последние 7 дней.</string>
-    <string name="progress_legend">Интервалы сна выделены серым.</string>
+    <string name="progress_subtitle">Время (в минутах) между просмотрами вашей Формулы за последние 7 дней.</string>
+    <string name="progress_legend">Периоды сна выделены серым.</string>
     <string name="progress_legend_mean">Среднее (зелёный)</string>
     <string name="progress_legend_threshold">Порог (красный)</string>
     <string name="progress_legend_separator">•</string>
     <string name="progress_reset_zoom">Сбросить масштаб</string>
-    <string name="progress_active_time">⏱ Время активной игры: %1$d д %2$d ч %3$d мин %4$d с</string>
-    <string name="progress_diamonds_total">💎 Всего заработано алмазов: %1$d</string>
+
+    <string name="progress_active_time">⏱ Время активной игры: %1$dд %2$dч %3$dм %4$dс</string>
+    <string name="progress_diamonds_total">💎 Всего получено алмазов: %1$d</string>
     <string name="progress_close">Закрыть</string>
+
     <string name="shop_title">Магазин</string>
     <string name="shop_subtitle">Тратьте алмазы на игровые бонусы!</string>
     <string name="shop_item_next_achievement_icon">🏆</string>
     <string name="shop_item_next_achievement_title">Следующее достижение</string>
-    <string name="shop_item_next_achievement_description">Откройте следующее достижение прямо сейчас.</string>
+    <string name="shop_item_next_achievement_description">Открыть следующее достижение прямо сейчас.</string>
     <string name="shop_item_next_achievement_price">Цена: 💎 %1$d</string>
+
     <string name="shop_item_expel_grumpy_icon">🧹</string>
-    <string name="shop_item_expel_grumpy_title">Прогнать сердитого кота</string>
-    <string name="shop_item_expel_grumpy_description">Уберите сердитого кота с доски прямо сейчас.</string>
+    <string name="shop_item_expel_grumpy_title">Прогнать злого кота</string>
+    <string name="shop_item_expel_grumpy_description">Убрать злого кота с поля прямо сейчас.</string>
     <string name="shop_item_expel_grumpy_price">Цена: 💎 %1$d</string>
+
     <string name="shop_item_prevent_attack_icon">🧄</string>
-    <string name="shop_item_prevent_attack_title">Отпугиватель сердитого кота</string>
-    <string name="shop_item_prevent_attack_description">Блокирует следующую атаку сердитого кота и ставит игру на паузу. Одноразовое использование.</string>
+    <string name="shop_item_prevent_attack_title">Отпугиватель злого кота</string>
+    <string name="shop_item_prevent_attack_description">Блокирует следующую атаку злого кота и ставит игру на паузу. Одноразовое использование.</string>
     <string name="shop_item_prevent_attack_price">Цена: 💎 %1$d</string>
+
     <string name="shop_available_diamonds">У вас 💎 %1$d алмазов.</string>
     <string name="shop_insufficient_diamonds">Нужно ещё 💎 %1$d</string>
-    <string name="shop_grumpy_blocking">Заблокировано сердитым котом</string>
-    <string name="shop_no_grumpy_to_expel">Нет сердитого кота, которого можно прогнать</string>
+    <string name="shop_grumpy_blocking">Заблокировано злым котом</string>
+    <string name="shop_no_grumpy_to_expel">Нет злого кота, которого можно прогнать</string>
+
     <string name="shop_confirm_title">Подтвердите покупку</string>
-    <string name="shop_confirm_expel_grumpy">Вы уверены, что хотите прогнать сердитого кота за %1$d алмазов?</string>
+    <string name="shop_confirm_expel_grumpy">Вы уверены, что хотите прогнать злого кота за %1$d алмазов?</string>
     <string name="shop_confirm_next_achievement">Вы уверены, что хотите открыть следующее достижение за %1$d алмазов?</string>
+
     <string name="shop_repeller_owned">Отпугиватель уже куплен</string>
     <string name="shop_buy_now">Купить сейчас</string>
     <string name="shop_close">Закрыть</string>
+
     <string name="timer_notification_title">Таймер боя</string>
-    <string name="timer_notification_review_title">Время до проверки</string>
-    <string name="timer_notification_loading">Загрузка таймера…</string>
-    <string name="timer_notification_running">Осталось времени до проверки: %1$s</string>
+    <string name="timer_notification_review_title">Осталось времени на просмотр</string>
+    <string name="timer_notification_loading">Загрузка таймера...</string>
     <string name="timer_notification_paused">Пауза</string>
-    <string name="log_difficulty_changed">💪 Сложность изменена с %1$s на %2$s. Игра была перезапущена.</string>
+
+    <string name="log_difficulty_changed">💪 Сложность изменена с %1$s на %2$s. Игра перезапущена.</string>
+
     <string name="settings_title">Настройки</string>
     <string name="settings_timer_foreground">Показывать таймер на экране блокировки</string>
     <string name="settings_language_title">Язык</string>
     <string name="settings_language_dialog_title">Выберите язык</string>
     <string name="settings_close">Закрыть</string>
+
     <string name="difficulty_title">Выберите сложность</string>
     <string name="difficulty_warning">Смена сложности сбросит весь прогресс игры.</string>
     <string name="difficulty_beginner">Новичок (по умолчанию)</string>
@@ -111,30 +133,38 @@
     <string name="difficulty_hard">Сложная</string>
     <string name="difficulty_export">Экспорт</string>
     <string name="difficulty_done">Изменить</string>
+
     <string name="difficulty_confirm_title">Изменить сложность?</string>
     <string name="difficulty_confirm_message">Смена сложности сбросит игру и все очки. Продолжить?</string>
     <string name="difficulty_confirm_action">Изменить</string>
-    <string name="difficulty_info_beginner">Проверка каждые 6 ч.\nНапоминания включены.</string>
-    <string name="difficulty_info_easy">Проверка каждые 3 ч.\nНапоминания включены.</string>
-    <string name="difficulty_info_medium">Проверка каждые 90 мин.\nНапоминания включены.</string>
-    <string name="difficulty_info_hard">Проверка каждые 60 мин.\nНапоминания выключены.</string>
-    <string name="difficulty_info_export">Проверка каждые 45 мин.\nНапоминания выключены.</string>
-    <string name="log_review_completed">&#x1F389; Вы успешно просмотрели Формулу! Следующая проверка через %1$d ч %2$d мин.</string>
+
+    <string name="difficulty_info_beginner">Просмотр каждые 6ч.\nНапоминания включены.</string>
+    <string name="difficulty_info_easy">Просмотр каждые 3ч.\nНапоминания включены.</string>
+    <string name="difficulty_info_medium">Просмотр каждые 90м.\nНапоминания включены.</string>
+    <string name="difficulty_info_hard">Просмотр каждые 60м.\nНапоминания выключены.</string>
+    <string name="difficulty_info_export">Просмотр каждые 45м.\nНапоминания выключены.</string>
+
+    <string name="log_review_completed">&#x1F389; Вы успешно просмотрели Формулу! Следующий просмотр через %1$d ч %2$d м.</string>
     <string name="log_review_reward">&#x1F48E; Вы получили алмаз!</string>
-    <string name="log_review_no_reward">&#x2744;&#xFE0F; Ранние проверки не награждаются.</string>
+    <string name="log_review_no_reward">&#x2744;&#xFE0F; Ранние просмотры не награждаются.</string>
+
     <string name="log_game_paused">&#x23F8;&#xFE0F; Игра поставлена на паузу.</string>
-    <string name="log_game_resumed">&#x25B6;&#xFE0F; Игра возобновлена.</string>
+    <string name="log_game_resumed">&#x25B6;&#xFE0F; Игра продолжена.</string>
     <string name="log_game_started">🏁 Игра началась! Не забудьте просмотреть свою Формулу, пока не вышло время!</string>
+
     <string name="log_formula_updated">🧪 Формула обновлена.</string>
     <string name="log_sleep_schedule_enabled">&#x1F4A4; Расписание сна включено: %1$s - %2$s.</string>
     <string name="log_sleep_schedule_disabled">&#x2600;&#xFE0F; Расписание сна выключено.</string>
+
     <string name="log_new_badge">🏆 Вы получили новое достижение!</string>
-    <string name="log_grumpy_removed">🧹 Сердитый кот исчез!</string>
+    <string name="log_grumpy_removed">🧹 Злой кот исчез!</string>
     <string name="log_grumpy_remaining">Осталось 😾: %1$d.</string>
+
     <string name="log_achievements_unblocked">🏆 Достижения разблокированы.</string>
-    <string name="log_grumpy_blocking">🧹 😾 Сердитый кот блокирует достижения.</string>
-    <string name="log_grumpy_expelling">🧹 😾 Прогоняем сердитого кота…</string>
+    <string name="log_grumpy_blocking">🧹 😾 Злой кот блокирует достижения.</string>
+    <string name="log_grumpy_expelling">🧹 😾 Прогоняем злого кота...</string>
+
     <string name="log_prompt_reminder">⏰ Не забудьте просмотреть свою формулу!</string>
-    <string name="log_prompt_penalty">🟥 Вы пропустили проверку!</string>
-    <string name="log_grumpy_sneaked_in">😾 Упс! Пробрался сердитый кот!</string>
+    <string name="log_prompt_penalty">🟥 Вы пропустили просмотр!</string>
+    <string name="log_grumpy_sneaked_in">😾 Ой! Пробрался злой кот!</string>
 </resources>
