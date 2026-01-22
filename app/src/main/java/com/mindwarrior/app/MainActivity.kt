@@ -38,12 +38,10 @@ class MainActivity : AppCompatActivity() {
     private var lastProgressHasGrumpyCat = false
     private var lastProgressHasRepeller = false
     private var lastDiamondsCount = 0
-    private val unseenTimeFormat by lazy {
-        SimpleDateFormat(getString(R.string.time_format_hhmm), Locale.getDefault())
-    }
-    private val unseenDayFormat by lazy {
-        SimpleDateFormat(getString(R.string.time_format_yyyy_mm_dd_hhmm), Locale.getDefault())
-    }
+    private var cachedUnseenTimeFormatTag: String? = null
+    private var cachedUnseenTimeFormat: SimpleDateFormat? = null
+    private var cachedUnseenDayFormatTag: String? = null
+    private var cachedUnseenDayFormat: SimpleDateFormat? = null
     private var labGlowActive = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -462,23 +460,68 @@ class MainActivity : AppCompatActivity() {
         val diff = now - timeMillis
         return if (diff < DAY_MILLIS) {
             val relative = formatRelativeTime(diff)
-            getString(R.string.relative_time_with_clock, relative, unseenTimeFormat.format(timeMillis))
+            val localized = getLocalizedContext()
+            localized.getString(
+                R.string.relative_time_with_clock,
+                relative,
+                getUnseenTimeFormat().format(timeMillis)
+            )
         } else {
-            unseenDayFormat.format(timeMillis)
+            getUnseenDayFormat().format(timeMillis)
         }
     }
 
     private fun formatRelativeTime(diff: Long): String {
+        val localized = getLocalizedContext()
         return when {
-            diff < 10_000L -> getString(R.string.relative_time_now)
-            diff < 30_000L -> getString(R.string.relative_time_seconds_10)
-            diff < 60_000L -> getString(R.string.relative_time_seconds_30)
-            diff < 3_600_000L -> getString(
+            diff < 10_000L -> localized.getString(R.string.relative_time_now)
+            diff < 30_000L -> localized.getString(R.string.relative_time_seconds_10)
+            diff < 60_000L -> localized.getString(R.string.relative_time_seconds_30)
+            diff < 3_600_000L -> localized.getString(
                 R.string.relative_time_minutes_ago,
                 (diff / 60_000).coerceAtLeast(1)
             )
-            else -> getString(R.string.relative_time_hours_ago, diff / 3_600_000)
+            else -> localized.getString(R.string.relative_time_hours_ago, diff / 3_600_000)
         }
+    }
+
+    private fun getLocalizedContext(): android.content.Context {
+        val tag = LanguageManager.getCurrentLanguageTag(this)
+        val locale = Locale.forLanguageTag(tag)
+        val config = android.content.res.Configuration(resources.configuration)
+        config.setLocale(locale)
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+            config.setLocales(android.os.LocaleList(locale))
+        }
+        return createConfigurationContext(config)
+    }
+
+    private fun getUnseenTimeFormat(): SimpleDateFormat {
+        val tag = LanguageManager.getCurrentLanguageTag(this)
+        if (tag != cachedUnseenTimeFormatTag || cachedUnseenTimeFormat == null) {
+            val localized = getLocalizedContext()
+            val locale = Locale.forLanguageTag(tag)
+            cachedUnseenTimeFormatTag = tag
+            cachedUnseenTimeFormat = SimpleDateFormat(
+                localized.getString(R.string.time_format_hhmm),
+                locale
+            )
+        }
+        return cachedUnseenTimeFormat!!
+    }
+
+    private fun getUnseenDayFormat(): SimpleDateFormat {
+        val tag = LanguageManager.getCurrentLanguageTag(this)
+        if (tag != cachedUnseenDayFormatTag || cachedUnseenDayFormat == null) {
+            val localized = getLocalizedContext()
+            val locale = Locale.forLanguageTag(tag)
+            cachedUnseenDayFormatTag = tag
+            cachedUnseenDayFormat = SimpleDateFormat(
+                localized.getString(R.string.time_format_yyyy_mm_dd_hhmm),
+                locale
+            )
+        }
+        return cachedUnseenDayFormat!!
     }
 
     private fun requestNotificationPermission() {

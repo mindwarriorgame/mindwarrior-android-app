@@ -1,0 +1,54 @@
+Short description:
+
+Stay focused with a private daily mantra + reminders. Level up your habits.
+
+------
+
+Full description:
+
+Stay focused on what matters — with a private message you write to yourself.
+MindWarrior helps you build consistency by bringing you back to your goals and aspirations throughout the day.
+
+How it works:
+
+- Write your “Formula of Firm Resolution” (a private message to yourself): a goal, promise, quote, intention, or all of the above.
+
+- Review it during the day with gentle reminders that help you refocus.
+
+- Turn consistency into a game: earn rewards, keep your streak, unlock levels, and build momentum.
+
+Great for:
+
+- Building habits and self-discipline
+
+- Daily intentions and motivation
+
+- Study sessions and deep work
+
+- Reducing distractions and mindless scrolling
+
+Features:
+
+- Scheduled reminders to review your Formula
+
+- Rewards: diamonds, badges, levels
+
+- Pause + sleep time (no notifications when you don’t want them)
+
+- Markdown support for formatting your Formula
+
+- Difficulty options (from relaxed to strict)
+
+- Works fully offline (no internet required)
+
+Privacy-first by design:
+
+- No account needed
+
+- No ads, no tracking, no analytics
+
+- Your Formula stays on your device
+
+100% free and open source.
+
+More details: https://mindwarriorgame.org/faq.en.html

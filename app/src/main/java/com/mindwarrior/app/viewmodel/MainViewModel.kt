@@ -25,18 +25,10 @@ import java.util.Locale
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val handler = Handler(Looper.getMainLooper())
-    private val timeFormat by lazy {
-        SimpleDateFormat(
-            getApplication<Application>().getString(R.string.time_format_hhmm),
-            Locale.getDefault()
-        )
-    }
-    private val dayFormat by lazy {
-        SimpleDateFormat(
-            getApplication<Application>().getString(R.string.time_format_yyyy_mm_dd_hhmm),
-            Locale.getDefault()
-        )
-    }
+    private var cachedTimeFormatTag: String? = null
+    private var cachedTimeFormat: SimpleDateFormat? = null
+    private var cachedDayFormatTag: String? = null
+    private var cachedDayFormat: SimpleDateFormat? = null
     private val logItems = mutableListOf<LogItem>()
     private var tickersRunning = false
     private var logIdSeed = NowProvider.nowMillis()
@@ -266,9 +258,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         val diff = now - timeMillis
         return if (diff < DAY_MILLIS) {
             val relative = formatRelativeTime(diff)
-            appString(R.string.relative_time_with_clock, relative, timeFormat.format(timeMillis))
+            appString(
+                R.string.relative_time_with_clock,
+                relative,
+                getTimeFormat().format(timeMillis)
+            )
         } else {
-            dayFormat.format(timeMillis)
+            getDayFormat().format(timeMillis)
         }
     }
 
@@ -294,7 +290,38 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun appString(resId: Int, vararg args: Any): String {
-        return getApplication<Application>().getString(resId, *args)
+        val localized = getLocalizedContext()
+        return localized.getString(resId, *args)
+    }
+
+    private fun getTimeFormat(): SimpleDateFormat {
+        val app = getApplication<Application>()
+        val tag = LanguageManager.getCurrentLanguageTag(app)
+        if (tag != cachedTimeFormatTag || cachedTimeFormat == null) {
+            val localized = getLocalizedContext()
+            val locale = Locale.forLanguageTag(tag)
+            cachedTimeFormatTag = tag
+            cachedTimeFormat = SimpleDateFormat(
+                localized.getString(R.string.time_format_hhmm),
+                locale
+            )
+        }
+        return cachedTimeFormat!!
+    }
+
+    private fun getDayFormat(): SimpleDateFormat {
+        val app = getApplication<Application>()
+        val tag = LanguageManager.getCurrentLanguageTag(app)
+        if (tag != cachedDayFormatTag || cachedDayFormat == null) {
+            val localized = getLocalizedContext()
+            val locale = Locale.forLanguageTag(tag)
+            cachedDayFormatTag = tag
+            cachedDayFormat = SimpleDateFormat(
+                localized.getString(R.string.time_format_yyyy_mm_dd_hhmm),
+                locale
+            )
+        }
+        return cachedDayFormat!!
     }
 
     private fun refreshFreezeTimerDisplay(user: com.mindwarrior.app.engine.User) {

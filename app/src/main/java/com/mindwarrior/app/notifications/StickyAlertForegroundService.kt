@@ -75,12 +75,18 @@ class StickyAlertForegroundService : Service() {
     private fun updateNotification() {
         val localizedContext = getLocalizedContext()
         val user = UserStorage.getUser(this)
-        val activePlaySeconds = Counter(user.activePlayTimerSerialized).getTotalSeconds()
-        val deltaSeconds = (activePlaySeconds - user.lastRewardAtActivePlayTime).coerceAtLeast(0L)
-        val freezeSuffix = if (deltaSeconds < FREEZE_WINDOW_SECONDS) " ❄️" else ""
-        val remaining = (GameManager.calculateNextDeadlineAtMillis(user) - NowProvider.nowMillis())
-            .coerceAtLeast(0L)
-        val contentText = formatRemaining(localizedContext, remaining) + freezeSuffix
+        val isPaused = user.pausedTimerSerialized.isPresent
+        val contentText = if (isPaused) {
+            localizedContext.getString(R.string.timer_notification_paused) + " ⏸"
+        } else {
+            val activePlaySeconds = Counter(user.activePlayTimerSerialized).getTotalSeconds()
+            val deltaSeconds =
+                (activePlaySeconds - user.lastRewardAtActivePlayTime).coerceAtLeast(0L)
+            val freezeSuffix = if (deltaSeconds < FREEZE_WINDOW_SECONDS) " ❄️" else ""
+            val remaining = (GameManager.calculateNextDeadlineAtMillis(user) - NowProvider.nowMillis())
+                .coerceAtLeast(0L)
+            formatRemaining(localizedContext, remaining) + freezeSuffix
+        }
 
         val notification = NotificationCompat.Builder(this, STICKY_CHANNEL_ID_V2)
             .setSmallIcon(R.drawable.ic_notification)
