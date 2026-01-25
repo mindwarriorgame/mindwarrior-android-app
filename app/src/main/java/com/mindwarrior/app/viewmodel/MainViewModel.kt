@@ -340,7 +340,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun updateProgressState(user: com.mindwarrior.app.engine.User) {
         val manager = BadgesManager(user.difficulty.ordinal, user.badgesSerialized)
-        _progressLevel.value = manager.getLevel().coerceAtLeast(0)
+        val baseLevel = manager.getLevel().coerceAtLeast(0)
+        val displayLevel = if (manager.isLevelCompleted()) {
+            baseLevel + 1
+        } else {
+            baseLevel
+        }
+        _progressLevel.value = displayLevel
         _progressHasGrumpyCat.value = manager.countActiveGrumpyCatsOnBoard() > 0
         _progressHasRepeller.value = user.hasRepeller
     }
