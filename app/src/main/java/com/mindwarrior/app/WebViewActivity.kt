@@ -7,8 +7,11 @@ import android.util.Base64
 import android.webkit.JavascriptInterface
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
+import android.webkit.WebChromeClient
+import android.webkit.JsResult
 import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AlertDialog
 import com.mindwarrior.app.databinding.ActivityWebviewBinding
 import com.mindwarrior.app.engine.DifficultyHelper
 import com.mindwarrior.app.engine.GameManager
@@ -42,6 +45,7 @@ class WebViewActivity : AppCompatActivity() {
             webViewClient = ExternalLinkWebViewClient()
         )
         loader.configure(binding.webview, config)
+        binding.webview.webChromeClient = ConfirmDialogWebChromeClient()
         val restored = savedInstanceState?.let { binding.webview.restoreState(it) }
         if (restored == null) {
             loader.loadContent(binding.webview, config)
@@ -93,6 +97,24 @@ class WebViewActivity : AppCompatActivity() {
             } catch (e: ActivityNotFoundException) {
                 false
             }
+        }
+    }
+
+    private inner class ConfirmDialogWebChromeClient : WebChromeClient() {
+        override fun onJsConfirm(
+            view: WebView?,
+            url: String?,
+            message: String?,
+            result: JsResult?
+        ): Boolean {
+            if (result == null) return false
+            AlertDialog.Builder(this@WebViewActivity)
+                .setMessage(message.orEmpty())
+                .setCancelable(false)
+                .setPositiveButton(android.R.string.ok) { _, _ -> result.confirm() }
+                .setNegativeButton(android.R.string.cancel) { _, _ -> result.cancel() }
+                .show()
+            return true
         }
     }
 
