@@ -168,12 +168,17 @@ object GameManager {
         } else {
             listOf(Pair(baseLogMessage, nowMillis))
         }
-        return updatedUser.copy(
-            pausedTimerSerialized = Optional.empty(),
-            nextPenaltyTimerSerialized = Counter(user.nextPenaltyTimerSerialized).resume().serialize(),
-            activePlayTimerSerialized = Counter(user.activePlayTimerSerialized).resume().serialize(),
-            unseenLogsNewestFirst = trimUnseenLogs(mergedLog + user.unseenLogsNewestFirst)
-        )
+        updatedUser = updatedUser.copy(unseenLogsNewestFirst = trimUnseenLogs(mergedLog + user.unseenLogsNewestFirst))
+        if (isGameStarted) {
+            updatedUser = updatedUser.copy(
+                pausedTimerSerialized = Optional.empty(),
+                nextPenaltyTimerSerialized = Counter(user.nextPenaltyTimerSerialized).resume()
+                    .serialize(),
+                activePlayTimerSerialized = Counter(user.activePlayTimerSerialized).resume()
+                    .serialize()
+            )
+        }
+        return updatedUser
     }
 
     fun onUnseenLogsObserved(user: User, nLogsObserved: Int): User {
