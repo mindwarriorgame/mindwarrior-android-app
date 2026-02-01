@@ -171,17 +171,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         refreshLogLabels()
     }
 
-    fun addLog(message: String) {
-        val now = NowProvider.nowMillis()
-        val translated = LogMessageCodec.translate(getApplication(), message)
-        logItems.add(0, LogItem(newLogId(), now, formatTimeLabel(now), translated))
-        logItems.sortByDescending { it.timestampMillis }
-        if (logItems.size > MAX_LOG_ITEMS) {
-            logItems.subList(MAX_LOG_ITEMS, logItems.size).clear()
-        }
-        _logs.value = logItems.toList()
-    }
-
     fun markUnseenLogsObserved(observedLogs: List<UnseenLogItem>) {
         val user = UserStorage.getUser(getApplication())
         val rawLogs = observedLogs.map { Pair(it.rawMessage, it.timestampMillis) }
