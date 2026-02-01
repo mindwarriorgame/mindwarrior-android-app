@@ -29,7 +29,7 @@
     <string name="log_sleep_started">💤 Time to sleep. The game is automatically paused ⏸️</string>
     <string name="log_sleep_resumed">☀️ Good morning! The game is resumed ▶️</string>
     <string name="log_repeller_used">🧄 Grumpy cat repeller activated.</string>
-    <string name="log_welcome_message">👋 Welcome to MindWarrior game! 🥷 Tap 🧪 to enter your Formula of Firm Resolution and start playing!</string>
+    <string name="log_welcome_message"><![CDATA[👋 Welcome to MindWarrior game! 🥷 Tap 🧪 to enter your Formula of Firm Resolution and start playing! <a href="%1$s">How to play?</a>]]></string>
     <string name="notification_channel_review_timer">Game Timer</string>
     <string name="notification_channel_review_timer_sticky">Game Timer (Sticky)</string>
     <string name="progress_graph_minutes_between_reviews">Minutes between reviews</string>

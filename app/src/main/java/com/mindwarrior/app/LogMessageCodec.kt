@@ -115,7 +115,10 @@ object LogMessageCodec {
             LogMessageKeys.SLEEP_STARTED -> localized.getString(R.string.log_sleep_started)
             LogMessageKeys.SLEEP_RESUMED -> localized.getString(R.string.log_sleep_resumed)
             LogMessageKeys.REPELLER_USED -> localized.getString(R.string.log_repeller_used)
-            LogMessageKeys.WELCOME_MESSAGE -> localized.getString(R.string.log_welcome_message)
+            LogMessageKeys.WELCOME_MESSAGE -> localized.getString(
+                R.string.log_welcome_message,
+                quickStartUrl(context)
+            )
             else -> null
         }
     }
@@ -144,6 +147,12 @@ object LogMessageCodec {
     private fun getLocale(context: Context): Locale {
         val tag = LanguageManager.getCurrentLanguageTag(context)
         return Locale.forLanguageTag(tag)
+    }
+
+    private fun quickStartUrl(context: Context): String {
+        val tag = LanguageManager.getCurrentLanguageTag(context)
+        val lang = if (LanguageManager.supportedLanguages.contains(tag)) tag else "en"
+        return "https://mindwarriorgame.org/quick-start.$lang.html#android"
     }
 
     private fun getLocalizedContext(context: Context): Context {

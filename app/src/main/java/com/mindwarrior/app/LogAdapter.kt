@@ -1,7 +1,9 @@
 package com.mindwarrior.app
 
+import android.text.method.LinkMovementMethod
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.text.HtmlCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -28,7 +30,18 @@ class LogAdapter : ListAdapter<LogItem, LogAdapter.LogViewHolder>(DiffCallback()
         RecyclerView.ViewHolder(binding.root) {
         fun bind(item: LogItem) {
             binding.logTime.text = item.timeLabel
-            binding.logMessage.text = item.message
+            if (item.message.contains("<a ", ignoreCase = true)) {
+                binding.logMessage.text = HtmlCompat.fromHtml(
+                    item.message,
+                    HtmlCompat.FROM_HTML_MODE_LEGACY
+                )
+                binding.logMessage.movementMethod = LinkMovementMethod.getInstance()
+                binding.logMessage.linksClickable = true
+            } else {
+                binding.logMessage.text = item.message
+                binding.logMessage.movementMethod = null
+                binding.logMessage.linksClickable = false
+            }
         }
     }
 

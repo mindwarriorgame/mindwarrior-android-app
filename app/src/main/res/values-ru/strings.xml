@@ -20,7 +20,7 @@
     <string name="log_sleep_started">💤 Пора спать. Игра автоматически поставлена на паузу ⏸️</string>
     <string name="log_sleep_resumed">☀️ Доброе утро! Игра продолжена ▶️</string>
     <string name="log_repeller_used">🧄 Активирован отпугиватель злого кота.</string>
-    <string name="log_welcome_message">👋 Добро пожаловать в игру MindWarrior! 🥷 Нажмите 🧪, чтобы ввести свою Формулу твёрдой решимости и начать играть!</string>
+    <string name="log_welcome_message"><![CDATA[👋 Добро пожаловать в игру MindWarrior! 🥷 Нажмите 🧪, чтобы ввести свою Формулу твёрдой решимости и начать играть! <a href="%1$s">Как играть?</a>]]></string>
 
     <string name="notification_channel_review_timer">Таймер игры</string>
     <string name="notification_channel_review_timer_sticky">Таймер игры (закреплённый)</string>

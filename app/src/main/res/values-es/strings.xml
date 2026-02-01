@@ -18,7 +18,7 @@
     <string name="log_sleep_started">💤 Hora de dormir. El juego se pausa automáticamente ⏸️</string>
     <string name="log_sleep_resumed">☀️ ¡Buenos días! El juego se reanuda ▶️</string>
     <string name="log_repeller_used">🧄 Repelente del gato gruñón activado.</string>
-    <string name="log_welcome_message">👋 ¡Bienvenido al juego MindWarrior! 🥷 Toca 🧪 para introducir tu Fórmula de Firme Determinación y empezar a jugar.</string>
+    <string name="log_welcome_message"><![CDATA[👋 ¡Bienvenido al juego MindWarrior! 🥷 Toca 🧪 para introducir tu Fórmula de Firme Determinación y empezar a jugar. <a href="%1$s">¿Cómo jugar?</a>]]></string>
     <string name="notification_channel_review_timer">Temporizador del juego</string>
     <string name="notification_channel_review_timer_sticky">Temporizador del juego (fijo)</string>
     <string name="progress_graph_minutes_between_reviews">Minutos entre revisiones</string>
